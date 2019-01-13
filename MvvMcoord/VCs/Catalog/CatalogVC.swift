@@ -138,7 +138,7 @@ extension CatalogVC: UICollectionViewDelegate, UICollectionViewDelegateFlowLayou
     
     override func didMove(toParent parent: UIViewController?) {
         if parent == nil {
-            viewModel.inBackEvent.onCompleted()
+            viewModel.backEvent.onCompleted()
         }
     }
     

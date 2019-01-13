@@ -37,6 +37,8 @@ class FilterVC: UIViewController {
                 return filters ?? []
             }
             .bind(to: self.tableView.rx.items) { [weak self] tableView, index, model in
+                
+                
                 let indexPath = IndexPath(item: index, section: 0)
                 switch model.filterEnum {
                 case .range:
@@ -62,28 +64,28 @@ class FilterVC: UIViewController {
     }
     
     
- 
-    
-    
-    
     func bindingRowSelected(){
+        
         tableView.rx.itemSelected
             .subscribe(onNext: {[weak self] indexPath  in
+                let cell = self!.tableView.cellForRow(at: indexPath)
                 
-                if let cell = self!.tableView.cellForRow(at: indexPath) as? FilterCellSelect {
-                    self!.tableView.deselectRow(at: indexPath, animated: true)
-                    self!.viewModel.inSelectFilter.onNext(indexPath.row)
+                switch cell {
+                    case is FilterCellSelect:
+                        self!.tableView.deselectRow(at: indexPath, animated: true)
+                        self!.viewModel.inSelectFilter.onNext(indexPath.row)
                     
-                }
-                if let cell = self!.tableView.cellForRow(at: indexPath) as? FilterCell {
-                        cell.state = .expanded
-                        self!.addExpandedIndexPath(indexPath)
-                }
+                    case is FilterCell:
+                        if let `cell` = cell as? FilterCell {
+                            cell.state = .expanded
+                            self!.addExpandedIndexPath(indexPath)
+                        }
+                    case is FilterCellSection:
+                        self!.viewModel.inSelectFilter.onNext(indexPath.row)
                 
-                if let cell = self!.tableView.cellForRow(at: indexPath) as? FilterCellSection {
-                     self!.viewModel.inSelectFilter.onNext(indexPath.row)
+                    default:
+                        print("bindingRowSelected err")
                 }
-                
                 self!.tableView.beginUpdates()
                 self!.tableView.endUpdates()
             })
@@ -93,20 +95,25 @@ class FilterVC: UIViewController {
         
         tableView.rx.itemDeselected
             .subscribe(onNext: {[weak self] indexPath  in
-                if let cell = self!.tableView.cellForRow(at: indexPath) as? FilterCellSelect {
-                    
-                } else {
-                    if let cell = self!.tableView.cellForRow(at: indexPath) as? FilterCell {
+                let cell = self!.tableView.cellForRow(at: indexPath)
+                switch cell {
+                case is FilterCellSelect:
+                    print("bindingRowSelected must implement")
+                case is FilterCell:
+                    if let `cell` = cell as? FilterCell {
                         cell.state = .collapsed
                         self!.removeExpandedIndexPath(indexPath)
                     }
+                default:
+                   print("bindingRowSelected err")
                 }
                 self!.tableView.beginUpdates()
                 self!.tableView.endUpdates()
             })
             .disposed(by: bag)
-        
     }
+    
+    
     
     func cellIsExpanded(at indexPath: IndexPath) -> Bool {
         return indexPaths.contains(indexPath)
@@ -144,7 +151,7 @@ class FilterVC: UIViewController {
 extension FilterVC: UITableViewDelegate {
     override func didMove(toParent parent: UIViewController?) {
         if parent == nil {
-            viewModel.inBackEvent.onCompleted()
+            viewModel.backEvent.onCompleted()
         }
     }
 }

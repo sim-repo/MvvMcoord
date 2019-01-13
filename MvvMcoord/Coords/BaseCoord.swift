@@ -7,7 +7,7 @@ class BaseCoord<ResultType> {
     private let id = UUID()
     var viewModel: BaseVM! {
         didSet{
-            back = viewModel.outBackEvent
+            back = viewModel.backEvent
         }
     }
     var back = PublishSubject<Void>()
@@ -41,3 +41,6 @@ class BaseCoord<ResultType> {
         fatalError("start method should be implemented")
     }
 }
+
+
+

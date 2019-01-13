@@ -34,7 +34,7 @@ class SubFilterSectionVC: UIViewController {
         }
         
         
-        viewModel.outSubFiltersSection
+        viewModel.outModelSections
             .asObservable()
             .map{ filters in
                 return filters ?? []
@@ -49,7 +49,7 @@ class SubFilterSectionVC: UIViewController {
 extension SubFilterSectionVC: UITableViewDelegate {
     override func didMove(toParent parent: UIViewController?) {
         if parent == nil {
-            viewModel.inBackEvent.onCompleted()
+            viewModel.backEvent.onCompleted()
         }
     }
 }

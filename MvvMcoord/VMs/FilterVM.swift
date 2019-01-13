@@ -13,6 +13,14 @@ class FilterVM : BaseVM {
     var outShowSubFilters = PublishSubject<Int>()
     
     
+    // MARK: - Others
+    var currSubFilters = [Int]()
+    
+    
+    // MARK: - Input from FilterCoord
+    var tmpSelectedSubFilter = [Int]()
+    
+    
     init(categoryId: Int = 0){
         super.init()
         //network request
@@ -31,5 +39,6 @@ class FilterVM : BaseVM {
                 }
             )
             .disposed(by: bag)
+
     }
 }

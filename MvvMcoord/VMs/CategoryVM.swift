@@ -8,7 +8,7 @@ class CategoryVM : BaseVM {
     
     
     // MARK: - Outputs to ViewController or Coord
-    var outCategories = Variable<[CategoryModel]?>(nil)
+    var outCategories = BehaviorRelay<[CategoryModel]?>(value:nil)
     
     var outShowSubcategory = PublishSubject<Int>()
     
@@ -19,10 +19,12 @@ class CategoryVM : BaseVM {
     init(parentBaseId: Int){
         super.init()
         //network request
-        let models = CategoryModel.getModelsA(baseId: parentBaseId)
+        let models = CategoryModel.getModelsA(baseId: parentBaseId).share()
 
         models
-        .bind(to: outCategories)
+        .bind(onNext: {[weak self] data in
+            self!.outCategories.accept(data)
+        })
         .disposed(by: bag)
         
         CategoryModel.getTitle(baseId: parentBaseId)

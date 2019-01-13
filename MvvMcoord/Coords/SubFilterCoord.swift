@@ -28,18 +28,19 @@ class SubFilterCoord : BaseCoord<Void>{
                 case .section:
                     let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "SubFilterSectionVC") as! SubFilterSectionVC
                     vc.viewModel = vm
-                    self!.viewController = vc
+                    self?.viewController = vc
                 case .select:
                     let vc =  UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "SubFilterSelectVC") as! SubFilterSelectVC
                     vc.viewModel = vm
-                    self!.viewController = vc
+                    self?.viewController = vc
                 default:
                     let vc =  UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "SubFilterSelectVC") as! SubFilterSelectVC
                     vc.viewModel = vm
-                    self!.viewController = vc
+                    self?.viewController = vc
                 }
             })
         .disposed(by: disposeBag)
+
         
         if rootViewController != nil {
             rootViewController?.navigationController?.pushViewController(viewController, animated: true)
@@ -47,5 +48,6 @@ class SubFilterCoord : BaseCoord<Void>{
         
         return Observable
             .merge(back)
+
     }
 }
