@@ -36,17 +36,24 @@ class CatalogVM : BaseVM {
         super.init()
         
         //network request
-        let catalog = CatalogModel.nerworkRequest(baseId: categoryId)
-        
-        
-        catalog
-            .bind(to: outCatalog)
-            .disposed(by: bag)
+        bindData()
+        bindUserActivities()
         
         CatalogModel.localTitle(categoryId: categoryId)
             .bind(to: outTitle)
             .disposed(by: bag)
+    }
+    
+    //network or local request
+    public func bindData(){
+        let catalog = CatalogModel.nerworkRequest(baseId: categoryId)
         
+        catalog
+            .bind(to: outCatalog)
+            .disposed(by: bag)
+    }
+    
+    private func bindUserActivities(){
         inPressLayout
             .asObservable()
             .flatMap{[weak self]  _ -> Observable<CellLayout> in
@@ -62,10 +69,7 @@ class CatalogVM : BaseVM {
             }
             .bind(to: outShowFilters)
             .disposed(by: bag)
-        
     }
-    
-    
     
     // MARK: - Logic
     private func changeLayout()->Observable<CellLayout>{
@@ -73,7 +77,7 @@ class CatalogVM : BaseVM {
         switch currCellLayout {
         case .list:
             currCellLayout = .square
-            return Observable.of(CellLayout(cellLayoutType: .square, cellScale: CGSize(width: 1, height: 0.95), cellSpace: 0, lineSpace: 8, layoutImageName: "square"))
+            return Observable.of(CellLayout(cellLayoutType: .square, cellScale: CGSize(width: 0.95, height: 0.95), cellSpace: 0, lineSpace: 8, layoutImageName: "square"))
         case .square:
             currCellLayout = .squares
             return Observable.of(CellLayout(cellLayoutType: .squares, cellScale: CGSize(width: 0.5, height: 0.5), cellSpace: 2, lineSpace: 2, layoutImageName: "squares"))

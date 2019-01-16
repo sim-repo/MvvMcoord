@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ApplyButton" customModule="MvvMcoord" customModuleProvider="target">
+            <connections>
+                <outlet property="applyButton" destination="4UD-qh-Upw" id="nPO-YP-G0U"/>
+                <outlet property="cleanUpButton" destination="uh2-EP-EWI" id="i8o-TA-8WW"/>
+                <outlet property="contentView" destination="zZr-gt-veM" id="vDg-Jg-KYd"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="zZr-gt-veM">
+            <rect key="frame" x="0.0" y="0.0" width="517" height="185"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Gf2-Jj-qc5">
+                    <rect key="frame" x="0.0" y="0.0" width="517" height="185"/>
+                    <subviews>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uh2-EP-EWI">
+                            <rect key="frame" x="0.0" y="0.0" width="258.5" height="185"/>
+                            <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                            <inset key="contentEdgeInsets" minX="0.0" minY="8" maxX="0.0" maxY="8"/>
+                            <state key="normal" title="Очистить">
+                                <color key="titleColor" red="0.7975024288" green="0.35844165830000002" blue="0.74796124990000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                            </state>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4UD-qh-Upw">
+                            <rect key="frame" x="258.5" y="0.0" width="258.5" height="185"/>
+                            <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                            <inset key="contentEdgeInsets" minX="0.0" minY="8" maxX="0.0" maxY="8"/>
+                            <state key="normal" title="Применить">
+                                <color key="titleColor" red="0.7975024288" green="0.35844165830000002" blue="0.74796124990000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                            </state>
+                        </button>
+                    </subviews>
+                    <constraints>
+                        <constraint firstItem="uh2-EP-EWI" firstAttribute="width" secondItem="Gf2-Jj-qc5" secondAttribute="width" multiplier="0.5" id="uHx-MN-c4z"/>
+                    </constraints>
+                </stackView>
+            </subviews>
+            <color key="backgroundColor" red="0.93725490570000003" green="0.93725490570000003" blue="0.95686274770000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="Gf2-Jj-qc5" firstAttribute="top" secondItem="zZr-gt-veM" secondAttribute="top" id="2q1-7L-Ep6"/>
+                <constraint firstAttribute="trailing" secondItem="Gf2-Jj-qc5" secondAttribute="trailing" id="bho-4Y-P1i"/>
+                <constraint firstAttribute="bottom" secondItem="Gf2-Jj-qc5" secondAttribute="bottom" id="dja-fC-Opb"/>
+                <constraint firstItem="Gf2-Jj-qc5" firstAttribute="leading" secondItem="zZr-gt-veM" secondAttribute="leading" id="fdf-2X-fcV"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="32.799999999999997" y="-120.08995502248877"/>
+        </view>
+    </objects>
+</document>

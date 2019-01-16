@@ -18,7 +18,7 @@ enum CellState {
 
 class FilterCell : UITableViewCell{
     
-
+    var id: Int!
 
     @IBOutlet weak var containerView: UIView!
     @IBOutlet weak var collapseImageView: UIImageView!
@@ -38,6 +38,7 @@ class FilterCell : UITableViewCell{
     }
     
     func configCell(model: FilterModel){
+        id = model.id
         filterLabel.text = model.title
     }
 

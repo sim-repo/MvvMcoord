@@ -5,20 +5,23 @@ import RxDataSources
 
 class FilterVC: UIViewController {
 
-    @IBOutlet weak var containerView: UIView!
-    var viewModel: FilterVM!
-    var bag = DisposeBag()
     @IBOutlet weak var tableView: UITableView!
-    fileprivate var indexPaths: Set<IndexPath> = []
+    @IBOutlet weak var applyView: ApplyButton!
+    
+    public var viewModel: FilterVM!
+    private var bag = DisposeBag()
+    private var indexPaths: Set<IndexPath> = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
         registerTableView()
-        bindingCell()
+        bindCell()
+        bindApply()
+        bindSelection()
         setupNavigation()
-        tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 44
-        tableView.contentInset = UIEdgeInsets(top: 20.0, left: 0.0, bottom: 0.0, right: 0.0)
+       // tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 0
+        //tableView.contentInset = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 0.0, right: 0.0)
     }
     
     deinit {
@@ -30,50 +33,56 @@ class FilterVC: UIViewController {
             .disposed(by: bag)
     }
     
-    private func bindingCell(){
+    private func bindCell(){
         viewModel.outFilters
             .asObservable()
-            .map{ filters in
-                return filters ?? []
-            }
             .bind(to: self.tableView.rx.items) { [weak self] tableView, index, model in
                 
                 
-                let indexPath = IndexPath(item: index, section: 0)
-                switch model.filterEnum {
-                case .range:
-                    guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCell", for: indexPath) as? FilterCell else { return (UITableViewCell()) }
-                    cell.configCell(model: model)
-                    cell.state = self!.cellIsExpanded(at: indexPath) ? .expanded : .collapsed
-                    return cell
-                case .select:
-                    guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCellSelect", for: indexPath) as? FilterCellSelect else { return (UITableViewCell()) }
-                    cell.configCell(model: model)
-                    return cell
-                case .section:
-                    guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCellSection", for: indexPath) as? FilterCellSection else { return (UITableViewCell()) }
-                    cell.configCell(model: model)
-                    return cell
+                if let `self` = self,
+                   let `model` = model {
+                    let appliedTitles = self.viewModel.appliedTitles(filterId: model.id)
+                    let indexPath = IndexPath(item: index, section: 0)
+                    switch model.filterEnum {
+                    case .range:
+                        guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCell", for: indexPath) as? FilterCell else { return UITableViewCell() }
+                        cell.configCell(model: model)
+                        cell.state = self.cellIsExpanded(at: indexPath) ? .expanded : .collapsed
+                        return cell
+                    case .select:
+                        guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCellSelect", for: indexPath) as? FilterCellSelect else { return UITableViewCell() }
+                        cell.configCell(model: model, appliedTitles: appliedTitles)
+                        return cell
+                    case .section:
+                        guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCellSection", for: indexPath) as? FilterCellSection else { return UITableViewCell() }
+                        cell.configCell(model: model)
+                        return cell
+                    }
+                } else {
+                    return UITableViewCell()
                 }
             }.disposed(by: bag)
-        
-        
-        bindingRowSelected()
        
         self.tableView.reloadData()
     }
     
     
-    func bindingRowSelected(){
+    private func bindSelection(){
         
-        tableView.rx.itemSelected
+        let selected = tableView.rx.itemSelected
+        let deselected = tableView.rx.itemDeselected
+        
+        selected
             .subscribe(onNext: {[weak self] indexPath  in
                 let cell = self!.tableView.cellForRow(at: indexPath)
                 
                 switch cell {
                     case is FilterCellSelect:
+                        
                         self!.tableView.deselectRow(at: indexPath, animated: true)
-                        self!.viewModel.inSelectFilter.onNext(indexPath.row)
+                        let id = (cell as! FilterCellSelect).id!
+                        self!.viewModel.inSelectFilter.onNext(id)
+                    
                     
                     case is FilterCell:
                         if let `cell` = cell as? FilterCell {
@@ -81,7 +90,8 @@ class FilterVC: UIViewController {
                             self!.addExpandedIndexPath(indexPath)
                         }
                     case is FilterCellSection:
-                        self!.viewModel.inSelectFilter.onNext(indexPath.row)
+                        let id = (cell as! FilterCellSection).id!
+                        self!.viewModel.inSelectFilter.onNext(id)
                 
                     default:
                         print("bindingRowSelected err")
@@ -93,7 +103,7 @@ class FilterVC: UIViewController {
         
         
         
-        tableView.rx.itemDeselected
+        deselected
             .subscribe(onNext: {[weak self] indexPath  in
                 let cell = self!.tableView.cellForRow(at: indexPath)
                 switch cell {
@@ -115,13 +125,40 @@ class FilterVC: UIViewController {
     
     
     
+    private func bindApply(){
+        
+        applyView.applyButton.rx.tap
+            .take(1)
+            .subscribe{[weak self] _ in
+                self?.viewModel.inApply.onNext(.reloadData)
+                self?.viewModel.inApply.onCompleted()
+            }
+            .disposed(by: bag)
+        
+        applyView.cleanUpButton.rx.tap
+            .subscribe{[weak self] _ in
+                self?.viewModel.inCleanUp.onCompleted()
+            }
+            .disposed(by: bag)
+        
+        viewModel.outDidUpdateParentVC
+            .take(1)
+            .subscribe{[weak self] _ in
+                self?.navigationController?.popViewController(animated: true)
+            }
+            .disposed(by: bag)
+    }
+    
+    
     func cellIsExpanded(at indexPath: IndexPath) -> Bool {
         return indexPaths.contains(indexPath)
     }
     
+    
     func addExpandedIndexPath(_ indexPath: IndexPath) {
         indexPaths.insert(indexPath)
     }
+    
     
     func removeExpandedIndexPath(_ indexPath: IndexPath) {
         indexPaths.remove(indexPath)
@@ -151,7 +188,7 @@ class FilterVC: UIViewController {
 extension FilterVC: UITableViewDelegate {
     override func didMove(toParent parent: UIViewController?) {
         if parent == nil {
-            viewModel.backEvent.onCompleted()
+            viewModel.backEvent.onNext(.back)
         }
     }
 }

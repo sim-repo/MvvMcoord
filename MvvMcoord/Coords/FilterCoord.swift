@@ -1,7 +1,7 @@
 import UIKit
 import RxSwift
 
-class FilterCoord : BaseCoord<Void>{
+class FilterCoord : BaseCoord<CoordRetEnum>{
     
     private var rootViewController: UIViewController?
     private var viewController: FilterVC!
@@ -12,9 +12,15 @@ class FilterCoord : BaseCoord<Void>{
         self.rootViewController = rootViewController
         self.categoryId = categoryId
     }
+
+    private func reload(){
+        print("reload filter")
+        guard let vm = viewModel as? FilterVM
+            else { fatalError("view model") }
+        vm.bindData()
+    }
     
-    
-    override func start() -> Observable<Void> {
+    override func start() -> Observable<CoordRetEnum> {
         viewModel = FilterVM(categoryId: categoryId)
         viewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "FilterVC") as? FilterVC
         
@@ -25,25 +31,32 @@ class FilterCoord : BaseCoord<Void>{
         
         
         vm.outShowSubFilters
-            .flatMap{[weak self] filterId -> Observable<Void> in
-                guard let `self` = self else { return .empty() }
-                return self.showSubFilters(on: self.viewController, filterId: filterId)
-            }
+            .asObserver()
+            .do(onNext: {[weak self] filterId in
+                if let `self` = self {
+                    self.showSubFilters(on: self.viewController, filterId: filterId).asObservable()
+                        .subscribe(onNext: {event in
+                            switch event {
+                            case .reloadData: self.reload()
+                            case .back: print("back")
+                            }
+                        })
+                        .disposed(by: self.disposeBag)
+                }
+            })
             .subscribe()
-            .disposed(by: self.disposeBag)
-        
-        
+            .disposed(by: disposeBag)
+    
         
         if rootViewController != nil {
             rootViewController?.navigationController?.pushViewController(viewController, animated: true)
         }
         
-        return Observable
-            .merge(back)
+        return Observable.amb([vm.backEvent, vm.inApply])
     }
     
     
-    private func showSubFilters(on rootViewController: UIViewController, filterId: Int) -> Observable<Void> {
+    private func showSubFilters(on rootViewController: UIViewController, filterId: Int) -> Observable<CoordRetEnum> {
         let nextCoord = SubFilterCoord(rootViewController: rootViewController, filterId: filterId)
         return coordinate(coord: nextCoord)
     }

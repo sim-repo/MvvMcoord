@@ -23,7 +23,7 @@ class SubFilterSectionVC: UIViewController {
     
     private func bindingCell(){
         let dataSource = RxTableViewSectionedReloadDataSource<SectionOfSubFilterModel>(
-            configureCell: { [weak self] dataSource, tableView, indexPath, model in
+            configureCell: { dataSource, tableView, indexPath, model in
                 guard let cell = tableView.dequeueReusableCell(withIdentifier: "SubFilterSectionCell", for: indexPath) as? SubFilterSectionCell else { return (UITableViewCell()) }
                 cell.configCell(model: model)
                 return cell

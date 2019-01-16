@@ -5,32 +5,42 @@ import RxCocoa
 
 class FilterVM : BaseVM {
     
-    // MARK: - Inputs from ViewController
+    // MARK: - during user activies. Input from ViewController
     var inSelectFilter = PublishSubject<Int>()
+    var inApply = PublishSubject<CoordRetEnum>()
+    var inCleanUp = PublishSubject<Void>()
     
     // MARK: - Outputs to ViewController or Coord
-    var outFilters = Variable<[FilterModel]?>(nil)
+    var outFilters = Variable<[FilterModel?]>([])
     var outShowSubFilters = PublishSubject<Int>()
+    var outDidUpdateParentVC = PublishSubject<Void>()
     
     
-    // MARK: - Others
-    var currSubFilters = [Int]()
-    
-    
-    // MARK: - Input from FilterCoord
-    var tmpSelectedSubFilter = [Int]()
-    
+    var categoryId : Int
     
     init(categoryId: Int = 0){
+        self.categoryId = categoryId
         super.init()
-        //network request
-        let filters = FilterModel.nerworkRequest(categoryId: categoryId)
+        
+        bindData()
+        bindSelection()
+        bindUserActivities()
+    }
+    
+    //network or local request
+    public func bindData(){
+        let filters = FilterModel.localRequest(categoryId: categoryId)
         
         filters
-        .bind(to: outFilters)
-        .disposed(by: bag)
-        
-        
+            .bind(to: outFilters)
+            .disposed(by: bag)
+    }
+    
+    public func appliedTitles(filterId: Int)->String {
+        return FilterModel.localAppliedTitles(filterId: filterId)
+    }
+    
+    private func bindSelection(){
         inSelectFilter
             .subscribe(
                 onNext: {[weak self] filterId in
@@ -39,6 +49,23 @@ class FilterVM : BaseVM {
                 }
             )
             .disposed(by: bag)
-
+    }
+    
+    private func bindUserActivities(){
+        
+        inApply
+            .subscribe(onNext: {[weak self] _ in
+                if let `self` = self {
+                    FilterModel.applyFilters()
+                    self.outDidUpdateParentVC.onCompleted()
+                }
+            })
+            .disposed(by: bag)
+        
+        inCleanUp
+            .subscribe(onCompleted: {
+                print("clean up")
+            })
+            .disposed(by: bag)
     }
 }

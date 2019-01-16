@@ -63,7 +63,7 @@ class CategoryVC: UITableViewController {
     
     override func didMove(toParent parent: UIViewController?) {
         if parent == nil {
-            viewModel.backEvent.onCompleted()
+            viewModel.backEvent.onNext(.back)
         }
     }
 }

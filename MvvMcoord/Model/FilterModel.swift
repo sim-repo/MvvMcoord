@@ -4,7 +4,7 @@ import RxDataSources
 
 
 var filtersByCategory: [Int:[FilterModel]] = [:]
-var subfiltersByFilter: [Int:[SubfilterModel]] = [:]
+var subfiltersByFilter: [Int:[Int]] = [:]
 var subfiltersByFilter2: [Int:[SectionOfSubFilterModel]] = [:] //sections
 var filters: [Int:FilterModel] = [:]
 
@@ -13,6 +13,11 @@ var filters: [Int:FilterModel] = [:]
 var subfiltersByModel: [Int: [Int]] = [:]
 var modelsBySubfilter: [Int: [Int]] = [:]
 var subFilters: [Int:SubfilterModel] = [:]
+
+
+var appliedSubFilters: Set<Int> = Set()
+var selectedSubFilters: Set<Int> = Set()
+var applyingByFilter: [Int:[Int]] = [:]
 
 
 
@@ -25,6 +30,7 @@ class FilterModel {
     var title: String
     var categoryId = 0
     var filterEnum: FilterEnum = .select
+    var enabled = true
     
     init(id: Int, title: String, categoryId: Int, filterEnum: FilterEnum = .select){
         self.id = id
@@ -77,6 +83,69 @@ class FilterModel {
         return Observable.just(filtersByCategory[categoryId])
     }
     
+    static func localRequest(categoryId: Int) -> Observable<[FilterModel?]> {
+        var res = [FilterModel?]()
+        
+        let filters = filtersByCategory[categoryId]
+        filters?.forEach{ filter in
+            if filter.enabled {
+                res.append(filter)
+            }
+        }
+        return Observable.just(res)
+    }
+    
+    
+    static func localAppliedTitles(filterId: Int) -> String {
+        var res = ""
+        appliedSubFilters.forEach{ id in
+            if let subf = subFilters[id],
+                subf.filterId == filterId {
+                res.append(subf.title + ",")
+            }
+        }
+        if res.count > 0 {
+            res.removeLast()
+        }
+        return res
+    }
+    
+    static func enableFilters(filterId: Int){
+        filters[filterId]?.enabled = true
+    }
+    
+    static func enableAllFilters(enable: Bool){
+        for (_, val) in filters {
+            val.enabled = enable
+        }
+    }
+    
+    static func applyFilters(){
+        let selected = selectedSubFilters
+        let applied = SubfilterModel.getApplied()
+        let applying = selected.union(applied)
+        if applying.count > 0 {
+            
+            SubfilterModel.groupApplying(applying: applying)
+            
+            let items = SubfilterModel.getItems()
+            
+            let rem = SubfilterModel.getSubFilters(by: items)
+            
+            FilterModel.enableAllFilters(enable: false)
+            SubfilterModel.enableAllSubFilters( enable: false)
+            
+            rem.forEach{ id in
+                if let subFilter = subFilters[id] {
+                    subFilter.enabled = true
+                    FilterModel.enableFilters(filterId: subFilter.filterId)
+                    SubfilterModel.enableSubFilters(subFilterId: id)
+                }
+            }
+            selectedSubFilters = Set(applying)
+            appliedSubFilters = Set(applying)
+        }
+    }
 }
 
 
@@ -85,7 +154,7 @@ class SubfilterModel {
     var filterId = 0
     var id = 0
     var title: String
-    var selected = false
+    var enabled = true
     
     init(id: Int, filterId: Int, title: String) {
         self.filterId = filterId
@@ -95,6 +164,20 @@ class SubfilterModel {
         
         
         subFilters[self.id] = self
+    }
+    
+
+    static func subfByModel(item: Int, subfilters: [Int]){
+        subfiltersByModel[item] = subfilters
+        subfilters.forEach{ id in
+            if modelsBySubfilter[id] == nil {
+                modelsBySubfilter[id] = []
+                modelsBySubfilter[id]?.append(item)
+            } else {
+                modelsBySubfilter[id]?.append(item)
+            }
+            
+        }
     }
     
     static func fillModels(){
@@ -122,6 +205,7 @@ class SubfilterModel {
         let f29 = SubfilterModel(id:20, filterId: 1, title: "C.H.I.C")
         let f30 = SubfilterModel(id:21, filterId: 1, title: "Calista")
         let f31 = SubfilterModel(id:22, filterId: 1, title: "Calvin Klein")
+        
         let f32 = SubfilterModel(id:23, filterId: 1, title: "Camelia")
         let f33 = SubfilterModel(id:24, filterId: 1, title: "Camelot")
         let f34 = SubfilterModel(id:25, filterId: 1, title: "Can Nong")
@@ -135,118 +219,226 @@ class SubfilterModel {
         
         subfiltersByFilter2[1] = [sectionA, sectionB, sectionC]
 
-        
-        
-        
-        
+       
         
         
         // Size
-        let f37 = SubfilterModel(id:28, filterId: 2, title: "34")
-        let f38 = SubfilterModel(id:29, filterId: 2, title: "36")
-        let f39 = SubfilterModel(id:30, filterId: 2, title: "37")
-        let f40 = SubfilterModel(id:31, filterId: 2, title: "38")
-        let f41 = SubfilterModel(id:32, filterId: 2, title: "39")
-        let f42 = SubfilterModel(id:33, filterId: 2, title: "40")
-        let f43 = SubfilterModel(id:34, filterId: 2, title: "41")
-        let f44 = SubfilterModel(id:35, filterId: 2, title: "42")
-        let f45 = SubfilterModel(id:37, filterId: 2, title: "43")
-        let f46 = SubfilterModel(id:38, filterId: 2, title: "44")
-        let f47 = SubfilterModel(id:39, filterId: 2, title: "45")
-        let f48 = SubfilterModel(id:40, filterId: 2, title: "46")
-        let f49 = SubfilterModel(id:41, filterId: 2, title: "47")
-        let f50 = SubfilterModel(id:42, filterId: 2, title: "48")
+        let size34 = SubfilterModel(id:28, filterId: 2, title: "34")
+        let size36 = SubfilterModel(id:29, filterId: 2, title: "36")
+        let size37 = SubfilterModel(id:30, filterId: 2, title: "37")
+        let size38 = SubfilterModel(id:31, filterId: 2, title: "38")
+        let size39 = SubfilterModel(id:32, filterId: 2, title: "39")
+        let size40 = SubfilterModel(id:33, filterId: 2, title: "40")
+        let size41 = SubfilterModel(id:34, filterId: 2, title: "41")
+        let size42 = SubfilterModel(id:35, filterId: 2, title: "42")
+        let size43 = SubfilterModel(id:37, filterId: 2, title: "43")
+        let size44 = SubfilterModel(id:38, filterId: 2, title: "44")
+        let size45 = SubfilterModel(id:39, filterId: 2, title: "45")
+        let size46 = SubfilterModel(id:40, filterId: 2, title: "46")
+        let size47 = SubfilterModel(id:41, filterId: 2, title: "47")
+        let size48 = SubfilterModel(id:42, filterId: 2, title: "48")
         
-        let tmpModels2 = [f37, f38, f39, f40, f41, f42, f43, f44, f45, f46, f47, f48, f49, f50]
+        let tmpModels2 = [28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41]
         subfiltersByFilter[2] = tmpModels2
         
       
         
         
         // Season
-        let f51 = SubfilterModel(id:43, filterId: 3, title: "демисезон")
-        let f52 = SubfilterModel(id:44, filterId: 3, title: "зима")
-        let f53 = SubfilterModel(id:45, filterId: 3, title: "круглогодичный")
-        let f54 = SubfilterModel(id:46, filterId: 3, title: "лето")
+        let демисезон = SubfilterModel(id:43, filterId: 3, title: "демисезон")
+        let зима = SubfilterModel(id:44, filterId: 3, title: "зима")
+        let круглогодичный = SubfilterModel(id:45, filterId: 3, title: "круглогодичный")
+        let лето = SubfilterModel(id:46, filterId: 3, title: "лето")
         
         
-        let tmpModels3 = [f51, f52, f53, f54]
+        let tmpModels3 = [43, 44, 45, 46]
         subfiltersByFilter[3] = tmpModels3
 
         
         
         // Materials
-        let f55 = SubfilterModel(id:47, filterId: 4, title: "ангора")
-        let f56 = SubfilterModel(id:48, filterId: 4, title: "вискоза")
-        let f57 = SubfilterModel(id:49, filterId: 4, title: "полиамид")
-        let f58 = SubfilterModel(id:50, filterId: 4, title: "полиуретан")
-        let f59 = SubfilterModel(id:51, filterId: 4, title: "полиэстер")
-        let f60 = SubfilterModel(id:52, filterId: 4, title: "хлопок")
-        let f61 = SubfilterModel(id:53, filterId: 4, title: "шелк")
-        let f62 = SubfilterModel(id:54, filterId: 4, title: "шерсть")
-        let f63 = SubfilterModel(id:55, filterId: 4, title: "эластан")
+        let ангора = SubfilterModel(id:47, filterId: 4, title: "ангора")
+        let вискоза = SubfilterModel(id:48, filterId: 4, title: "вискоза")
+        let полиамид = SubfilterModel(id:49, filterId: 4, title: "полиамид")
+        let полиуретан = SubfilterModel(id:50, filterId: 4, title: "полиуретан")
+        let полиэстер = SubfilterModel(id:51, filterId: 4, title: "полиэстер")
+        let хлопок = SubfilterModel(id:52, filterId: 4, title: "хлопок")
+        let шелк = SubfilterModel(id:53, filterId: 4, title: "шелк")
+        let шерсть = SubfilterModel(id:54, filterId: 4, title: "шерсть")
+        let эластан = SubfilterModel(id:55, filterId: 4, title: "эластан")
         
-        let tmpModels4 = [f55, f56, f57, f58, f59, f60, f61, f62, f63]
+        let tmpModels4 = [47, 48, 49, 50, 51, 52, 53, 54, 55]
         subfiltersByFilter[4] = tmpModels4
         
         
         
         // Delivery
-        let f64 = SubfilterModel(id:56, filterId: 5, title: "1 день")
-        let f65 = SubfilterModel(id:57, filterId: 5, title: "3 дня")
-        let f66 = SubfilterModel(id:58, filterId: 5, title: "4 дня")
-        let f67 = SubfilterModel(id:59, filterId: 5, title: "5 дней")
+        let день1 = SubfilterModel(id:56, filterId: 5, title: "1 день")
+        let дня3 = SubfilterModel(id:57, filterId: 5, title: "3 дня")
+        let дня4 = SubfilterModel(id:58, filterId: 5, title: "4 дня")
+        let дней5 = SubfilterModel(id:59, filterId: 5, title: "5 дней")
         
-        let tmpModels5 = [f64, f65, f66, f67]
+        let tmpModels5 = [56, 57, 58, 59]
         subfiltersByFilter[5] = tmpModels5
         
         
         
         // Color
-        let f68 = SubfilterModel(id:60, filterId: 6, title: "бежевый")
-        let f69 = SubfilterModel(id:61, filterId: 6, title: "белый")
-        let f70 = SubfilterModel(id:62, filterId: 6, title: "голубой")
-        let f71 = SubfilterModel(id:63, filterId: 6, title: "желтый")
-        let f72 = SubfilterModel(id:64, filterId: 6, title: "зеленый")
-        let f73 = SubfilterModel(id:65, filterId: 6, title: "коричневый")
-        let f74 = SubfilterModel(id:66, filterId: 6, title: "красный")
-        let f75 = SubfilterModel(id:67, filterId: 6, title: "оранжевый")
-        let f76 = SubfilterModel(id:68, filterId: 6, title: "розовый")
-        let f77 = SubfilterModel(id:69, filterId: 6, title: "серый")
-        let f78 = SubfilterModel(id:70, filterId: 6, title: "синий")
-        let f79 = SubfilterModel(id:71, filterId: 6, title: "фиолетовый")
-        let f80 = SubfilterModel(id:72, filterId: 6, title: "черный")
+        let бежевый = SubfilterModel(id:60, filterId: 6, title: "бежевый")
+        let белый = SubfilterModel(id:61, filterId: 6, title: "белый")
+        let голубой = SubfilterModel(id:62, filterId: 6, title: "голубой")
+        let желтый = SubfilterModel(id:63, filterId: 6, title: "желтый")
+        let зеленый = SubfilterModel(id:64, filterId: 6, title: "зеленый")
+        let коричневый = SubfilterModel(id:65, filterId: 6, title: "коричневый")
+        let красный = SubfilterModel(id:66, filterId: 6, title: "красный")
+        let оранжевый = SubfilterModel(id:67, filterId: 6, title: "оранжевый")
+        let розовый = SubfilterModel(id:68, filterId: 6, title: "розовый")
+        let серый = SubfilterModel(id:69, filterId: 6, title: "серый")
+        let синий = SubfilterModel(id:70, filterId: 6, title: "синий")
+        let фиолетовый = SubfilterModel(id:71, filterId: 6, title: "фиолетовый")
+        let черный = SubfilterModel(id:72, filterId: 6, title: "черный")
         
-        let tmpModels6 = [f68, f69, f70, f71, f72, f73, f74, f75, f76, f77, f78, f79, f80]
+        let tmpModels6 = [60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72]
         subfiltersByFilter[6] = tmpModels6
         
         
         
-        subfiltersByModel[1] = [f10.id, f37.id, f38.id, f39.id, f40.id, f41.id, f42.id, f43.id, f44.id, f45.id, f46.id, f47.id, f48.id, f49.id, f50.id,  f51.id, f52.id, f53.id, f54.id,
-        f55.id,f56.id,f57.id,f58.id,f59.id,f60.id,f61.id,f62.id, f63.id, f64.id,f65.id, f66.id, f67.id,
-        f68.id, f69.id, f70.id,f71.id,f72.id,f73.id,f74.id,f75.id,f76.id,f77.id,f78.id,f79.id,f80.id]
+        // Бренды - ABODIE, Adelante, Adele, ADZHERO, B&Co, Balasko, Barboleta, Basia, Calista
+        // Размеры - 34, 36, 38, 39, 40, 42, 43, 44, 46, 47, 48
+        // Сезон - круглогодичный
+        // Состав- полиамид шелк вискоза шерсть хлопок ангора
+        // Цвет - бежевый желтый оранжевый фиолетовый коричневый серый белый
+        // Доставка 4 дня 1день
         
-        subfiltersByModel[2] = [f10.id, f37.id, f38.id, f39.id, f40.id, f41.id, f42.id, f43.id, f44.id, f45.id, f46.id, f47.id, f48.id, f49.id, f50.id,  f51.id, f52.id, f53.id, f54.id,
-                                f55.id,f56.id,f57.id,f58.id,f59.id,f60.id,f61.id,f62.id, f63.id, f64.id,f65.id, f66.id, f67.id,
-                                f68.id, f69.id, f70.id,f71.id,f72.id,f73.id,f74.id,f75.id,f76.id,f77.id,f78.id,f79.id,f80.id]
+        // 3 7 11 17 21 25 29 33 37
+        // 2 4 5 8 11 14
+     
+
         
-        modelsBySubfilter[f10.id] = [1,2]
-        modelsBySubfilter[f37.id] = [1,2]
+        
+        subfByModel(item: 3, subfilters: [f11.id, size38.id, size39.id, size40.id, круглогодичный.id, полиамид.id, дня4.id,  желтый.id])
+        subfByModel(item: 7, subfilters: [f13.id, size42.id, size42.id, size44.id, круглогодичный.id, шелк.id, дня4.id,  оранжевый.id])
+        subfByModel(item: 11, subfilters: [f14.id, size46.id, size47.id, size48.id, круглогодичный.id, вискоза.id, дня4.id,  фиолетовый.id]) //f50.id?
+        subfByModel(item: 17, subfilters: [f17.id, size34.id, size36.id, size42.id, круглогодичный.id, шерсть.id, день1.id,  коричневый.id])
+        subfByModel(item: 21, subfilters: [f20.id, size34.id, size36.id, size46.id, круглогодичный.id, полиамид.id, день1.id,  серый.id])
+        subfByModel(item: 25, subfilters: [f23.id, size34.id, зима.id, ангора.id, день1.id,  белый.id])
+        subfByModel(item: 29, subfilters: [f25.id, size34.id, зима.id, ангора.id, день1.id,  белый.id])
+        subfByModel(item: 33, subfilters: [f28.id, size34.id, зима.id, ангора.id, день1.id,  белый.id])
+        subfByModel(item: 37, subfilters: [f30.id, size34.id, зима.id, ангора.id, день1.id,  белый.id])
+        
+        
+        
+        
+        subfByModel(item: 1, subfilters: [f10.id, size34.id, зима.id, ангора.id, день1.id,  белый.id])
+        subfByModel(item: 2, subfilters: [f11.id, size36.id, size37.id, демисезон.id, вискоза.id, дня3.id, черный.id])
+        
+        subfByModel(item: 4, subfilters: [f12.id, size39.id, size40.id, size41.id, лето.id, полиуретан.id, дней5.id,  зеленый.id])
+        subfByModel(item: 5, subfilters: [f12.id, size40.id, size41.id, size42.id, демисезон.id, полиэстер.id, день1.id,  коричневый.id])
+        subfByModel(item: 6, subfilters: [f12.id, size36.id, size37.id, зима.id, хлопок.id, дня3.id, черный.id])
+        
+        
+        
+        subfByModel(item: 8, subfilters: [f14.id, size42.id, size44.id, size45.id, лето.id, шерсть.id, дней5.id, розовый.id])
+        subfByModel(item: 9, subfilters: [f14.id, size44.id, size45.id, size46.id, демисезон.id, эластан.id, день1.id, серый.id])
+        subfByModel(item: 10, subfilters: [f14.id, size36.id, size37.id, зима.id, ангора.id, дня3.id,  черный.id])
+        
+        
+        subfByModel(item: 12, subfilters: [f15.id, size36.id, size37.id, лето.id, полиамид.id, дней5.id,  черный.id])
+        subfByModel(item: 13, subfilters: [f15.id, size34.id, зима.id, полиуретан.id, день1.id,  белый.id])
+        
+        
+        subfByModel(item: 14, subfilters: [f16.id,size36.id, size37.id, демисезон.id, полиэстер.id, дня3.id, черный.id])
+    
+        subfByModel(item: 15, subfilters: [f17.id, size36.id, size37.id, демисезон.id, хлопок.id, дня3.id,  красный.id])
+        subfByModel(item: 16, subfilters: [f17.id, size34.id, size36.id, size41.id, зима.id, шелк.id, дней5.id, зеленый.id])
+        
+        
+        subfByModel(item: 18, subfilters: [f18.id, size36.id, size37.id, лето.id, эластан.id, дня3.id,  черный.id])
+        subfByModel(item: 19, subfilters: [f18.id, size34.id, size36.id, size44.id, демисезон.id, ангора.id, дня4.id,  оранжевый.id])
+        
+        subfByModel(item: 20, subfilters: [f19.id, size34.id, size36.id, size45.id, зима.id, вискоза.id, дней5.id, розовый.id])
+        
+        
+    
+        subfByModel(item: 22, subfilters: [f21.id, size36.id, size37.id, лето.id, полиуретан.id, дня3.id,  черный.id])
+    
+        subfByModel(item: 23, subfilters: [f22.id, size34.id, size36.id, size48.id, демисезон.id, шерсть.id, дня4.id,  фиолетовый.id])
+        subfByModel(item: 24, subfilters: [f22.id,size36.id, size37.id, зима.id, хлопок.id, дня3.id, синий.id])
+        
+        
+        subfByModel(item: 26, subfilters: [f23.id, size34.id,  лето.id, эластан.id, дня3.id, белый.id])
+        
+        subfByModel(item: 27, subfilters: [f24.id, size34.id, зима.id, эластан.id, дня4.id,  белый.id])
+        subfByModel(item: 28, subfilters: [f24.id, size34.id,  зима.id, ангора.id, дней5.id, белый.id])
+        
+        subfByModel(item: 30, subfilters: [f26.id, size45.id,  лето.id, хлопок.id, дней5.id,  бежевый.id])
+        subfByModel(item: 31, subfilters: [f27.id, size34.id,  лето.id, полиуретан.id, дня4.id, белый.id])
+        subfByModel(item: 32, subfilters: [f27.id, size34.id,  зима.id, полиуретан.id, дней5.id, белый.id])
+        
+        
+        subfByModel(item: 34, subfilters: [f29.id, size34.id,  лето.id, хлопок.id, дня3.id, белый.id])
+        subfByModel(item: 35, subfilters: [f29.id, size34.id,  лето.id, эластан.id, дня4.id,  белый.id])
+        
+        
+        subfByModel(item: 36, subfilters: [f30.id, size34.id,  зима.id, эластан.id, дней5.id, белый.id])
+        
+        // белый ->  ангора, полиуретан, эластан, хлопок
+        // голубой -> вискоза, полиэстер
+        // фиолетовый -> шерсть, вискоза
+        // белый -> зима, лето
+        // голубой -> демисезон
+        // фиолетовый -> круглогодичный, демисезон
+        
+        // хлопок -> дня3, дней5
+        // дня3 -> бежевый, белый, черный
+        // белый -> size34
+        // черный -> size36, size37
+        // бежевый -> size45
     }
     
     
+    static func getEnabledSubFilters(ids: [Int]) -> [SubfilterModel?] {
+        
+        var res = [SubfilterModel?]()
+        
+        ids.forEach{ id in
+            if let subf = subFilters[id],
+               subf.enabled == true {
+                res.append(subf)
+            }
+        }
+        return res
+    }
     
-    static func nerworkRequest(filterId: Int)->Observable<[SubfilterModel]?> {
+    
+    static func nerworkRequest(filterId: Int)->Observable<[SubfilterModel?]> {
         // Fill subfiltersByFilter with merge approuch
         // cause subfiltersByFilter is in cache with selected filters
         
-        return Observable.just(subfiltersByFilter[filterId])
+        var res = [SubfilterModel?]()
+        if let ids = subfiltersByFilter[filterId] {
+            res = getEnabledSubFilters(ids: ids)
+        }
+        return Observable.just(res)
     }
     
+    
     static func localSelectSubFilter(subFilterId: Int, selected: Bool) {
-        subFilters[subFilterId]?.selected = selected
-        
-        print("\( subFilterId)")
+        if selected {
+            selectedSubFilters.insert(subFilterId)
+        } else {
+            selectedSubFilters.remove(subFilterId)
+        }
+    }
+    
+    
+    static func localSelectedSubFilter(subFilterId: Int) -> Bool {
+        var res = false
+        res = selectedSubFilters.contains(subFilterId)
+//        if res == false {
+//            res = appliedSubFilters.contains(subFilterId)
+//        }
+        return res
     }
     
     
@@ -254,47 +446,154 @@ class SubfilterModel {
         return Observable.just(subfiltersByFilter2[filterId])
     }
     
-
     
-    static func applyFilters(selected: [Int]){
-        var next = 0
-        var chain = Set<Int> ()
-        
-        SubfilterModel.getModelsBySubfilters(selected: selected, next: &next, chain: &chain)
-        
-        let subfilters = SubfilterModel.getSubfiltersByModels(chain: chain)
-        
-    }
-    
-    
-    static func getModelsBySubfilters(selected: [Int], next: inout Int, chain: inout Set<Int>){
-        var res = Set<Int>()
-        if selected.count > next {
-            return
-        }
-        let subfilterId = selected[next]
-        let modelsIds = modelsBySubfilter[subfilterId]
-        if let ids = modelsIds {
-            res = Set(ids)
-        }
-        chain = chain.union(res)
-        next += 1
-        SubfilterModel.getModelsBySubfilters(selected: selected, next: &next, chain: &chain)
-    }
-    
-    
-    
-    static func getSubfiltersByModels(chain: Set<Int>)->[Int]{
-        var res: [Int] = []
-        let arr = Array(chain)
-        for i in arr {
-            if let subfilterIds = subfiltersByModel[i] {
-                for id in subfilterIds {
-                     res.append(id)
+    static func getSubFilters2(by subFilterIds: Set<Int>, filterId: Int) -> [SubfilterModel] {
+        var res = [SubfilterModel]()
+        subFilterIds.forEach{ id in
+            if let subF = subFilters[id] {
+                if subF.filterId == filterId {
+                    res.append(subF)
                 }
             }
         }
         return res
+    }
+    
+    
+    static func groupApplying(applying: Set<Int>){
+        applyingByFilter.removeAll()
+        
+        applying.forEach{id in
+            if let subFilter = subFilters[id] {
+            
+                let filterId = subFilter.filterId
+                if applyingByFilter[filterId] == nil {
+                    applyingByFilter[filterId] = []
+                }
+                applyingByFilter[filterId]?.append(id)
+            }
+        }
+    }
+    
+    
+    private static func getModelIds(by subFilterIds: [Int]) -> [Int] {
+        var res = [Int]()
+        subFilterIds.forEach{ id in
+            if let itemIds = modelsBySubfilter[id] {
+                res = res + itemIds
+            }
+        }
+        return res
+    }
+    
+    
+    static func getItems(exceptFilterId: Int = 0) -> Set<Int> {
+        var res = Set<Int>()
+        
+        var tmp = Set<Int>()
+        
+        for (filterId, applying) in applyingByFilter {
+            if filterId != exceptFilterId || exceptFilterId == 0 {
+                tmp = Set(getModelIds(by: applying))
+            }
+            
+            res = (res.count == 0) ? tmp : res.intersection(tmp)
+        }
+        return res
+    }
+    
+    
+    static func getSubFilters(by items: Set<Int>) -> [Int] {
+        var res = [Int]()
+        items.forEach{ id in
+            if let subfilters = subfiltersByModel[id] {
+                for sf in subfilters {
+                    res.append(sf)
+                }
+            }
+        }
+        return res
+    }
+    
+    static func getApplied(exceptFilterId: Int = 0) -> Set<Int>{
+        var res = Set<Int>()
+        appliedSubFilters.forEach{ id in
+            if let subf = subFilters[id] {
+                if subf.filterId != exceptFilterId || exceptFilterId == 0 {
+                    res.insert(id)
+                }
+            }
+        }
+        return res
+    }
+        
+    
+    static func applySubFilters(filterId: Int){
+        
+        var inFilter: Set<Int> = Set()
+        
+        if let ids = subfiltersByFilter[filterId] {
+            inFilter = Set(ids)
+        }
+        
+        let selected = selectedSubFilters.intersection(inFilter)
+        
+        let applied = getApplied(exceptFilterId: filterId)
+        let applying = selected.union(applied)
+        
+        if applying.count == 0 {
+            resetFilters(exceptFilterId: filterId)
+            return
+        }
+        
+
+        groupApplying(applying: applying)
+        
+        let items = getItems()
+        
+        if items.count == 0 {
+            resetFilters(exceptFilterId: filterId)
+            return
+        }
+        
+        let rem = getSubFilters(by: items)
+        
+        FilterModel.enableAllFilters(enable: false)
+        enableAllSubFilters(except: filterId, enable: false)
+        
+        rem.forEach{ id in
+            if let subFilter = subFilters[id] {
+                subFilter.enabled = true
+                FilterModel.enableFilters(filterId: subFilter.filterId)
+                enableSubFilters(subFilterId: id)
+            }
+        }
+        selectedSubFilters = Set(applying)
+        appliedSubFilters = Set(applying)
+    }
+    
+    private static func resetFilters(exceptFilterId: Int){
+        selectedSubFilters = []
+        appliedSubFilters = []
+        FilterModel.enableAllFilters(enable: true)
+        enableAllSubFilters(except: exceptFilterId, enable: true)
+    }
+    
+    static func getOtherApplied(except subFilters: Set<Int>)-> Set<Int>{
+        return appliedSubFilters.subtracting(subFilters)
+    }
+    
+    
+    static func enableSubFilters(subFilterId: Int){
+        subFilters[subFilterId]?.enabled = true
+    }
+    
+    static func enableAllSubFilters(except filterId: Int = 0, enable: Bool){
+        for (_, val) in subFilters {
+            if val.filterId != filterId || filterId == 0 {
+                val.enabled = enable
+            }
+        }
     }
     
     

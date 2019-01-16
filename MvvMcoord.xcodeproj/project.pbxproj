@@ -42,10 +42,11 @@
 		163AD71B21E5516F00EA91B0 /* SubFilterSectionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163AD71A21E5516F00EA91B0 /* SubFilterSectionVC.swift */; };
 		163AD71D21E551D100EA91B0 /* SubFilterSectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163AD71C21E551D100EA91B0 /* SubFilterSectionCell.swift */; };
 		163AD71F21E5529E00EA91B0 /* FilterCellSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163AD71E21E5529E00EA91B0 /* FilterCellSection.swift */; };
-		1681553221E6FFCB000479A1 /* ModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1681553121E6FFCB000479A1 /* ModelProtocol.swift */; };
 		16C6CC6821DFF8BB00F535D0 /* CatalogSquareCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C6CC6721DFF8BB00F535D0 /* CatalogSquareCell.swift */; };
 		16C6CC6A21DFF8CA00F535D0 /* CatalogSquaresCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C6CC6921DFF8CA00F535D0 /* CatalogSquaresCell.swift */; };
 		16C6CC6C21E0026000F535D0 /* Formatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C6CC6B21E0026000F535D0 /* Formatter.swift */; };
+		16D58B1021EC724C0025FE15 /* ApplyButton.xib in Resources */ = {isa = PBXBuildFile; fileRef = 16D58B0F21EC724C0025FE15 /* ApplyButton.xib */; };
+		16D58B1221EC725C0025FE15 /* ApplyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D58B1121EC725C0025FE15 /* ApplyButton.swift */; };
 		4E4A586EF74EBEF14CD71FD2 /* Pods_MvvMcoordTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8AD693E6BF8BF30274F3558D /* Pods_MvvMcoordTests.framework */; };
 		70782BD21052B1ABA3D97A10 /* Pods_MvvMcoord.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 779FB9AB84C24DE60C170F72 /* Pods_MvvMcoord.framework */; };
 		AE923DB4703AFED60B911DFA /* Pods_MvvMcoordUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9434EC67B107D472632D066 /* Pods_MvvMcoordUITests.framework */; };
@@ -111,10 +112,11 @@
 		163AD71A21E5516F00EA91B0 /* SubFilterSectionVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubFilterSectionVC.swift; sourceTree = "<group>"; };
 		163AD71C21E551D100EA91B0 /* SubFilterSectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubFilterSectionCell.swift; sourceTree = "<group>"; };
 		163AD71E21E5529E00EA91B0 /* FilterCellSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterCellSection.swift; sourceTree = "<group>"; };
-		1681553121E6FFCB000479A1 /* ModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelProtocol.swift; sourceTree = "<group>"; };
 		16C6CC6721DFF8BB00F535D0 /* CatalogSquareCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogSquareCell.swift; sourceTree = "<group>"; };
 		16C6CC6921DFF8CA00F535D0 /* CatalogSquaresCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogSquaresCell.swift; sourceTree = "<group>"; };
 		16C6CC6B21E0026000F535D0 /* Formatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatter.swift; sourceTree = "<group>"; };
+		16D58B0F21EC724C0025FE15 /* ApplyButton.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ApplyButton.xib; sourceTree = "<group>"; };
+		16D58B1121EC725C0025FE15 /* ApplyButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplyButton.swift; sourceTree = "<group>"; };
 		2A43DB55ABB791B22B7E0169 /* Pods-MvvMcoordTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MvvMcoordTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MvvMcoordTests/Pods-MvvMcoordTests.debug.xcconfig"; sourceTree = "<group>"; };
 		64FFDAEAC1A833EBA5D55674 /* Pods-MvvMcoordUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MvvMcoordUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-MvvMcoordUITests/Pods-MvvMcoordUITests.release.xcconfig"; sourceTree = "<group>"; };
 		779FB9AB84C24DE60C170F72 /* Pods_MvvMcoord.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MvvMcoord.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -159,7 +161,6 @@
 				161AC8C321DBBEE60078F020 /* CategoryModel.swift */,
 				1615B26F21DCFC8600E84801 /* CatalogModel.swift */,
 				1609261E21E1118700650707 /* FilterModel.swift */,
-				1681553121E6FFCB000479A1 /* ModelProtocol.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -346,6 +347,8 @@
 		16EAE04821EBCE14007ACCCB /* XIB */ = {
 			isa = PBXGroup;
 			children = (
+				16D58B0F21EC724C0025FE15 /* ApplyButton.xib */,
+				16D58B1121EC725C0025FE15 /* ApplyButton.swift */,
 			);
 			path = XIB;
 			sourceTree = "<group>";
@@ -483,6 +486,7 @@
 			files = (
 				161AC87F21DB6B090078F020 /* LaunchScreen.storyboard in Resources */,
 				1611909021DDFEB300E3CB93 /* Assets.xcassets in Resources */,
+				16D58B1021EC724C0025FE15 /* ApplyButton.xib in Resources */,
 				161AC87A21DB6B080078F020 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -616,7 +620,6 @@
 				16C6CC6C21E0026000F535D0 /* Formatter.swift in Sources */,
 				161AC8C421DBBEE60078F020 /* CategoryModel.swift in Sources */,
 				161AC8C621DC1FBB0078F020 /* RootCoord.swift in Sources */,
-				1681553221E6FFCB000479A1 /* ModelProtocol.swift in Sources */,
 				161AC8B221DBBBED0078F020 /* CategoryVM.swift in Sources */,
 				1609E7EC21DF612600306676 /* CatalogListCell.swift in Sources */,
 				1617B57521E3F1A200FFE2DA /* SubFilterSelectCell.swift in Sources */,
@@ -632,6 +635,7 @@
 				161AC8AB21DB6D050078F020 /* BaseCoord.swift in Sources */,
 				1617B56A21E34BBF00FFE2DA /* FilterVM.swift in Sources */,
 				161AC87721DB6B080078F020 /* ViewController.swift in Sources */,
+				16D58B1221EC725C0025FE15 /* ApplyButton.swift in Sources */,
 				161AC87521DB6B080078F020 /* AppDelegate.swift in Sources */,
 				161AC8BB21DBBCF50078F020 /* CategoryVC.swift in Sources */,
 				1615B27321DD003C00E84801 /* CatalogCoord.swift in Sources */,

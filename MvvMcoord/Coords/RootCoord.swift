@@ -1,7 +1,7 @@
 import UIKit
 import RxSwift
 
-class RootCoord: BaseCoord<Void> {
+class RootCoord: BaseCoord<CoordRetEnum> {
     
     private var window: UIWindow?
     private var parentBaseId: Int
@@ -13,7 +13,7 @@ class RootCoord: BaseCoord<Void> {
     }
     
     
-    override func start() -> Observable<Void> {
+    override func start() -> Observable<CoordRetEnum> {
         viewModel = CategoryVM(parentBaseId: parentBaseId)
         let viewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "Category") as! CategoryVC
         let navigationController = UINavigationController(rootViewController: viewController)
@@ -42,11 +42,11 @@ class RootCoord: BaseCoord<Void> {
         window?.makeKeyAndVisible()
 
         return Observable
-            .merge(back)
+            .merge(vm.backEvent)
     }
     
     
-    private func showSubcategory(on rootViewController: UIViewController, parentBaseId: Int) -> Observable<Void>{
+    private func showSubcategory(on rootViewController: UIViewController, parentBaseId: Int) -> Observable<CoordRetEnum>{
         let nextCoord = CategoryCoord(rootViewController: rootViewController, parentBaseId: parentBaseId)
         return coordinate(coord: nextCoord)
     }

@@ -1,7 +1,7 @@
 import UIKit
 import RxSwift
 
-class SubFilterCoord : BaseCoord<Void>{
+class SubFilterCoord : BaseCoord<CoordRetEnum>{
     
     private var rootViewController: UIViewController?
     private var viewController: UIViewController!
@@ -14,13 +14,12 @@ class SubFilterCoord : BaseCoord<Void>{
     }
     
     
-    override func start() -> Observable<Void> {
+    override func start() -> Observable<CoordRetEnum> {
         viewModel = SubFilterVM(filterId: filterId)
         
         guard let vm = viewModel as? SubFilterVM
             else { fatalError("view model") }
-        
-        
+
         vm.outFilterEnum
         .asObservable()
             .subscribe(onNext: { [weak self] filterType in
@@ -46,8 +45,6 @@ class SubFilterCoord : BaseCoord<Void>{
             rootViewController?.navigationController?.pushViewController(viewController, animated: true)
         }
         
-        return Observable
-            .merge(back)
-
+        return Observable.amb([vm.backEvent, vm.inApply])
     }
 }

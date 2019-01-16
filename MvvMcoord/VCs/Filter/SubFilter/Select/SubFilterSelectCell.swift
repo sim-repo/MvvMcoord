@@ -9,7 +9,7 @@ class SubFilterSelectCell : UITableViewCell{
     func configCell(model: SubfilterModel){
         id = model.id
         subFilterLabel.text = model.title
-        self.accessoryType = model.selected ? .checkmark : .none
+        self.accessoryType = SubfilterModel.localSelectedSubFilter(subFilterId: id) ? .checkmark : .none
     }
     
     func selectedCell() -> Bool{

@@ -10,28 +10,37 @@ import RxDataSources
 class SubFilterVM : BaseVM {
     
     // MARK: - when init. Output to ViewController
-    var outModels = Variable<[SubfilterModel]?>(nil)
+    var outModels = Variable<[SubfilterModel?]>([])
     var outModelSections = Variable< [SectionOfSubFilterModel]? >(nil)
     var outFilterEnum = Variable<FilterEnum>(.select)
-    
+    var outDidUpdateParentVC = PublishSubject<Void>()
     
     // MARK: - during user activies. Input from ViewController
     var inSelectModel = PublishSubject<Int>()
     var inDeselectModel = PublishSubject<Int>()
+    var inApply = PublishSubject<CoordRetEnum>()
+    var inCleanUp = PublishSubject<Void>()
     
+    var filterId = 0
     
     init(filterId: Int = 0){
         super.init()
+        self.filterId = filterId
         
-        //network request
+        bindData()
+        bindSelection()
+        bindUserActivities()
+    }
+    
+    //network or local request
+    private func bindData(){
+        
         let subFilters = SubfilterModel.nerworkRequest(filterId: filterId)
         
         subFilters
             .bind(to: outModels)
             .disposed(by: bag)
         
-        
-        //network request
         let subFilters2 = SubfilterModel.nerworkRequestSection(filterId: filterId)
         
         subFilters2
@@ -44,13 +53,9 @@ class SubFilterVM : BaseVM {
         filterEnum
             .bind(to: outFilterEnum)
             .disposed(by: bag)
-        
-        bindUserActivities()
     }
     
-    
-    func bindUserActivities(){
-        
+    private func bindSelection(){
         inSelectModel
             .subscribe(onNext: {row in
                 SubfilterModel.localSelectSubFilter(subFilterId: row, selected: true)
@@ -63,4 +68,23 @@ class SubFilterVM : BaseVM {
             })
             .disposed(by: bag)
     }
+    
+    private func bindUserActivities(){
+        
+        inApply
+            .subscribe(onNext: {[weak self] _ in
+                if let `self` = self {
+                    SubfilterModel.applySubFilters(filterId: self.filterId)
+                    self.outDidUpdateParentVC.onCompleted()
+                }
+            })
+            .disposed(by: bag)
+        
+        inCleanUp
+            .subscribe(onCompleted: {
+                print("clean up")
+            })
+            .disposed(by: bag)
+    }
+    
 }
