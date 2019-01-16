@@ -11,7 +11,7 @@ class FilterCellSelect : UITableViewCell{
     
     private var subFiltersLabel : UILabel?
     private var removeSubFiltersButton : UIButton?
-    
+    private weak var tableView: UITableView?
     
     private func initSubFiltersControls(){
         subFiltersLabel = {
@@ -54,6 +54,9 @@ class FilterCellSelect : UITableViewCell{
             ])
         subFiltersLabel?.removeFromSuperview()
         removeSubFiltersButton?.removeFromSuperview()
+        
+        self.tableView?.beginUpdates()
+        self.tableView?.endUpdates()
     }
     
     
@@ -88,13 +91,8 @@ class FilterCellSelect : UITableViewCell{
             ])
         subFiltersLabel.numberOfLines = 0
         
-       // NSLayoutConstraint.activate([
-         //   filterLabel!.topAnchor.constraint(equalTo: marginGuide.topAnchor, constant: 1.0)
-      //      filterLabel!.bottomAnchor.constraint(equalTo: subFiltersLabel.topAnchor)
-       //     ])
         
-        self.contentView.setNeedsLayout()
-        self.contentView.layoutIfNeeded()
+        
         removeSubFiltersButton.rx.tap
             .subscribe( onNext: {[weak self] _ in
                 self?.removeSubFiltersEvent()
@@ -106,9 +104,10 @@ class FilterCellSelect : UITableViewCell{
     
     
     
-    func configCell(model: FilterModel, appliedTitles: String){
+    func configCell(model: FilterModel, appliedTitles: String, tableView: UITableView){
         id = model.id
         filterLabel.text = model.title
+        self.tableView = tableView
         if appliedTitles != "" {
             addLabel(title: appliedTitles)
         }

@@ -19,9 +19,9 @@ class FilterVC: UIViewController {
         bindApply()
         bindSelection()
         setupNavigation()
-       // tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 0
-        //tableView.contentInset = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 0.0, right: 0.0)
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 52
+        tableView.contentInset = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 0.0, right: 0.0)
     }
     
     deinit {
@@ -51,7 +51,7 @@ class FilterVC: UIViewController {
                         return cell
                     case .select:
                         guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCellSelect", for: indexPath) as? FilterCellSelect else { return UITableViewCell() }
-                        cell.configCell(model: model, appliedTitles: appliedTitles)
+                        cell.configCell(model: model, appliedTitles: appliedTitles, tableView: self.tableView)
                         return cell
                     case .section:
                         guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCellSection", for: indexPath) as? FilterCellSection else { return UITableViewCell() }
@@ -64,6 +64,7 @@ class FilterVC: UIViewController {
             }.disposed(by: bag)
        
         self.tableView.reloadData()
+        
     }
     
     
