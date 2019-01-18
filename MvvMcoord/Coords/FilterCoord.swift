@@ -34,7 +34,8 @@ class FilterCoord : BaseCoord<CoordRetEnum>{
             .asObserver()
             .do(onNext: {[weak self] filterId in
                 if let `self` = self {
-                    self.showSubFilters(on: self.viewController, filterId: filterId).asObservable()
+                    self.showSubFilters(on: self.viewController, filterId: filterId)
+                        .asObservable()
                         .subscribe(onNext: {event in
                             switch event {
                             case .reloadData: self.reload()
@@ -52,7 +53,9 @@ class FilterCoord : BaseCoord<CoordRetEnum>{
             rootViewController?.navigationController?.pushViewController(viewController, animated: true)
         }
         
-        return Observable.amb([vm.backEvent, vm.inApply])
+        return Observable
+            .amb([vm.backEvent, vm.inApply])
+            .take(1)
     }
     
     

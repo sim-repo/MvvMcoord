@@ -12,12 +12,15 @@ class FilterVC: UIViewController {
     private var bag = DisposeBag()
     private var indexPaths: Set<IndexPath> = []
     
+    var removeFilterEvent = PublishSubject<Int>()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         registerTableView()
         bindCell()
         bindApply()
         bindSelection()
+        bindRemoveFilter()
         setupNavigation()
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 52
@@ -38,7 +41,6 @@ class FilterVC: UIViewController {
             .asObservable()
             .bind(to: self.tableView.rx.items) { [weak self] tableView, index, model in
                 
-                
                 if let `self` = self,
                    let `model` = model {
                     let appliedTitles = self.viewModel.appliedTitles(filterId: model.id)
@@ -51,7 +53,7 @@ class FilterVC: UIViewController {
                         return cell
                     case .select:
                         guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCellSelect", for: indexPath) as? FilterCellSelect else { return UITableViewCell() }
-                        cell.configCell(model: model, appliedTitles: appliedTitles, tableView: self.tableView)
+                        cell.configCell(model: model, appliedTitles: appliedTitles, tableView: self.tableView, parent: self)
                         return cell
                     case .section:
                         guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCellSection", for: indexPath) as? FilterCellSection else { return UITableViewCell() }
@@ -64,7 +66,6 @@ class FilterVC: UIViewController {
             }.disposed(by: bag)
        
         self.tableView.reloadData()
-        
     }
     
     
@@ -147,6 +148,16 @@ class FilterVC: UIViewController {
             .subscribe{[weak self] _ in
                 self?.navigationController?.popViewController(animated: true)
             }
+            .disposed(by: bag)
+    }
+    
+    
+    private func bindRemoveFilter(){
+        removeFilterEvent
+            .debug()
+            .subscribe(onNext: {[weak self] filterId in
+                self!.viewModel.inRemoveFilter.onNext(filterId)
+            })
             .disposed(by: bag)
     }
     

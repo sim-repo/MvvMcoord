@@ -33,7 +33,8 @@ class CatalogCoord : BaseCoord<CoordRetEnum>{
             .asObserver()
             .do(onNext: {[weak self] categoryId in
                 if let `self` = self {
-                    self.showFilters(on: self.viewController, categoryId: categoryId).asObservable()
+                    self.showFilters(on: self.viewController, categoryId: categoryId)
+                        .asObservable()
                         .subscribe(onNext: {event in
                             switch event {
                             case .reloadData: self.reload()
@@ -53,6 +54,7 @@ class CatalogCoord : BaseCoord<CoordRetEnum>{
         
         return Observable
             .merge(vm.backEvent)
+            .take(1)
     }
     
     

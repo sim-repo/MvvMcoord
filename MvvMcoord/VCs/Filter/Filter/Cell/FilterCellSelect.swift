@@ -12,6 +12,9 @@ class FilterCellSelect : UITableViewCell{
     private var subFiltersLabel : UILabel?
     private var removeSubFiltersButton : UIButton?
     private weak var tableView: UITableView?
+    private weak var parent: FilterVC?
+    
+    
     
     private func initSubFiltersControls(){
         subFiltersLabel = {
@@ -55,12 +58,25 @@ class FilterCellSelect : UITableViewCell{
         subFiltersLabel?.removeFromSuperview()
         removeSubFiltersButton?.removeFromSuperview()
         
+        subFiltersLabel = nil
+        removeSubFiltersButton = nil
+        
         self.tableView?.beginUpdates()
         self.tableView?.endUpdates()
+        
+        parent?.removeFilterEvent
+        .asObserver()
+        .onNext(id)
     }
     
     
     private func addLabel(title: String) {
+        
+        guard subFiltersLabel == nil
+            else {
+                subFiltersLabel?.text = title
+                return
+            }
         
         initSubFiltersControls()
         conCenterY.constant = -10.0
@@ -72,10 +88,10 @@ class FilterCellSelect : UITableViewCell{
         
         let marginGuide = contentView.layoutMarginsGuide
         subFiltersLabel.text = title
+        //subFiltersLabel.numberOfLines = 0
         contentView.addSubview(subFiltersLabel)
         contentView.addSubview(removeSubFiltersButton)
         
-  
         
         NSLayoutConstraint.activate([
             subFiltersLabel.leadingAnchor.constraint(equalTo: filterLabel.leadingAnchor),
@@ -89,25 +105,21 @@ class FilterCellSelect : UITableViewCell{
             removeSubFiltersButton.trailingAnchor.constraint(equalTo: marginGuide.trailingAnchor),
             removeSubFiltersButton.centerYAnchor.constraint(equalTo: marginGuide.centerYAnchor)
             ])
-        subFiltersLabel.numberOfLines = 0
-        
         
         
         removeSubFiltersButton.rx.tap
             .subscribe( onNext: {[weak self] _ in
                 self?.removeSubFiltersEvent()
-                self?.contentView.setNeedsLayout()
-                self?.contentView.layoutIfNeeded()
             })
             .disposed(by: bag)
     }
     
     
-    
-    func configCell(model: FilterModel, appliedTitles: String, tableView: UITableView){
+    func configCell(model: FilterModel, appliedTitles: String, tableView: UITableView, parent: FilterVC){
         id = model.id
         filterLabel.text = model.title
         self.tableView = tableView
+        self.parent = parent
         if appliedTitles != "" {
             addLabel(title: appliedTitles)
         }

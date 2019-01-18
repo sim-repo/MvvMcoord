@@ -45,6 +45,8 @@ class SubFilterCoord : BaseCoord<CoordRetEnum>{
             rootViewController?.navigationController?.pushViewController(viewController, animated: true)
         }
         
-        return Observable.amb([vm.backEvent, vm.inApply])
+        return Observable
+            .amb([vm.backEvent, vm.inApply])
+            .take(1)
     }
 }

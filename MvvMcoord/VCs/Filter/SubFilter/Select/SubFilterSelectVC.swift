@@ -74,7 +74,7 @@ class SubFilterSelectVC: UIViewController {
             .take(1)
             .subscribe{[weak self] _ in
                 self?.viewModel.inApply.onNext(.reloadData)
-                self?.viewModel.inApply.onCompleted()
+                //self?.viewModel.inApply.onCompleted() // ?
             }
             .disposed(by: bag)
         
@@ -98,7 +98,6 @@ extension SubFilterSelectVC: UITableViewDelegate {
     override func didMove(toParent parent: UIViewController?) {
         if parent == nil {
             viewModel.backEvent.onNext(.back)
-            viewModel.backEvent.onCompleted()
         }
     }
 }

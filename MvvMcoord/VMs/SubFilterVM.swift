@@ -33,7 +33,7 @@ class SubFilterVM : BaseVM {
     }
     
     //network or local request
-    private func bindData(){
+    public func bindData(){
         
         let subFilters = SubfilterModel.nerworkRequest(filterId: filterId)
         
@@ -57,14 +57,14 @@ class SubFilterVM : BaseVM {
     
     private func bindSelection(){
         inSelectModel
-            .subscribe(onNext: {row in
-                SubfilterModel.localSelectSubFilter(subFilterId: row, selected: true)
+            .subscribe(onNext: {id in
+                SubfilterModel.localSelectSubFilter(subFilterId: id, selected: true)
             })
             .disposed(by: bag)
         
         inDeselectModel
-            .subscribe(onNext: {row in
-                SubfilterModel.localSelectSubFilter(subFilterId: row, selected: false)
+            .subscribe(onNext: {id in
+                SubfilterModel.localSelectSubFilter(subFilterId: id, selected: false)
             })
             .disposed(by: bag)
     }
@@ -74,6 +74,7 @@ class SubFilterVM : BaseVM {
         inApply
             .subscribe(onNext: {[weak self] _ in
                 if let `self` = self {
+                    // SubFilterVM не знает когда вызывать outDidUpdateParentVC, нужен рефакторинг
                     SubfilterModel.applySubFilters(filterId: self.filterId)
                     self.outDidUpdateParentVC.onCompleted()
                 }

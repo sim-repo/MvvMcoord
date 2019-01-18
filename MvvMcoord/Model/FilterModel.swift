@@ -100,7 +100,8 @@ class FilterModel {
         var res = ""
         appliedSubFilters.forEach{ id in
             if let subf = subFilters[id],
-                subf.filterId == filterId {
+                subf.filterId == filterId,
+                subf.enabled == true{
                 res.append(subf.title + ",")
             }
         }
@@ -145,6 +146,11 @@ class FilterModel {
             selectedSubFilters = Set(applying)
             appliedSubFilters = Set(applying)
         }
+    }
+    
+    static func removeFilter(filterId: Int) {
+        SubfilterModel.removeApplied(filterId: filterId)
+        SubfilterModel.applyAfterRemove()
     }
 }
 
@@ -283,6 +289,7 @@ class SubfilterModel {
         
         
         
+        
         // Color
         let бежевый = SubfilterModel(id:60, filterId: 6, title: "бежевый")
         let белый = SubfilterModel(id:61, filterId: 6, title: "белый")
@@ -322,7 +329,7 @@ class SubfilterModel {
         subfByModel(item: 17, subfilters: [f17.id, size34.id, size36.id, size42.id, круглогодичный.id, шерсть.id, день1.id,  коричневый.id])
         subfByModel(item: 21, subfilters: [f20.id, size34.id, size36.id, size46.id, круглогодичный.id, полиамид.id, день1.id,  серый.id])
         subfByModel(item: 25, subfilters: [f23.id, size34.id, зима.id, ангора.id, день1.id,  белый.id])
-        subfByModel(item: 29, subfilters: [f25.id, size34.id, зима.id, ангора.id, день1.id,  белый.id])
+        subfByModel(item: 29, subfilters: [f25.id, size34.id, зима.id, ангора.id, день1.id,  красный.id])
         subfByModel(item: 33, subfilters: [f28.id, size34.id, зима.id, ангора.id, день1.id,  белый.id])
         subfByModel(item: 37, subfilters: [f30.id, size34.id, зима.id, ангора.id, день1.id,  белый.id])
         
@@ -330,7 +337,7 @@ class SubfilterModel {
         
         
         subfByModel(item: 1, subfilters: [f10.id, size34.id, зима.id, ангора.id, день1.id,  белый.id])
-        subfByModel(item: 2, subfilters: [f11.id, size36.id, size37.id, демисезон.id, вискоза.id, дня3.id, черный.id])
+        subfByModel(item: 2, subfilters: [f11.id, size36.id, size37.id, демисезон.id, вискоза.id, дня3.id, желтый.id])
         
         subfByModel(item: 4, subfilters: [f12.id, size39.id, size40.id, size41.id, лето.id, полиуретан.id, дней5.id,  зеленый.id])
         subfByModel(item: 5, subfilters: [f12.id, size40.id, size41.id, size42.id, демисезон.id, полиэстер.id, день1.id,  коричневый.id])
@@ -394,6 +401,19 @@ class SubfilterModel {
         // белый -> size34
         // черный -> size36, size37
         // бежевый -> size45
+        
+        
+        // полиамид -> желтый серый черный
+        // применить желтый серый черный
+        // снять фильтр желтый серый черный
+        // зайти в состав
+        
+        
+        // лето -> полиамид -> черный
+        // отменить лето
+        // должно остаться лето
+        // если зайти в Цвет - то , желтый, серый, черный
+        // если зайти в состав - то полиуретан эластан полиэстер полиамид ангора хлопок вискоза
     }
     
     
@@ -416,6 +436,7 @@ class SubfilterModel {
         // cause subfiltersByFilter is in cache with selected filters
         
         var res = [SubfilterModel?]()
+        applyBeforeEnter(filterId: filterId) // added
         if let ids = subfiltersByFilter[filterId] {
             res = getEnabledSubFilters(ids: ids)
         }
@@ -493,7 +514,7 @@ class SubfilterModel {
         var tmp = Set<Int>()
         
         for (filterId, applying) in applyingByFilter {
-            if filterId != exceptFilterId || exceptFilterId == 0 {
+            if filterId != exceptFilterId || exceptFilterId == 0  {
                 tmp = Set(getModelIds(by: applying))
             }
             
@@ -526,6 +547,59 @@ class SubfilterModel {
         }
         return res
     }
+    
+    
+    static func removeApplied(filterId: Int = 0) {
+        
+        var removing = Set<Int>()
+        appliedSubFilters.forEach{ id in
+            if let subf = subFilters[id] {
+                if subf.filterId == filterId || filterId == 0 {
+                    removing.insert(id)
+                }
+            }
+        }
+        
+        appliedSubFilters.subtract(removing)
+        selectedSubFilters.subtract(removing)
+    }
+    
+    
+    static func applyAfterRemove(){
+        let applying = getApplied()
+        if applying.count == 0 {
+            resetFilters()
+            return
+        }
+        
+        groupApplying(applying: applying)
+        let items = getItems()
+        
+        if items.count == 0 {
+            resetFilters()
+            return
+        }
+        
+        var filterId = 0
+        if applyingByFilter.count == 1 {
+            filterId = applyingByFilter.first?.key ?? 0
+        }
+        let rem = getSubFilters(by: items)
+        
+        FilterModel.enableAllFilters(enable: false)
+        
+        enableAllSubFilters2(except: filterId, enable: false)
+        
+        rem.forEach{ id in
+            if let subFilter = subFilters[id] {
+                subFilter.enabled = true
+                FilterModel.enableFilters(filterId: subFilter.filterId)
+                enableSubFilters(subFilterId: id)
+            }
+        }
+        selectedSubFilters = Set(applying)
+        appliedSubFilters = Set(applying)
+    }
         
     
     static func applySubFilters(filterId: Int){
@@ -546,7 +620,6 @@ class SubfilterModel {
             return
         }
         
-
         groupApplying(applying: applying)
         
         let items = getItems()
@@ -559,6 +632,7 @@ class SubfilterModel {
         let rem = getSubFilters(by: items)
         
         FilterModel.enableAllFilters(enable: false)
+        
         enableAllSubFilters(except: filterId, enable: false)
         
         rem.forEach{ id in
@@ -572,7 +646,46 @@ class SubfilterModel {
         appliedSubFilters = Set(applying)
     }
     
-    private static func resetFilters(exceptFilterId: Int){
+    
+    static func applyBeforeEnter(filterId: Int){
+        
+        let applied = getApplied(exceptFilterId: filterId)
+        let applying = applied
+        
+        if applying.count == 0 {
+            resetFilters(exceptFilterId: filterId)
+            return
+        }
+        
+        groupApplying(applying: applying)
+        
+        let items = getItems()
+        
+        if items.count == 0 {
+            resetFilters(exceptFilterId: filterId)
+            return
+        }
+        
+        let rem = getSubFilters(by: items)
+        
+        FilterModel.enableAllFilters(enable: false)
+        
+        enableAllSubFilters(except: filterId, enable: false)
+        
+        rem.forEach{ id in
+            if let subFilter = subFilters[id] {
+                subFilter.enabled = true
+                FilterModel.enableFilters(filterId: subFilter.filterId)
+                enableSubFilters(subFilterId: id)
+            }
+        }
+        selectedSubFilters = Set(applying)
+        appliedSubFilters = Set(applying)
+    }
+
+    
+    
+    private static func resetFilters(exceptFilterId: Int = 0){
         selectedSubFilters = []
         appliedSubFilters = []
         FilterModel.enableAllFilters(enable: true)
@@ -594,8 +707,36 @@ class SubfilterModel {
                 val.enabled = enable
             }
         }
+        
+        if filterId == 0 {
+            return
+        }
+        
+//        for (_, val) in subFilters {
+//            if val.filterId == filterId{
+//                val.enabled = !enable
+//            }
+//        }
     }
     
+    
+    static func enableAllSubFilters2(except filterId: Int = 0, enable: Bool){
+        for (_, val) in subFilters {
+            if val.filterId != filterId || filterId == 0 {
+                val.enabled = enable
+            }
+        }
+        
+        if filterId == 0 {
+            return
+        }
+        
+        for (_, val) in subFilters {
+            if val.filterId == filterId{
+                val.enabled = !enable
+            }
+        }
+    }
     
     
     static func getTitle(filterId: Int)->Observable<String> {

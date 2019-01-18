@@ -9,6 +9,8 @@ class FilterVM : BaseVM {
     var inSelectFilter = PublishSubject<Int>()
     var inApply = PublishSubject<CoordRetEnum>()
     var inCleanUp = PublishSubject<Void>()
+    var inRemoveFilter = PublishSubject<Int>()
+    
     
     // MARK: - Outputs to ViewController or Coord
     var outFilters = Variable<[FilterModel?]>([])
@@ -65,6 +67,13 @@ class FilterVM : BaseVM {
         inCleanUp
             .subscribe(onCompleted: {
                 print("clean up")
+            })
+            .disposed(by: bag)
+        
+        inRemoveFilter
+            .subscribe(onNext: {[weak self] filterId in
+                FilterModel.removeFilter(filterId: filterId)
+                self?.bindData()
             })
             .disposed(by: bag)
     }
