@@ -6,10 +6,11 @@ class SubFilterSelectCell : UITableViewCell{
     var id: Int!
     @IBOutlet weak var subFilterLabel: UILabel!
     
-    func configCell(model: SubfilterModel){
+    
+    func configCell(model: SubfilterModel, isCheckmark: Bool){
         id = model.id
         subFilterLabel.text = model.title
-        self.accessoryType = SubfilterModel.localSelectedSubFilter(subFilterId: id) ? .checkmark : .none
+        self.accessoryType = isCheckmark ? .checkmark : .none
     }
     
     func selectedCell() -> Bool{

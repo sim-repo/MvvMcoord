@@ -88,4 +88,8 @@ class SubFilterVM : BaseVM {
             .disposed(by: bag)
     }
     
+    public func isCheckmark(subFilterId: Int)->Bool {
+        return SubfilterModel.localSelectedSubFilter(subFilterId: subFilterId)
+    }
+    
 }

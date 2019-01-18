@@ -31,11 +31,12 @@ class SubFilterSelectVC: UIViewController {
     private func bindCell(){
         viewModel.outModels
             .asObservable()
-            .bind(to: self.tableView.rx.items) { tableView, index, model in
+            .bind(to: self.tableView.rx.items) { [weak self] tableView, index, model in
+                guard let `self` = self else { return UITableViewCell() }
                 let indexPath = IndexPath(item: index, section: 0)
                 let cell = tableView.dequeueReusableCell(withIdentifier: "SubFilterSelectCell", for: indexPath) as! SubFilterSelectCell
                 if let `model` = model {
-                    cell.configCell(model: model)
+                    cell.configCell(model: model, isCheckmark: self.viewModel.isCheckmark(subFilterId: model.id))
                 }
                 return cell
             }

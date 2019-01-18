@@ -653,7 +653,6 @@ class SubfilterModel {
         let applying = applied
         
         if applying.count == 0 {
-            resetFilters(exceptFilterId: filterId)
             return
         }
         
@@ -670,7 +669,9 @@ class SubfilterModel {
         
         FilterModel.enableAllFilters(enable: false)
         
-        enableAllSubFilters(except: filterId, enable: false)
+        let useExcept = filterContainsApplied(filterId: filterId)
+        
+        enableAllSubFilters(except: useExcept ? filterId : 0, enable: false)
         
         rem.forEach{ id in
             if let subFilter = subFilters[id] {
@@ -679,10 +680,21 @@ class SubfilterModel {
                 enableSubFilters(subFilterId: id)
             }
         }
-        selectedSubFilters = Set(applying)
-        appliedSubFilters = Set(applying)
     }
 
+    
+    private static func filterContainsApplied(filterId: Int)->Bool{
+        var res = false
+        appliedSubFilters.forEach{ id in
+            if let subf = subFilters[id] {
+                if subf.filterId == filterId {
+                    res = true
+                    return
+                }
+            }
+        }
+        return res
+    }
     
     
     private static func resetFilters(exceptFilterId: Int = 0){
