@@ -115,9 +115,12 @@ class FilterModel {
         filters[filterId]?.enabled = true
     }
     
-    static func enableAllFilters(enable: Bool){
+    static func enableAllFilters(exceptFilterId: Int = 0 ,enable: Bool){
         for (_, val) in filters {
             val.enabled = enable
+        }
+        if exceptFilterId != 0 {
+            filters[exceptFilterId]?.enabled = true
         }
     }
     
@@ -625,7 +628,9 @@ class SubfilterModel {
         let items = getItems()
         
         if items.count == 0 {
-            resetFilters(exceptFilterId: filterId)
+            noItemWhenApplying(filterId: filterId)
+            selectedSubFilters = Set(applying)
+            appliedSubFilters = Set(applying)
             return
         }
         
@@ -696,6 +701,10 @@ class SubfilterModel {
         return res
     }
     
+    private static func noItemWhenApplying(filterId: Int) {
+        FilterModel.enableAllFilters(exceptFilterId: filterId, enable: false)
+        enableAllSubFilters(except: filterId, enable: true)
+    }
     
     private static func resetFilters(exceptFilterId: Int = 0){
         selectedSubFilters = []
@@ -713,22 +722,16 @@ class SubfilterModel {
         subFilters[subFilterId]?.enabled = true
     }
     
+    
     static func enableAllSubFilters(except filterId: Int = 0, enable: Bool){
         for (_, val) in subFilters {
             if val.filterId != filterId || filterId == 0 {
                 val.enabled = enable
             }
         }
-        
         if filterId == 0 {
             return
         }
-        
-//        for (_, val) in subFilters {
-//            if val.filterId == filterId{
-//                val.enabled = !enable
-//            }
-//        }
     }
     
     

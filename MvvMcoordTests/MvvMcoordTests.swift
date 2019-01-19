@@ -49,15 +49,16 @@ class MvvMcoordTests: XCTestCase {
     var filterVM: FilterVM!
     var bag = DisposeBag()
     
-    let categoryId = 1
+    let categoryId = 01010101
     let materialFilterId = 4
     let colorFilterId = 6
     let seasonFilterId = 3
     
-    let polyamide = 49 // полиамид
-    let yellow = 63 // желтый
-    let gray = 69 // серый
-    let black = 72 // черный
+    let polyamide = 49 
+    let yellow = 63
+    let gray = 69
+    let black = 72
+    let white = 62
     
     let summer = 46
     
@@ -129,16 +130,35 @@ class MvvMcoordTests: XCTestCase {
     }
     
 
-    func initTestCase(filterId1: Int, filterId2: Int){
-        subFilterVM1 = SubFilterVM(filterId: filterId1)
-        subFilterVM2 = SubFilterVM(filterId: filterId2)
-        result = ""
-    }
+
     
     func clearTestCase(){
         subFilterVM1 = nil
         subFilterVM2 = nil
         subFilterVM3 = nil
+    }
+    
+    
+    func takeFromFilterVM(operationId: Int, observableEvent: Variable<Int>, observerEvent: Variable<Int>){
+        observableEvent
+            .asObservable()
+            .subscribe(onNext: {[weak self] _ in
+                self?.filterVM.bindData()
+                self?.filterVM.outFilters
+                    .asObservable()
+                    .take(1)
+                    .debug()
+                    .subscribe(onNext: {[weak self] sf in
+                        self?.result += ("\(operationId): ")
+                        for element in sf {
+                            self?.result += (element!.title + " ")
+                            print("\(element!.title)")
+                        }
+                        self?.result += "\\\\\\"
+                        observerEvent.value = 1
+                    })
+                    .disposed(by: self!.bag)
+            }).disposed(by: bag)
     }
     
     
@@ -162,6 +182,23 @@ class MvvMcoordTests: XCTestCase {
             }).disposed(by: bag)
     }
     
+    func takeFilterFinish(observableEvent: Variable<Int>, expect: XCTestExpectation){
+        observableEvent
+            .asObservable()
+            .subscribe(onNext: {[weak self] _ in
+                self?.filterVM.bindData()
+                self?.filterVM.outFilters
+                    .asObservable()
+                    .take(1)
+                    .subscribe(onNext: {[weak self] sf in
+                        for element in sf {
+                            self?.result += (element!.title + " ")
+                        }
+                        expect.fulfill()
+                    })
+                    .disposed(by: self!.bag)
+            }).disposed(by: bag)
+    }
     
     func takeFinish(observableEvent: Variable<Int>, vm: SubFilterVM, expect: XCTestExpectation){
         observableEvent
@@ -181,8 +218,45 @@ class MvvMcoordTests: XCTestCase {
             }).disposed(by: bag)
     }
     
+    func initTestCase(filterId1: Int, filterId2: Int){
+        subFilterVM1 = SubFilterVM(filterId: filterId1)
+        subFilterVM2 = SubFilterVM(filterId: filterId2)
+        result = ""
+    }
     
+    func testUseCase0(){
+        
+        let expect = expectation(description: #function)
+        
+        initTestCase(filterId1: materialFilterId, filterId2: colorFilterId)
+        
+        // 1 apply white
+        selectApply(observableEvent: event1, vm: subFilterVM2, selectIds: [white], observerEvent: event2)
+        
+        // 2 take from Filter
+        takeFromFilterVM(operationId: 2, observableEvent: event2, observerEvent: event3)
+        
+        // 3 unapply Color Filter
+        removeAppliedFilter(observableEvent: event3, filterId: colorFilterId, observerEvent: event4)
+        
+        // 4 take from Filter
+       // takeFromFilterVM(operationId: 3, observableEvent: event4, observerEvent: event5)
+        
+        
+        // 3 take available subfilters from Material Filter
+        takeFilterFinish(observableEvent: event4, expect: expect )
+        
+        waitForExpectations(timeout: 20.0) { [weak self] error in
+            guard error == nil else {
+                XCTFail(error!.localizedDescription)
+                return
+            }
+            XCTAssertEqual("2: Цвет \\\\\\Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава Цена2 ", self?.result)
+        }
+        clearTestCase()
+    }
 
+    
     func testUseCase1() {
         
         let expect = expectation(description: #function)
@@ -224,9 +298,9 @@ class MvvMcoordTests: XCTestCase {
             }
             XCTAssertEqual("2: желтый false серый false черный false \\\\\\4: желтый true серый true черный true \\\\\\6: ангора false вискоза false полиамид true полиуретан false полиэстер false хлопок false эластан false \\\\\\ангора false вискоза false полиамид true полиуретан false полиэстер false хлопок false шелк false шерсть false эластан false ", self?.result)
         }
-        
         clearTestCase()
     }
+    
     
     func initTestCase2(filterId1: Int, filterId2: Int, filterId3: Int){
         subFilterVM1 = SubFilterVM(filterId: filterId1)
