@@ -17,7 +17,6 @@ class FilterVM : BaseVM {
     var outShowSubFilters = PublishSubject<Int>()
     var outDidUpdateParentVC = PublishSubject<Void>()
     
-    
     var categoryId : Int
     
     init(categoryId: Int = 0){

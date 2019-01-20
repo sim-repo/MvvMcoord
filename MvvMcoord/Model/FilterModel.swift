@@ -55,10 +55,12 @@ class FilterModel {
         let f21 = FilterModel(id:12, title: "Тип рукава", categoryId: 01010101)
         let f22 = FilterModel(id:13, title: "Цена2", categoryId: 01010101, filterEnum: .range)
         
-        
-        let tmpModels1 = [f00, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22 ]
+        let tmpModels1 = [f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21 ]
         filtersByCategory[01010101] = tmpModels1
      
+
+        
+        
         filters[0] = f00
         filters[1] = f10
         filters[2] = f11
@@ -83,6 +85,7 @@ class FilterModel {
         return Observable.just(filtersByCategory[categoryId])
     }
     
+    
     static func localRequest(categoryId: Int) -> Observable<[FilterModel?]> {
         var res = [FilterModel?]()
         
@@ -94,7 +97,9 @@ class FilterModel {
         }
         return Observable.just(res)
     }
-    
+
+
+
     
     static func localAppliedTitles(filterId: Int) -> String {
         var res = ""
@@ -330,7 +335,7 @@ class SubfilterModel {
         subfByModel(item: 7, subfilters: [f13.id, size42.id, size42.id, size44.id, круглогодичный.id, шелк.id, дня4.id,  оранжевый.id])
         subfByModel(item: 11, subfilters: [f14.id, size46.id, size47.id, size48.id, круглогодичный.id, вискоза.id, дня4.id,  фиолетовый.id]) //f50.id?
         subfByModel(item: 17, subfilters: [f17.id, size34.id, size36.id, size42.id, круглогодичный.id, шерсть.id, день1.id,  коричневый.id])
-        subfByModel(item: 21, subfilters: [f20.id, size34.id, size36.id, size46.id, круглогодичный.id, полиамид.id, день1.id,  серый.id])
+        subfByModel(item: 21, subfilters: [f20.id, size34.id, size36.id, size46.id, демисезон.id, полиамид.id, день1.id,  серый.id])
         subfByModel(item: 25, subfilters: [f23.id, size34.id, зима.id, ангора.id, день1.id,  белый.id])
         subfByModel(item: 29, subfilters: [f25.id, size34.id, зима.id, ангора.id, день1.id,  красный.id])
         subfByModel(item: 33, subfilters: [f28.id, size34.id, зима.id, ангора.id, день1.id,  белый.id])
@@ -388,6 +393,7 @@ class SubfilterModel {
         
         subfByModel(item: 34, subfilters: [f29.id, size34.id,  лето.id, хлопок.id, дня3.id, белый.id])
         subfByModel(item: 35, subfilters: [f29.id, size34.id,  лето.id, эластан.id, дня4.id,  белый.id])
+        
         
         
         subfByModel(item: 36, subfilters: [f30.id, size34.id,  зима.id, эластан.id, дней5.id, белый.id])
@@ -672,17 +678,18 @@ class SubfilterModel {
         
         let rem = getSubFilters(by: items)
         
-        FilterModel.enableAllFilters(enable: false)
+    //    FilterModel.enableAllFilters(enable: false)
         
-        let useExcept = filterContainsApplied(filterId: filterId)
+      //  let useExcept = filterContainsApplied(filterId: filterId)
         
-        enableAllSubFilters(except: useExcept ? filterId : 0, enable: false)
+      //  enableAllSubFilters(except: useExcept ? filterId : 0, enable: false)
         
+       disableSubFilters(filterId: filterId)
         rem.forEach{ id in
             if let subFilter = subFilters[id] {
                 subFilter.enabled = true
-                FilterModel.enableFilters(filterId: subFilter.filterId)
-                enableSubFilters(subFilterId: id)
+             //   FilterModel.enableFilters(filterId: subFilter.filterId)
+            //    enableSubFilters(subFilterId: id)
             }
         }
     }
@@ -734,6 +741,15 @@ class SubfilterModel {
         }
     }
     
+    static func disableSubFilters(filterId: Int){
+        for (_, val) in subFilters {
+            if val.filterId == filterId {
+                val.enabled = false
+            }
+        }
+    }
+    
+    
     
     static func enableAllSubFilters2(except filterId: Int = 0, enable: Bool){
         for (_, val) in subFilters {
@@ -773,11 +789,28 @@ class SubfilterModel {
 }
 
 
+struct SectionOfFilterModel {
+    var header: String
+    var items: [FilterModel]
+}
+
+extension SectionOfFilterModel: SectionModelType {
+    typealias Item = FilterModel
+    
+    init(original: SectionOfFilterModel, items: [Item]) {
+        self = original
+        self.items = items
+    }
+}
+
+
 
 struct SectionOfSubFilterModel {
     var header: String
     var items: [SubfilterModel]
 }
+
+
 extension SectionOfSubFilterModel: SectionModelType {
     typealias Item = SubfilterModel
     

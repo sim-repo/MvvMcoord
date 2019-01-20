@@ -16,7 +16,7 @@ class FilterCellSelect : UITableViewCell{
     
     
     
-    private func initSubFiltersControls(){
+    private func initDetailTitle(){
         subFiltersLabel = {
             let label = UILabel()
             label.text = "test"
@@ -37,7 +37,15 @@ class FilterCellSelect : UITableViewCell{
         }()
     }
     
-    private func removeSubFiltersEvent(){
+    
+    private func detailTitleRemove(){
+        
+        guard subFiltersLabel != nil ||
+            removeSubFiltersButton != nil
+            else {
+                return
+        }
+        
         let marginGuide = contentView.layoutMarginsGuide
         
         conCenterY.constant = 0
@@ -63,7 +71,10 @@ class FilterCellSelect : UITableViewCell{
         
         self.tableView?.beginUpdates()
         self.tableView?.endUpdates()
-        
+    }
+    
+    
+    private func detailTitleRemoveEvent(){
         parent?.removeFilterEvent
         .asObserver()
         .onNext(id)
@@ -78,10 +89,9 @@ class FilterCellSelect : UITableViewCell{
                 return
             }
         
-        initSubFiltersControls()
+        initDetailTitle()
         conCenterY.constant = -10.0
        
-        
         guard let `subFiltersLabel` = subFiltersLabel,
             let `removeSubFiltersButton` = removeSubFiltersButton
         else {return}
@@ -91,7 +101,6 @@ class FilterCellSelect : UITableViewCell{
         //subFiltersLabel.numberOfLines = 0
         contentView.addSubview(subFiltersLabel)
         contentView.addSubview(removeSubFiltersButton)
-        
         
         NSLayoutConstraint.activate([
             subFiltersLabel.leadingAnchor.constraint(equalTo: filterLabel.leadingAnchor),
@@ -106,10 +115,10 @@ class FilterCellSelect : UITableViewCell{
             removeSubFiltersButton.centerYAnchor.constraint(equalTo: marginGuide.centerYAnchor)
             ])
         
-        
         removeSubFiltersButton.rx.tap
             .subscribe( onNext: {[weak self] _ in
-                self?.removeSubFiltersEvent()
+                self?.detailTitleRemove()
+                self?.detailTitleRemoveEvent()
             })
             .disposed(by: bag)
     }
@@ -120,6 +129,8 @@ class FilterCellSelect : UITableViewCell{
         filterLabel.text = model.title
         self.tableView = tableView
         self.parent = parent
+        
+        detailTitleRemove()
         if appliedTitles != "" {
             addLabel(title: appliedTitles)
         }

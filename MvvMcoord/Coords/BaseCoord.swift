@@ -15,6 +15,8 @@ class BaseCoord<ResultType> {
     }
     //3 add func to release child-coord
     private func free<T>(coord: BaseCoord<T>){
+        
+        coord.viewModel = nil
         childCoords[coord.id] = nil
     }
     //4 add func call store funcб and run start-method

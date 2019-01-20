@@ -1,28 +1,18 @@
-//
-//  MvvMcoordTests.swift
-//  MvvMcoordTests
-//
-//  Created by Igor Ivanov on 01/01/2019.
-//  Copyright © 2019 Igor Ivanov. All rights reserved.
-//
-
 import XCTest
 import RxCocoa
 import RxSwift
 import RxTest
 
-
 @testable import MvvMcoord
 
-class MvvMcoordTests: XCTestCase {
-
+class useTestCase4: XCTestCase {
+    
+    
     var subFilterVM1: SubFilterVM!
     var subFilterVM2: SubFilterVM!
     var subFilterVM3: SubFilterVM!
     var subFilterVM4: SubFilterVM!
     var subFilterVM5: SubFilterVM!
-    
-
     
     let event1 = Variable<Int>(1)
     let event2 = Variable<Int>(1)
@@ -57,17 +47,20 @@ class MvvMcoordTests: XCTestCase {
     let deliveryFilterId = 5
     let sizeFilterId = 2
     
-    let polyamide = 49 
+    let polyamide = 49
     let yellow = 63
     let gray = 69
     let black = 72
     let blue = 62
     let pink = 68
+    let violet = 71
     let days5 = 59
     let viscose = 48
     
     let winter = 44
     let summer = 46
+    
+    let demiseason = 43
     
     var result = ""
     
@@ -79,7 +72,7 @@ class MvvMcoordTests: XCTestCase {
         
         filterVM = FilterVM(categoryId: categoryId)
     }
-
+    
     override func tearDown() {
         subFilterVM1 = nil
     }
@@ -88,16 +81,30 @@ class MvvMcoordTests: XCTestCase {
         subFilterVM2.inSelectModel.onNext(subFilterId)
         
     }
-
+    
     func applySubFilter(vm: SubFilterVM){
         vm.inApply.onNext(.reloadData)
     }
     
-
+    
     func selectApply(vm: SubFilterVM, subFilterId: Int, observerEvent: Variable<Int>){
         vm.inSelectModel.onNext(subFilterId)
         vm.inApply.onNext(.reloadData)
         observerEvent.value = 1
+    }
+    
+    
+    func select(observableEvent: Variable<Int>, vm: SubFilterVM, selectIds: [Int], observerEvent: Variable<Int>) {
+        
+        observableEvent
+            .asObservable()
+            .subscribe(onNext: {[weak self] _ in
+                for subFilterId in selectIds {
+                    self?.selectSubFilter(vm: vm, subFilterId: subFilterId)
+                }
+                observerEvent.value = 1
+            })
+            .disposed(by: bag)
     }
     
     
@@ -115,14 +122,16 @@ class MvvMcoordTests: XCTestCase {
             .disposed(by: bag)
     }
     
+    
+    
     func refreshDataSource(observableEvent: Variable<Int>, vm: SubFilterVM, observerEvent: Variable<Int>) {
         observableEvent
-        .asObservable()
-        .subscribe(onNext: {_ in
-            vm.bindData()
-            observerEvent.value = 1
-        })
-        .disposed(by: bag)
+            .asObservable()
+            .subscribe(onNext: {_ in
+                vm.bindData()
+                observerEvent.value = 1
+            })
+            .disposed(by: bag)
     }
     
     
@@ -136,8 +145,8 @@ class MvvMcoordTests: XCTestCase {
             .disposed(by: bag)
     }
     
-
-
+    
+    
     
     func clearTestCase(){
         subFilterVM1 = nil
@@ -227,156 +236,83 @@ class MvvMcoordTests: XCTestCase {
             }).disposed(by: bag)
     }
     
-    func initTestCase(filterId1: Int, filterId2: Int){
-        subFilterVM1 = SubFilterVM(filterId: filterId1)
-        subFilterVM2 = SubFilterVM(filterId: filterId2)
-        result = ""
-    }
     
-    func testUseCase0(){
-        
-        let expect = expectation(description: #function)
-        
-        initTestCase(filterId1: materialFilterId, filterId2: colorFilterId)
-        
-        // 1 apply white
-        selectApply(observableEvent: event1, vm: subFilterVM2, selectIds: [blue], observerEvent: event2)
-        
-        // 2 take available Filters
-        takeFromFilterVM(operationId: 2, observableEvent: event2, observerEvent: event3)
-        
-        // 3 unapply Color Filter
-        removeAppliedFilter(observableEvent: event3, filterId: colorFilterId, observerEvent: event4)
-        
-        // 4 take available Filters
-        takeFilterFinish(observableEvent: event4, expect: expect )
-        
-        waitForExpectations(timeout: 20.0) { [weak self] error in
-            guard error == nil else {
-                XCTFail(error!.localizedDescription)
-                return
-            }
-            XCTAssertEqual("2: Цвет \\\\\\Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава ", self?.result)
-        }
-        clearTestCase()
-    }
-
-    
-    
-    func testUseCase1() {
-        
-        let expect = expectation(description: #function)
-        
-        initTestCase(filterId1: materialFilterId, filterId2: colorFilterId)
-        
-        // 1 click polyamide
-        selectApply(vm: subFilterVM1, subFilterId: polyamide, observerEvent: event1)
-       
-        // 2 take available subfilters from Color Filter
-        takeFromVM(operationId:2, observableEvent: event1, vm: subFilterVM2, observerEvent: event2)
-        
-        // 3 select&apply yellow, gray, black
-        selectApply(observableEvent: event2, vm: subFilterVM2, selectIds: [yellow, gray, black], observerEvent: event3)
-        
-        // 4 check subfilter checkmarks from Color Filter
-        takeFromVM(operationId:4, observableEvent: event3, vm: subFilterVM2, observerEvent: event4)
-        
-        // 5 applied materials must be equal polyamide
-        refreshDataSource(observableEvent: event4, vm: subFilterVM1, observerEvent: event5)
-        
-        // 6 take available subfilters from Material Filter
-        takeFromVM(operationId:6, observableEvent: event5, vm: subFilterVM1, observerEvent: event6)
-        
-        // 7 unapply Color Filter
-        removeAppliedFilter(observableEvent: event6, filterId: colorFilterId, observerEvent: event7)
-        
-        // 6 materials must be all
-        refreshDataSource(observableEvent: event7, vm: subFilterVM1, observerEvent: event8)
-        
-        // 7 take available subfilters from Material Filter
-        takeFinish(observableEvent: event9, vm: subFilterVM1, expect: expect )
-
-        
-        waitForExpectations(timeout: 20.0) { [weak self] error in
-            guard error == nil else {
-                XCTFail(error!.localizedDescription)
-                return
-            }
-            XCTAssertEqual("2: желтый false серый false черный false \\\\\\4: желтый true серый true черный true \\\\\\6: ангора false вискоза false полиамид true полиуретан false полиэстер false хлопок false эластан false \\\\\\ангора false вискоза false полиамид true полиуретан false полиэстер false хлопок false шелк false шерсть false эластан false ", self?.result)
-        }
-        clearTestCase()
-    }
-    
-    
-    func initTestCase2(filterId1: Int, filterId2: Int, filterId3: Int){
+    func initTestCase0(filterId1: Int, filterId2: Int, filterId3: Int, filterId4: Int, filterId5: Int){
         subFilterVM1 = SubFilterVM(filterId: filterId1)
         subFilterVM2 = SubFilterVM(filterId: filterId2)
         subFilterVM3 = SubFilterVM(filterId: filterId3)
+        subFilterVM4 = SubFilterVM(filterId: filterId4)
+        subFilterVM5 = SubFilterVM(filterId: filterId5)
+        result = ""
+    }
+
+    func testExample() {
+        let expect = expectation(description: #function)
+        initTestCase0(filterId1: materialFilterId, filterId2: colorFilterId, filterId3: seasonFilterId, filterId4: deliveryFilterId, filterId5: sizeFilterId)
+        
+        
+        // 1 apply pink
+        selectApply(vm: subFilterVM2, subFilterId: pink, observerEvent: event1)
+        
+        // 2 take available subfilters from Delivery Filter
+        takeFromVM(operationId:2, observableEvent: event1, vm: subFilterVM4, observerEvent: event2)
+        
+        // 3 apply 5days
+        selectApply(observableEvent: event3, vm: subFilterVM4, selectIds: [days5], observerEvent: event4)
+        
+        // 4 take available subfilters from Material Filter
+        takeFromVM(operationId:3, observableEvent: event4, vm: subFilterVM1, observerEvent: event5)
+        
+        // 5 apply viscose
+        selectApply(observableEvent: event5, vm: subFilterVM1, selectIds: [viscose], observerEvent: event6)
+        
+        // 6 take available subfilters from Season Filter
+        takeFromVM(operationId:4, observableEvent: event6, vm: subFilterVM3, observerEvent: event7)
+        
+        // 7 apply winter
+        selectApply(observableEvent: event7, vm: subFilterVM4, selectIds: [winter], observerEvent: event8)
+        
+        // 8 take available subfilters from Size Filter
+        takeFinish(observableEvent: event8, vm: subFilterVM5, expect: expect )
+        
+        waitForExpectations(timeout: 20.0) { [weak self] error in
+            guard error == nil else {
+                XCTFail(error!.localizedDescription)
+                return
+            }
+            XCTAssertEqual("2: 5 дней false \\\\\\3: вискоза false шерсть false \\\\\\4: зима false \\\\\\34 false 36 false 45 false ", self?.result)
+        }
+        clearTestCase()
+    }
+    
+    func initTestCase1(filterId1: Int, filterId2: Int){
+        subFilterVM1 = SubFilterVM(filterId: filterId1)
+        subFilterVM2 = SubFilterVM(filterId: filterId2)
         result = ""
     }
     
-    func testUseCase2() {
+    func testExample2() {
         
         let expect = expectation(description: #function)
+        initTestCase1(filterId1: colorFilterId, filterId2: seasonFilterId)
         
-        initTestCase2(filterId1: materialFilterId, filterId2: colorFilterId, filterId3: seasonFilterId)
+        // 1 apply violet
+        selectApply(vm: subFilterVM1, subFilterId: violet, observerEvent: event1)
         
-        // 1 apply polyamide
-        selectApply(vm: subFilterVM1, subFilterId: polyamide, observerEvent: event1)
+        // 2 applied materials must be equal
+        refreshDataSource(observableEvent: event1, vm: subFilterVM2, observerEvent: event2)
         
-        // 2 take available subfilters from Color Filter
-        takeFromVM(operationId:2, observableEvent: event1, vm: subFilterVM2, observerEvent: event2)
+        // 2 take available subfilters from Season Filter
+        takeFromVM(operationId:1, observableEvent: event3, vm: subFilterVM2, observerEvent: event4)
         
-        // 3 apply black
-        selectApply(observableEvent: event2, vm: subFilterVM2, selectIds: [black], observerEvent: event3)
+        // 3 season demi-season
+        selectApply(observableEvent: event4, vm: subFilterVM2, selectIds: [demiseason], observerEvent: event5)
         
-        // 4 materials must be all
-        refreshDataSource(observableEvent: event3, vm: subFilterVM1, observerEvent: event4)
+        // 4 take available subfilters from Color Filter
+        takeFromVM(operationId:2, observableEvent: event5, vm: subFilterVM1, observerEvent: event6)
         
-        // 5 take available subfilters from Material Filter
-        takeFromVM(operationId:5, observableEvent: event4, vm: subFilterVM1, observerEvent: event5)
-        
-        
-        // 6 take available subfilters from Color Filter
-        takeFromVM(operationId:6, observableEvent: event6, vm: subFilterVM2, observerEvent: event7)
-        
-        // 7 season must be equal summer
-        refreshDataSource(observableEvent: event7, vm: subFilterVM3, observerEvent: event8)
-        
-        // 8 take available subfilters from Season Filter
-        takeFromVM(operationId:8, observableEvent: event8, vm: subFilterVM3, observerEvent: event9)
-        
-        // 9 apply summer
-        selectApply(observableEvent: event9, vm: subFilterVM3, selectIds: [summer], observerEvent: event10)
-        
-        // 10 materials must be polyamide, elastane, polyurethane
-        refreshDataSource(observableEvent: event10, vm: subFilterVM1, observerEvent: event11)
-        
-        // 11 take available subfilters from Material Filter
-        takeFromVM(operationId:11, observableEvent: event11, vm: subFilterVM1, observerEvent: event12)
-        
-        // 12 color must be black
-        refreshDataSource(observableEvent: event12, vm: subFilterVM2, observerEvent: event13)
-        
-        // 13 take available subfilters from Color Filter
-        takeFromVM(operationId:13, observableEvent: event13, vm: subFilterVM2, observerEvent: event14)
-        
-        // 14 unapply Season Filter
-        removeAppliedFilter(observableEvent: event15, filterId: seasonFilterId, observerEvent: event16)
-        
-        // 15 color must be yellow, gray, black
-        refreshDataSource(observableEvent: event16, vm: subFilterVM2, observerEvent: event17)
-        
-        // 16 take available subfilters from Color Filter
-        takeFromVM(operationId:16, observableEvent: event17, vm: subFilterVM2, observerEvent: event18)
-        
-        
-        // 17 material must be polyamide, elastane, polyurethane, angora, polyester, cotton
-        refreshDataSource(observableEvent: event18, vm: subFilterVM2, observerEvent: event19)
-        
-        
-        // 7 take available subfilters from Color Filter
-        takeFinish(observableEvent: event19, vm: subFilterVM1, expect: expect )
+        // 5 take available subfilters from Season Filter
+        takeFinish(observableEvent: event6, vm: subFilterVM2, expect: expect )
         
         
         waitForExpectations(timeout: 20.0) { [weak self] error in
@@ -384,12 +320,83 @@ class MvvMcoordTests: XCTestCase {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("2: желтый false серый false черный false \\\\\\5: ангора false полиамид true полиуретан false полиэстер false хлопок false эластан false \\\\\\6: желтый false серый false черный true \\\\\\8: лето false \\\\\\11: полиамид true полиуретан false эластан false \\\\\\13: черный true \\\\\\16: желтый false серый false черный true \\\\\\ангора false полиамид true полиуретан false полиэстер false хлопок false эластан false ", self?.result)
+            XCTAssertEqual("1: демисезон false круглогодичный false \\\\\\2: желтый false коричневый false красный false оранжевый false серый false фиолетовый true черный false \\\\\\демисезон true круглогодичный false ", self?.result)
         }
-        
         clearTestCase()
+    }
+
+    
+    func testExample3() {
+        let expect = expectation(description: #function)
+        initTestCase1(filterId1: colorFilterId, filterId2: seasonFilterId)
+        
+        // 1 apply violet
+        selectApply(vm: subFilterVM1, subFilterId: violet, observerEvent: event1)
+        
+        // 2 select
+        select(observableEvent: event1, vm: subFilterVM2, selectIds: [demiseason], observerEvent: event2)
+        
+        // 3 take available subfilters from Color Filter
+        takeFinish(observableEvent: event2, vm: subFilterVM1, expect: expect )
+        
+        waitForExpectations(timeout: 20.0) { [weak self] error in
+            guard error == nil else {
+                XCTFail(error!.localizedDescription)
+                return
+            }
+            XCTAssertEqual("бежевый false белый false голубой false желтый false зеленый false коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый true черный false ", self?.result)
+        }
+        clearTestCase()
+        
+    }
+
+    
+    func testExample4() {
+        
+        let expect = expectation(description: #function)
+        initTestCase1(filterId1: colorFilterId, filterId2: materialFilterId)
+        
+        // 1 apply blue
+        selectApply(vm: subFilterVM1, subFilterId: blue, observerEvent: event1)
+        
+        // 2 take from Filter
+        takeFromFilterVM(operationId: 1, observableEvent: event1, observerEvent: event2)
+        
+        // 3 apply yellow
+        selectApply(observableEvent: event2, vm: subFilterVM1, selectIds: [yellow], observerEvent: event3)
+        
+        // 4 take from Filter
+        takeFromFilterVM(operationId: 2, observableEvent: event3, observerEvent: event4)
+        
+        // 5 take available subfilters from Material Filter
+        takeFromVM(operationId:3, observableEvent: event4, vm: subFilterVM2, observerEvent: event5)
+        
+        // 6 apply viscose
+        selectApply(observableEvent: event5, vm: subFilterVM2, selectIds: [viscose], observerEvent: event6)
+        
+        // 7 take available subfilters from Color Filter
+        takeFromVM(operationId:4, observableEvent: event6, vm: subFilterVM1, observerEvent: event7)
+        
+        takeFinish(observableEvent: event7, vm: subFilterVM2, expect: expect )
+        
+        waitForExpectations(timeout: 20.0) { [weak self] error in
+            guard error == nil else {
+                XCTFail(error!.localizedDescription)
+                return
+            }
+            XCTAssertEqual("1: Цвет \\\\\\2: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\3: вискоза false полиамид false \\\\\\4: желтый true розовый false фиолетовый false \\\\\\вискоза true полиамид false ", self?.result)
+        }
+        clearTestCase()
+        
     }
     
     
-  
+    
+    
+    
+    func testExample5() {
+        // This is an example of a functional test case.
+        // Use XCTAssert and related functions to verify your tests produce the correct results.
+    }
+
 }
