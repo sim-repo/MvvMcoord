@@ -6,39 +6,36 @@ class SubFilterCoord : BaseCoord<CoordRetEnum>{
     private var rootViewController: UIViewController?
     private var viewController: UIViewController!
     private var filterId: Int
+    private weak var filterActionDelegate: FilterActionDelegate?
     
-    
-    init(rootViewController: UIViewController? = nil, filterId: Int){
+    init(rootViewController: UIViewController? = nil, filterId: Int, filterActionDelegate: FilterActionDelegate?){
         self.rootViewController = rootViewController
         self.filterId = filterId
+        self.filterActionDelegate = filterActionDelegate
     }
     
     
     override func start() -> Observable<CoordRetEnum> {
-        viewModel = SubFilterVM(filterId: filterId)
+        viewModel = SubFilterVM(filterId: filterId, filterActionDelegate: filterActionDelegate)
         
         guard let vm = viewModel as? SubFilterVM
             else { fatalError("view model") }
 
-        vm.outFilterEnum
-        .asObservable()
-            .subscribe(onNext: { [weak self] filterType in
-                switch filterType {
+        
+                switch vm.filterEnum {
                 case .section:
                     let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "SubFilterSectionVC") as! SubFilterSectionVC
                     vc.viewModel = vm
-                    self?.viewController = vc
+                    viewController = vc
                 case .select:
                     let vc =  UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "SubFilterSelectVC") as! SubFilterSelectVC
                     vc.viewModel = vm
-                    self?.viewController = vc
+                    viewController = vc
                 default:
                     let vc =  UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "SubFilterSelectVC") as! SubFilterSelectVC
                     vc.viewModel = vm
-                    self?.viewController = vc
+                    viewController = vc
                 }
-            })
-        .disposed(by: disposeBag)
 
         
         if rootViewController != nil {

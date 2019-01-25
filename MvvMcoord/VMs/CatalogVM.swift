@@ -14,6 +14,27 @@ struct CellLayout {
     var layoutImageName: String
 }
 
+
+protocol FilterActionDelegate : class {
+    func applyFromFilterEvent() -> PublishSubject<Void>
+    func applyFromSubFilterEvent() -> PublishSubject<Int>
+    func applyAfterRemoveEvent() -> PublishSubject<Int>
+    func removeFilterEvent() -> PublishSubject<Int>
+    func filtersEvent() -> BehaviorSubject<[FilterModel?]>
+    func requestFilters(categoryId: Int)
+    func subFiltersEvent() -> BehaviorSubject<[SubfilterModel?]>
+    func requestSubFilters(filterId: Int)
+    func sectionSubFiltersEvent() -> BehaviorSubject<[SectionOfSubFilterModel]>
+    func selectSubFilterEvent() -> PublishSubject<(Int, Bool)>
+    func appliedTitle(filterId: Int) -> String
+    func isSelectedSubFilter(subFilterId: Int) -> Bool
+    func getTitle(filterId: Int) -> String
+    func getFilterEnum(filterId: Int)->FilterEnum
+    
+    func requestComplete() -> PublishSubject<Int>
+}
+
+
 class CatalogVM : BaseVM {
     
     private var currCellLayout: CellLayoutEnum = .list
@@ -30,6 +51,32 @@ class CatalogVM : BaseVM {
     var outShowFilters = PublishSubject<Int>()
 
     
+    // MARK: - Filters
+    private var filters: [Int:FilterModel] = [:]    //loc
+    private var subfiltersByFilter: [Int:[Int]] = [:]   // loc
+    private var sectionSubFiltersByFilter: [Int:[SectionOfSubFilterModel]] = [:]  //loc
+    
+   
+    private var subFilters: [Int:SubfilterModel] = [:]  //loc
+    
+    private var appliedSubFilters: Set<Int> = Set() //loc
+    private var selectedSubFilters: Set<Int> = Set()    //loc
+    private var applyingByFilter: [Int:[Int]] = [:] //loc
+    
+    private var currState = UUID()
+    private var prevState = UUID()
+    
+    private var inApplyFromFilterEvent = PublishSubject<Void>()
+    private var inApplyFromSubFilterEvent = PublishSubject<Int>()
+    private var inApplyAfterRemoveEvent = PublishSubject<Int>()
+    private var inRemoveFilterEvent = PublishSubject<Int>()
+    private var inSelectSubFilterEvent = PublishSubject<(Int, Bool)>()
+    private var outFiltersEvent = BehaviorSubject<[FilterModel?]>(value: [])
+    private var outSubFiltersEvent = BehaviorSubject<[SubfilterModel?]>(value: [])
+    private var outSectionSubFiltersEvent = BehaviorSubject<[SectionOfSubFilterModel]>(value: [])
+    private var outRequestComplete = PublishSubject<Int>()
+    
+    
     init(categoryId: Int = 0){
         
         self.categoryId = categoryId
@@ -38,6 +85,7 @@ class CatalogVM : BaseVM {
         //network request
         bindData()
         bindUserActivities()
+        bindDelegate()
         
         CatalogModel.localTitle(categoryId: categoryId)
             .bind(to: outTitle)
@@ -64,11 +112,20 @@ class CatalogVM : BaseVM {
         
         inPressFilter
             .asObservable()
-            .map{[weak self] _ -> Int in
-                return self!.categoryId
-            }
-            .bind(to: outShowFilters)
+            .subscribe(onNext: {[weak self] _ in
+                if let `self` = self {
+                    self.requestFilters(categoryId: self.categoryId)
+                    self.outShowFilters.onNext(self.categoryId)
+                }
+            })
             .disposed(by: bag)
+            
+            
+//            .map{[weak self] _ -> Int in
+//                return self!.categoryId
+//            }
+//            .bind(to: outShowFilters)
+//            .disposed(by: bag)
     }
     
     // MARK: - Logic
@@ -87,4 +144,300 @@ class CatalogVM : BaseVM {
         }
     }
     
+}
+
+
+extension CatalogVM : FilterActionDelegate {
+    
+    
+    func applyFromFilterEvent() -> PublishSubject<Void> {
+        return inApplyFromFilterEvent
+    }
+    
+    func applyFromSubFilterEvent() -> PublishSubject<Int> {
+        return inApplyFromSubFilterEvent
+    }
+    
+    func applyAfterRemoveEvent() -> PublishSubject<Int> {
+        return inApplyAfterRemoveEvent
+    }
+    
+    func removeFilterEvent() -> PublishSubject<Int> {
+        return inRemoveFilterEvent
+    }
+    
+    
+    func filtersEvent() -> BehaviorSubject<[FilterModel?]> {
+        return outFiltersEvent
+    }
+    
+    func requestFilters(categoryId:Int) {
+        if (prevState != currState) {
+            NetworkMgt.requestFilters(categoryId: categoryId)
+            prevState = currState
+        }
+    }
+    
+    func subFiltersEvent() -> BehaviorSubject<[SubfilterModel?]> {
+        return outSubFiltersEvent
+    }
+    
+    
+    func requestSubFilters(filterId: Int) {
+        if (prevState != currState) {
+            showCleanSubFilterVC(filterId: filterId)
+            NetworkMgt.requestSubFilters(filterId: filterId)
+            prevState = currState
+        }
+        subFiltersFromCache(filterId: filterId)
+    }
+    
+    
+    func requestComplete() -> PublishSubject<Int> {
+        return outRequestComplete
+    }
+    
+    func sectionSubFiltersEvent() -> BehaviorSubject<[SectionOfSubFilterModel]> {
+        return outSectionSubFiltersEvent
+    }
+    
+    func selectSubFilterEvent() -> PublishSubject<(Int, Bool)> {
+        return inSelectSubFilterEvent
+    }
+    
+    func appliedTitle(filterId: Int) -> String {
+        var res = ""
+        let arr = appliedSubFilters
+            .compactMap({subFilters[$0]})
+            .filter({$0.filterId == filterId && $0.enabled == true})
+        arr.forEach({ subf in
+            res.append(subf.title + ",")
+        })
+        if res.count > 0 {
+            res.removeLast()
+        }
+        return res
+    }
+    
+    func isSelectedSubFilter(subFilterId: Int) -> Bool {
+        var res = false
+        res = selectedSubFilters.contains(subFilterId)
+        return res
+    }
+    
+    func getTitle(filterId: Int) -> String {
+        guard
+            let filter = filters[filterId]
+            else { return ""}
+        
+        return filter.title
+    }
+    
+    func getFilterEnum(filterId: Int)->FilterEnum {
+        guard
+            let filter = filters[filterId]
+            else { return .select}
+        
+        return filter.filterEnum
+    }
+    
+   
+    //        applyBeforeEnter(filterId: filterId)
+    //        if let ids = subfiltersByFilter[filterId] {
+    //            res = getEnabledSubFilters(ids: ids)
+    //        }
+    //        return Observable.just(res)
+    
+    private func bindDelegate(){
+        
+        // user activites:
+        inApplyFromFilterEvent
+            .subscribe(onNext: {[weak self] _ in
+                //self?.applyFromFilter()
+            })
+            .disposed(by: bag)
+        
+        inApplyFromSubFilterEvent
+            .subscribe(onNext: {[weak self] filterId in
+                if let `self` = self {
+                    self.showCleanFilterVC()
+                    NetworkMgt.requestApplyFromSubFilter(filterId: filterId, appliedSubFilters: self.appliedSubFilters, selectedSubFilters: self.selectedSubFilters)
+                }
+            })
+            .disposed(by: bag)
+        
+        inRemoveFilterEvent
+            .subscribe(onNext: {[weak self] filterId in
+                if let `self` = self {
+                    NetworkMgt.requestRemoveFilter(filterId: filterId, appliedSubFilters: self.appliedSubFilters, selectedSubFilters: self.selectedSubFilters)
+                }
+            })
+            .disposed(by: bag)
+        
+        inSelectSubFilterEvent
+            .subscribe(onNext: {[weak self] (subFilterId, selected) in
+                self?.selectSubFilter(subFilterId: subFilterId, selected: selected)
+            })
+            .disposed(by: bag)
+        
+        // networking responses:
+        NetworkMgt.outSubFilters
+            .skip(1)
+            .subscribe(onNext: {[weak self] _subFilters in
+                
+                guard let `self` = self else { return }
+                
+                self.subfiltersByFilter.removeAll()
+                
+                _subFilters.forEach{ subf in
+                    if self.subfiltersByFilter[subf.filterId] == nil {
+                        self.subfiltersByFilter[subf.filterId] = []
+                    }
+                    self.subfiltersByFilter[subf.filterId]?.append(subf.id)
+                    self.subFilters[subf.id] = subf
+                }
+                self.fillSectionSubFilters()
+            })
+            .disposed(by: bag)
+        
+
+        NetworkMgt.outFilters
+            .subscribe(onNext: { [weak self] _filters in
+                guard let `self` = self else {return}
+                self.filters.removeAll()
+                self.filters = Dictionary(uniqueKeysWithValues: _filters.compactMap({$0}).map{ ($0.id, $0) })
+                self.outFiltersEvent.onNext(self.getEnabledFilters())
+            })
+            .disposed(by: bag)
+        
+        
+        NetworkMgt.outApplyFromSubFilterResponse
+            .subscribe(onNext: {[weak self] _filters in
+                guard let `self` = self else {return}
+                self.enableFilters(ids: _filters.0)
+                self.enableSubFilters(ids: _filters.1)
+                self.appliedSubFilters = _filters.2
+                self.selectedSubFilters = _filters.3
+                self.outFiltersEvent.onNext(self.getEnabledFilters())
+            })
+            .disposed(by: bag)
+    }
+}
+
+
+extension CatalogVM {
+    
+    private func subFiltersFromCache(filterId: Int){
+        
+        guard let filter = filters[filterId] else {return}
+        
+        switch filter.filterEnum {
+        case .select:
+            var res = [SubfilterModel?]()
+            if let ids = self.subfiltersByFilter[filterId] {
+                res = self.getEnabledSubFilters(ids: ids)
+            }
+            self.outSubFiltersEvent.onNext(res)
+        case .section:
+            if let sections = sectionSubFiltersByFilter[filterId] {
+                self.outSectionSubFiltersEvent.onNext(sections)
+            }
+        default:
+            print("todo")
+        }
+        self.outRequestComplete.onNext(filterId)
+    }
+    
+    
+    private func showCleanFilterVC(){
+       self.outFiltersEvent.onNext([])
+    }
+    
+    
+    private func showCleanSubFilterVC(filterId : Int){
+        self.outSubFiltersEvent.onNext([])
+        self.outSectionSubFiltersEvent.onNext([])
+        // signal-ready to show vc
+        self.outRequestComplete.onNext(filterId)
+    }
+    
+
+    private func fillSectionSubFilters(){
+        sectionSubFiltersByFilter.removeAll()
+        
+        var tmp = [String:[SubfilterModel]]()
+        var tmp2 = [SectionOfSubFilterModel]()
+        
+        for filter in filters {
+            if filter.value.filterEnum != .section {
+                continue
+            }
+            tmp.removeAll()
+            tmp2.removeAll()
+            if let ids = subfiltersByFilter[filter.key] {
+                for id in ids {
+                    if let subf = subFilters[id] {
+                        if tmp[subf.sectionHeader] == nil {
+                            tmp[subf.sectionHeader]  = []
+                        }
+                        tmp[subf.sectionHeader]?.append(subf)
+                    }
+                }
+                for t in tmp {
+                    tmp2.append(SectionOfSubFilterModel(header: t.key, items: t.value))
+                }
+                sectionSubFiltersByFilter[filter.key] = tmp2
+            }
+        }
+    }
+    
+    private func selectSubFilter(subFilterId: Int, selected: Bool) {
+        if selected {
+            selectedSubFilters.insert(subFilterId)
+        } else {
+            selectedSubFilters.remove(subFilterId)
+        }
+    }
+    
+    private func getEnabledSubFilters(ids: [Int]) -> [SubfilterModel?] {
+        let res = ids
+            .compactMap({subFilters[$0]})
+            .filter({$0.enabled == true})
+        return res
+    }
+    
+    private func enableSubFilters(ids: [Int?]) {
+        
+        for subf in subFilters {
+            subf.value.enabled = false
+        }
+        
+        for id in ids {
+            if let i = id,
+            let subf = subFilters[i] {
+                subf.enabled = true
+            }
+        }
+    }
+    
+    private func getEnabledFilters()->[FilterModel?] {
+        return filters
+            .compactMap({$0.value})
+            .filter({$0.enabled == true})
+            .sorted(by: {$0.id < $1.id })
+    }
+    
+    private func enableFilters(ids: [Int?]) {
+        
+        for subf in filters {
+            subf.value.enabled = false
+        }
+        
+        for id in ids {
+            if let i = id,
+                let subf = filters[i] {
+                subf.enabled = true
+            }
+        }
+    }
 }

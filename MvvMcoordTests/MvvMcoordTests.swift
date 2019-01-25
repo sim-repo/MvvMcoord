@@ -257,11 +257,12 @@ class MvvMcoordTests: XCTestCase {
                 return
             }
             XCTAssertEqual("2: Цвет \\\\\\Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава ", self?.result)
+            
         }
         clearTestCase()
     }
 
-    
+    /*
     
     func testUseCase1() {
         
@@ -391,5 +392,5 @@ class MvvMcoordTests: XCTestCase {
     }
     
     
-  
+  */
 }

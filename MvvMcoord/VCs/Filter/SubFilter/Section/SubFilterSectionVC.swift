@@ -9,6 +9,8 @@ class SubFilterSectionVC: UIViewController {
     var bag = DisposeBag()
     @IBOutlet weak var tableView: UITableView!
     
+
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         registerTableView()
@@ -25,7 +27,7 @@ class SubFilterSectionVC: UIViewController {
         let dataSource = RxTableViewSectionedReloadDataSource<SectionOfSubFilterModel>(
             configureCell: { dataSource, tableView, indexPath, model in
                 guard let cell = tableView.dequeueReusableCell(withIdentifier: "SubFilterSectionCell", for: indexPath) as? SubFilterSectionCell else { return (UITableViewCell()) }
-                cell.configCell(model: model)
+                cell.configCell(model: model, isCheckmark: self.viewModel.isCheckmark(subFilterId: model.id))
                 return cell
         })
         
@@ -33,13 +35,9 @@ class SubFilterSectionVC: UIViewController {
             return dataSource.sectionModels[index].header
         }
         
-        
         viewModel.outModelSections
             .asObservable()
-            .map{ filters in
-                return filters ?? []
-            }
-            .bind(to: tableView.rx.items(dataSource: dataSource) )
+            .bind(to: tableView.rx.items(dataSource: dataSource))
             .disposed(by: bag)
     }
     

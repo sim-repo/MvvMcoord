@@ -6,11 +6,13 @@ class FilterCoord : BaseCoord<CoordRetEnum>{
     private var rootViewController: UIViewController?
     private var viewController: FilterVC!
     private var categoryId: Int
+    private weak var filterActionDelegate: FilterActionDelegate?
     
     
-    init(rootViewController: UIViewController? = nil, categoryId: Int){
+    init(rootViewController: UIViewController? = nil, categoryId: Int, filterActionDelegate: FilterActionDelegate?){
         self.rootViewController = rootViewController
         self.categoryId = categoryId
+        self.filterActionDelegate = filterActionDelegate
     }
 
     private func reload(){
@@ -21,7 +23,7 @@ class FilterCoord : BaseCoord<CoordRetEnum>{
     }
     
     override func start() -> Observable<CoordRetEnum> {
-        viewModel = FilterVM(categoryId: categoryId)
+        viewModel = FilterVM(categoryId: categoryId, filterActionDelegate: filterActionDelegate)
         viewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "FilterVC") as? FilterVC
         
         guard let vm = viewModel as? FilterVM
@@ -34,7 +36,7 @@ class FilterCoord : BaseCoord<CoordRetEnum>{
             .asObserver()
             .do(onNext: {[weak self] filterId in
                 if let `self` = self {
-                    self.showSubFilters(on: self.viewController, filterId: filterId)
+                    self.showSubFilters(on: self.viewController, filterId: filterId, filterActionDelegate: self.filterActionDelegate)
                         .asObservable()
                         .subscribe(onNext: {event in
                             switch event {
@@ -59,8 +61,8 @@ class FilterCoord : BaseCoord<CoordRetEnum>{
     }
     
     
-    private func showSubFilters(on rootViewController: UIViewController, filterId: Int) -> Observable<CoordRetEnum> {
-        let nextCoord = SubFilterCoord(rootViewController: rootViewController, filterId: filterId)
+    private func showSubFilters(on rootViewController: UIViewController, filterId: Int, filterActionDelegate: FilterActionDelegate?) -> Observable<CoordRetEnum> {
+        let nextCoord = SubFilterCoord(rootViewController: rootViewController, filterId: filterId, filterActionDelegate: filterActionDelegate)
         return coordinate(coord: nextCoord)
     }
 }

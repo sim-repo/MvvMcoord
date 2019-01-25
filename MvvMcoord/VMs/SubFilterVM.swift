@@ -5,15 +5,13 @@ import RxDataSources
 
 
 
-
-
 class SubFilterVM : BaseVM {
     
     // MARK: - when init. Output to ViewController
     var outModels = Variable<[SubfilterModel?]>([])
-    var outModelSections = Variable< [SectionOfSubFilterModel]? >(nil)
-    var outFilterEnum = Variable<FilterEnum>(.select)
-    var outDidUpdateParentVC = PublishSubject<Void>()
+    var outModelSections = Variable<[SectionOfSubFilterModel]>([])
+    var filterEnum: FilterEnum = .select
+    var outCloseVC = PublishSubject<Void>()
     
     // MARK: - during user activies. Input from ViewController
     var inSelectModel = PublishSubject<Int>()
@@ -22,49 +20,43 @@ class SubFilterVM : BaseVM {
     var inCleanUp = PublishSubject<Void>()
     
     var filterId = 0
+    private weak var filterActionDelegate: FilterActionDelegate?
     
-    init(filterId: Int = 0){
+    init(filterId: Int = 0, filterActionDelegate: FilterActionDelegate?){
         super.init()
         self.filterId = filterId
-        
+        self.filterActionDelegate = filterActionDelegate
+        self.filterEnum = filterActionDelegate?.getFilterEnum(filterId: filterId) ?? .select
         bindData()
         bindSelection()
         bindUserActivities()
     }
     
-    //network or local request
     public func bindData(){
         
-        let subFilters = SubfilterModel.nerworkRequest(filterId: filterId)
-        
-        subFilters
+        filterActionDelegate?.subFiltersEvent()
             .bind(to: outModels)
             .disposed(by: bag)
         
-        let subFilters2 = SubfilterModel.nerworkRequestSection(filterId: filterId)
         
-        subFilters2
+        filterActionDelegate?.sectionSubFiltersEvent()
             .bind(to: outModelSections)
             .disposed(by: bag)
-        
-        
-        let filterEnum = SubfilterModel.getFilterEnum(filterId: filterId)
-        
-        filterEnum
-            .bind(to: outFilterEnum)
-            .disposed(by: bag)
+
     }
     
     private func bindSelection(){
+        
         inSelectModel
-            .subscribe(onNext: {id in
-                SubfilterModel.localSelectSubFilter(subFilterId: id, selected: true)
+            .subscribe(onNext: {[weak self] id in
+                self?.filterActionDelegate?.selectSubFilterEvent().onNext((id, true))
             })
             .disposed(by: bag)
         
+        
         inDeselectModel
-            .subscribe(onNext: {id in
-                SubfilterModel.localSelectSubFilter(subFilterId: id, selected: false)
+            .subscribe(onNext: {[weak self] id in
+                self?.filterActionDelegate?.selectSubFilterEvent().onNext((id, false))
             })
             .disposed(by: bag)
     }
@@ -74,9 +66,8 @@ class SubFilterVM : BaseVM {
         inApply
             .subscribe(onNext: {[weak self] _ in
                 if let `self` = self {
-                    // SubFilterVM не знает когда вызывать outDidUpdateParentVC, нужен рефакторинг
-                    SubfilterModel.applySubFilters(filterId: self.filterId)
-                    self.outDidUpdateParentVC.onCompleted()
+                    self.filterActionDelegate?.applyFromSubFilterEvent().onNext(self.filterId)
+                    self.outCloseVC.onCompleted()
                 }
             })
             .disposed(by: bag)
@@ -88,8 +79,8 @@ class SubFilterVM : BaseVM {
             .disposed(by: bag)
     }
     
-    public func isCheckmark(subFilterId: Int)->Bool {
-        return SubfilterModel.localSelectedSubFilter(subFilterId: subFilterId)
+    public func isCheckmark(subFilterId: Int) -> Bool {
+        return self.filterActionDelegate?.isSelectedSubFilter(subFilterId: subFilterId) ?? false
     }
     
 }

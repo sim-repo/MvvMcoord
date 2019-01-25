@@ -15,7 +15,6 @@ class BaseCoord<ResultType> {
     }
     //3 add func to release child-coord
     private func free<T>(coord: BaseCoord<T>){
-        
         coord.viewModel = nil
         childCoords[coord.id] = nil
     }
@@ -25,7 +24,7 @@ class BaseCoord<ResultType> {
         return coord.start()
             .do(
                 onNext:{[weak self] _ in
-                    self?.free(coord: coord)
+                  //  self?.free(coord: coord)
                 },
                 onCompleted: {
                     self.free(coord: coord)

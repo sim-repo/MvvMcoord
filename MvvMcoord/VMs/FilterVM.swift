@@ -13,42 +13,57 @@ class FilterVM : BaseVM {
     
     
     // MARK: - Outputs to ViewController or Coord
-    var outFilters = Variable<[FilterModel?]>([])
+    var outFilters = Variable<[FilterModel?]>([]) // added
     var outShowSubFilters = PublishSubject<Int>()
-    var outDidUpdateParentVC = PublishSubject<Void>()
+    var outCloseVC = PublishSubject<Void>()
     
     var categoryId : Int
+    var filters: [Int:FilterModel] = [:] 
     
-    init(categoryId: Int = 0){
+    private weak var filterActionDelegate: FilterActionDelegate?
+    
+    init(categoryId: Int = 0, filterActionDelegate: FilterActionDelegate?){
         self.categoryId = categoryId
+        self.filterActionDelegate = filterActionDelegate
         super.init()
         
         bindData()
         bindSelection()
         bindUserActivities()
     }
-    
-    //network or local request
-    public func bindData(){
-        let filters = FilterModel.localRequest(categoryId: categoryId)
-        
-        filters
-            .bind(to: outFilters)
-            .disposed(by: bag)
+
+    private func getEnabled()->[FilterModel] {
+        return filters
+            .compactMap({$0.value})
+            .filter({$0.enabled == true})
+            .sorted(by: {$0.id < $1.id })
     }
     
+    //network request
+    public func bindData(){
+        filterActionDelegate?.filtersEvent()
+        .bind(to: outFilters)
+        .disposed(by: bag)
+    }
+    
+    
     public func appliedTitles(filterId: Int)->String {
-        return FilterModel.localAppliedTitles(filterId: filterId)
+        return self.filterActionDelegate?.appliedTitle(filterId: filterId) ?? ""
     }
     
     private func bindSelection(){
         inSelectFilter
             .subscribe(
                 onNext: {[weak self] filterId in
-                    //local request
-                    self?.outShowSubFilters.onNext(filterId)
+                    self?.filterActionDelegate?.requestSubFilters(filterId: filterId)
                 }
             )
+            .disposed(by: bag)
+        
+        filterActionDelegate?.requestComplete()
+            .bind { filterId in
+                self.outShowSubFilters.onNext(filterId)
+            }
             .disposed(by: bag)
     }
     
@@ -57,8 +72,8 @@ class FilterVM : BaseVM {
         inApply
             .subscribe(onNext: {[weak self] _ in
                 if let `self` = self {
-                    FilterModel.applyFilters()
-                    self.outDidUpdateParentVC.onCompleted()
+                    self.filterActionDelegate?.applyFromFilterEvent().onNext(Void())
+                    self.outCloseVC.onCompleted()
                 }
             })
             .disposed(by: bag)
@@ -71,8 +86,11 @@ class FilterVM : BaseVM {
         
         inRemoveFilter
             .subscribe(onNext: {[weak self] filterId in
-                FilterModel.removeFilter(filterId: filterId)
-                self?.bindData()
+                if let `self` = self {
+                    self.filterActionDelegate?
+                        .removeFilterEvent()
+                        .onNext(filterId)
+                }
             })
             .disposed(by: bag)
     }

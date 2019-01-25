@@ -33,7 +33,7 @@ class CatalogCoord : BaseCoord<CoordRetEnum>{
             .asObserver()
             .do(onNext: {[weak self] categoryId in
                 if let `self` = self {
-                    self.showFilters(on: self.viewController, categoryId: categoryId)
+                    self.showFilters(on: self.viewController, categoryId: categoryId, filterActionDelegate: vm)
                         .asObservable()
                         .subscribe(onNext: {event in
                             switch event {
@@ -58,8 +58,8 @@ class CatalogCoord : BaseCoord<CoordRetEnum>{
     }
     
     
-    private func showFilters(on rootViewController: UIViewController, categoryId: Int) -> Observable<CoordRetEnum> {
-        let nextCoord = FilterCoord(rootViewController: rootViewController, categoryId: categoryId)
+    private func showFilters(on rootViewController: UIViewController, categoryId: Int, filterActionDelegate: FilterActionDelegate?) -> Observable<CoordRetEnum> {
+        let nextCoord = FilterCoord(rootViewController: rootViewController, categoryId: categoryId, filterActionDelegate: filterActionDelegate)
         return coordinate(coord: nextCoord)
     }
 }

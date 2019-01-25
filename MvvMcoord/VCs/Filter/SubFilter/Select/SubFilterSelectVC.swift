@@ -11,8 +11,19 @@ class SubFilterSelectVC: UIViewController {
     @IBOutlet weak var applyView: ApplyButton!
     @IBOutlet weak var applyViewBottomCon: NSLayoutConstraint!
     
+    
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        print("init SubFilterSelectVC")
+    }
+    
+   
+    
     override func viewDidLoad() {
+        
         super.viewDidLoad()
+        
         registerTableView()
         bindCell()
         bindSelection()
@@ -20,7 +31,7 @@ class SubFilterSelectVC: UIViewController {
     }
     
     deinit {
-        print("deinit SubFilterSelectVC")
+        print("deinit SubFilterSelectVC 4")
     }
     
     private func registerTableView(){
@@ -85,7 +96,7 @@ class SubFilterSelectVC: UIViewController {
         }
         .disposed(by: bag)
         
-        viewModel.outDidUpdateParentVC
+        viewModel.outCloseVC
         .take(1)
         .subscribe{[weak self] _ in
             self?.navigationController?.popViewController(animated: true)

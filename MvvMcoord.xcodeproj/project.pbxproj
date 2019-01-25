@@ -8,9 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		1609261D21E0EB0400650707 /* BaseVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1609261C21E0EB0400650707 /* BaseVM.swift */; };
-		1609261F21E1118700650707 /* FilterModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1609261E21E1118700650707 /* FilterModel.swift */; };
+		1609263221FB261500AD8CE3 /* BackendLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1609263121FB261500AD8CE3 /* BackendLogic.swift */; };
 		1609E7EA21DF598600306676 /* CatalogVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1609E7E921DF598600306676 /* CatalogVC.swift */; };
 		1609E7EC21DF612600306676 /* CatalogListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1609E7EB21DF612600306676 /* CatalogListCell.swift */; };
+		160C002321FB734900C8C44F /* FilterModel2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 160C002221FB734900C8C44F /* FilterModel2.swift */; };
 		1611908E21DDF8CB00E3CB93 /* UIView+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1611908D21DDF8CB00E3CB93 /* UIView+Ext.swift */; };
 		1611909021DDFEB300E3CB93 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1611908F21DDFEB300E3CB93 /* Assets.xcassets */; };
 		1611909221DE231400E3CB93 /* DiscountLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1611909121DE231400E3CB93 /* DiscountLabel.swift */; };
@@ -26,6 +27,7 @@
 		1617B57521E3F1A200FFE2DA /* SubFilterSelectCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1617B57421E3F1A200FFE2DA /* SubFilterSelectCell.swift */; };
 		1617B57721E3F20000FFE2DA /* SubFilterVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1617B57621E3F20000FFE2DA /* SubFilterVM.swift */; };
 		1617B57921E3F28600FFE2DA /* SubFilterCoord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1617B57821E3F28600FFE2DA /* SubFilterCoord.swift */; };
+		161A440021F740E400D16F1E /* NetworkMgt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161A43FF21F740E400D16F1E /* NetworkMgt.swift */; };
 		161AC87521DB6B080078F020 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161AC87421DB6B080078F020 /* AppDelegate.swift */; };
 		161AC87721DB6B080078F020 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161AC87621DB6B080078F020 /* ViewController.swift */; };
 		161AC87A21DB6B080078F020 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 161AC87821DB6B080078F020 /* Main.storyboard */; };
@@ -81,9 +83,10 @@
 /* Begin PBXFileReference section */
 		0E5592B96EFF73B37D27934F /* Pods-MvvMcoordUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MvvMcoordUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MvvMcoordUITests/Pods-MvvMcoordUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		1609261C21E0EB0400650707 /* BaseVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseVM.swift; sourceTree = "<group>"; };
-		1609261E21E1118700650707 /* FilterModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterModel.swift; sourceTree = "<group>"; };
+		1609263121FB261500AD8CE3 /* BackendLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendLogic.swift; sourceTree = "<group>"; };
 		1609E7E921DF598600306676 /* CatalogVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogVC.swift; sourceTree = "<group>"; };
 		1609E7EB21DF612600306676 /* CatalogListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogListCell.swift; sourceTree = "<group>"; };
+		160C002221FB734900C8C44F /* FilterModel2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterModel2.swift; sourceTree = "<group>"; };
 		1611908D21DDF8CB00E3CB93 /* UIView+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Ext.swift"; sourceTree = "<group>"; };
 		1611908F21DDFEB300E3CB93 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1611909121DE231400E3CB93 /* DiscountLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscountLabel.swift; sourceTree = "<group>"; };
@@ -99,6 +102,7 @@
 		1617B57421E3F1A200FFE2DA /* SubFilterSelectCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubFilterSelectCell.swift; sourceTree = "<group>"; };
 		1617B57621E3F20000FFE2DA /* SubFilterVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubFilterVM.swift; sourceTree = "<group>"; };
 		1617B57821E3F28600FFE2DA /* SubFilterCoord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubFilterCoord.swift; sourceTree = "<group>"; };
+		161A43FF21F740E400D16F1E /* NetworkMgt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMgt.swift; sourceTree = "<group>"; };
 		161AC87121DB6B080078F020 /* MvvMcoord.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MvvMcoord.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		161AC87421DB6B080078F020 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		161AC87621DB6B080078F020 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -180,7 +184,7 @@
 			children = (
 				161AC8C321DBBEE60078F020 /* CategoryModel.swift */,
 				1615B26F21DCFC8600E84801 /* CatalogModel.swift */,
-				1609261E21E1118700650707 /* FilterModel.swift */,
+				160C002221FB734900C8C44F /* FilterModel2.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -226,6 +230,8 @@
 				1611908D21DDF8CB00E3CB93 /* UIView+Ext.swift */,
 				1611909121DE231400E3CB93 /* DiscountLabel.swift */,
 				16C6CC6B21E0026000F535D0 /* Formatter.swift */,
+				161A43FF21F740E400D16F1E /* NetworkMgt.swift */,
+				1609263121FB261500AD8CE3 /* BackendLogic.swift */,
 			);
 			path = MvvMcoord;
 			sourceTree = "<group>";
@@ -601,6 +607,7 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-MvvMcoord/Pods-MvvMcoord-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
 				"${BUILT_PRODUCTS_DIR}/Differentiator/Differentiator.framework",
 				"${BUILT_PRODUCTS_DIR}/RxAtomic/RxAtomic.framework",
 				"${BUILT_PRODUCTS_DIR}/RxBlocking/RxBlocking.framework",
@@ -608,11 +615,13 @@
 				"${BUILT_PRODUCTS_DIR}/RxDataSources/RxDataSources.framework",
 				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/RxTest/RxTest.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Differentiator.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxAtomic.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxBlocking.framework",
@@ -620,6 +629,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxDataSources.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxTest.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -688,9 +698,10 @@
 				161AC8C621DC1FBB0078F020 /* RootCoord.swift in Sources */,
 				161AC8B221DBBBED0078F020 /* CategoryVM.swift in Sources */,
 				1609E7EC21DF612600306676 /* CatalogListCell.swift in Sources */,
+				1609263221FB261500AD8CE3 /* BackendLogic.swift in Sources */,
 				1617B57521E3F1A200FFE2DA /* SubFilterSelectCell.swift in Sources */,
 				1617B57721E3F20000FFE2DA /* SubFilterVM.swift in Sources */,
-				1609261F21E1118700650707 /* FilterModel.swift in Sources */,
+				160C002321FB734900C8C44F /* FilterModel2.swift in Sources */,
 				16C6CC6821DFF8BB00F535D0 /* CatalogSquareCell.swift in Sources */,
 				1611909221DE231400E3CB93 /* DiscountLabel.swift in Sources */,
 				163AD71F21E5529E00EA91B0 /* FilterCellSection.swift in Sources */,
@@ -709,6 +720,7 @@
 				1617B57121E3BEDF00FFE2DA /* FilterCellSelect.swift in Sources */,
 				1615B27021DCFC8600E84801 /* CatalogModel.swift in Sources */,
 				1615B26E21DCF9EC00E84801 /* CatalogVM.swift in Sources */,
+				161A440021F740E400D16F1E /* NetworkMgt.swift in Sources */,
 				1617B56821E34B5400FFE2DA /* FilterVC.swift in Sources */,
 				161AC8A321DB6B950078F020 /* CategoryCoord.swift in Sources */,
 			);

@@ -15,7 +15,7 @@ class FilterVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-      // registerTableView()
+        // registerTableView()
         bindCell()
         bindApply()
         bindSelection()
@@ -35,81 +35,81 @@ class FilterVC: UIViewController {
             .disposed(by: bag)
     }
     
-        private func bindCell(){
-            viewModel.outFilters
-                .asObservable()
-                .bind(to: self.tableView.rx.items) { [weak self] tableView, index, model in
-                    if let `self` = self,
-                       let `model` = model {
-                        let appliedTitles = self.viewModel.appliedTitles(filterId: model.id)
-                        print("titles: \(model.id) : \(appliedTitles)")
-                        let indexPath = IndexPath(item: index, section: 0)
-                        switch model.filterEnum {
-                        case .range:
-                            guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCell", for: indexPath) as? FilterCell else { return UITableViewCell() }
-    
-                            cell.configCell(model: model)
-                            cell.state = self.cellIsExpanded(at: indexPath) ? .expanded : .collapsed
-                            return cell
-                        case .select:
-                            guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCellSelect", for: indexPath) as? FilterCellSelect else { return UITableViewCell() }
-                            cell.configCell(model: model, appliedTitles: appliedTitles, tableView: self.tableView, parent: self)
-                            return cell
-                        case .section:
-                            guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCellSection", for: indexPath) as? FilterCellSection else { return UITableViewCell() }
-                            cell.configCell(model: model)
-                            return cell
-                        }
-                    } else {
-                        return UITableViewCell()
+    private func bindCell(){
+        viewModel.outFilters
+            .asObservable()
+            .bind(to: self.tableView.rx.items) { [weak self] tableView, index, model in
+                if let `self` = self,
+                   let `model` = model {
+                    var appliedTitles = self.viewModel.appliedTitles(filterId: model.id)
+        
+                    let indexPath = IndexPath(item: index, section: 0)
+                    switch model.filterEnum {
+                    case .range:
+                        guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCell", for: indexPath) as? FilterCell else { return UITableViewCell() }
+                        
+                        cell.configCell(model: model)
+                        cell.state = self.cellIsExpanded(at: indexPath) ? .expanded : .collapsed
+                        return cell
+                    case .select:
+                        guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCellSelect", for: indexPath) as? FilterCellSelect else { return UITableViewCell() }
+                        cell.configCell(model: model, appliedTitles: appliedTitles, tableView: self.tableView, parent: self)
+                        return cell
+                    case .section:
+                        guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCellSection", for: indexPath) as? FilterCellSection else { return UITableViewCell() }
+                        cell.configCell(model: model)
+                        return cell
                     }
-                }.disposed(by: bag)
+                } else {
+                    return UITableViewCell()
+                }
+            }.disposed(by: bag)
+        
+        // self.tableView.reloadData()
+    }
     
-           // self.tableView.reloadData()
-        }
-    
-//    private func bindCell(){
-//        let dataSource = RxTableViewSectionedReloadDataSource<SectionOfFilterModel>(
-//            configureCell: { [weak self] dataSource, tableView, indexPath, model in
-//
-//                guard let `self` = self else { return UITableViewCell() }
-//
-//                let appliedTitles = self.viewModel.appliedTitles(filterId: model.id)
-//
-//                switch model.filterEnum {
-//                case .range:
-//                    guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCell", for: indexPath) as? FilterCell else { return UITableViewCell() }
-//
-//                    cell.configCell(model: model)
-//                    cell.state = self.cellIsExpanded(at: indexPath) ? .expanded : .collapsed
-//                    return cell
-//                case .select:
-//                    guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCellSelect", for: indexPath) as? FilterCellSelect else { return UITableViewCell() }
-//                    cell.configCell(model: model, appliedTitles: appliedTitles, tableView: self.tableView, parent: self)
-//                    return cell
-//                case .section:
-//                    guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCellSection", for: indexPath) as? FilterCellSection else { return UITableViewCell() }
-//                    cell.configCell(model: model)
-//                    return cell
-//                }
-//
-//
-//        })
-//
-//        //        dataSource.titleForHeaderInSection = { dataSource, index in
-//        //            return dataSource.sectionModels[index].header
-//        //        }
-//        //
-//
-//        viewModel.outModelSections
-//            .asObservable()
-//            .map{ filters in
-//                return filters ?? []
-//            }
-//            .bind(to: tableView.rx.items(dataSource: dataSource) )
-//            .disposed(by: bag)
-//    }
-//
+    //    private func bindCell(){
+    //        let dataSource = RxTableViewSectionedReloadDataSource<SectionOfFilterModel>(
+    //            configureCell: { [weak self] dataSource, tableView, indexPath, model in
+    //
+    //                guard let `self` = self else { return UITableViewCell() }
+    //
+    //                let appliedTitles = self.viewModel.appliedTitles(filterId: model.id)
+    //
+    //                switch model.filterEnum {
+    //                case .range:
+    //                    guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCell", for: indexPath) as? FilterCell else { return UITableViewCell() }
+    //
+    //                    cell.configCell(model: model)
+    //                    cell.state = self.cellIsExpanded(at: indexPath) ? .expanded : .collapsed
+    //                    return cell
+    //                case .select:
+    //                    guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCellSelect", for: indexPath) as? FilterCellSelect else { return UITableViewCell() }
+    //                    cell.configCell(model: model, appliedTitles: appliedTitles, tableView: self.tableView, parent: self)
+    //                    return cell
+    //                case .section:
+    //                    guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCellSection", for: indexPath) as? FilterCellSection else { return UITableViewCell() }
+    //                    cell.configCell(model: model)
+    //                    return cell
+    //                }
+    //
+    //
+    //        })
+    //
+    //        //        dataSource.titleForHeaderInSection = { dataSource, index in
+    //        //            return dataSource.sectionModels[index].header
+    //        //        }
+    //        //
+    //
+    //        viewModel.outModelSections
+    //            .asObservable()
+    //            .map{ filters in
+    //                return filters ?? []
+    //            }
+    //            .bind(to: tableView.rx.items(dataSource: dataSource) )
+    //            .disposed(by: bag)
+    //    }
+    //
     
     
     
@@ -187,7 +187,7 @@ class FilterVC: UIViewController {
             }
             .disposed(by: bag)
         
-        viewModel.outDidUpdateParentVC
+        viewModel.outCloseVC
             .take(1)
             .subscribe{[weak self] _ in
                 self?.navigationController?.popViewController(animated: true)

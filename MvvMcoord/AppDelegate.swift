@@ -15,8 +15,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         CategoryModel.fillModels()
         CatalogModel.fillModels()
-        FilterModel.fillModels()
-        SubfilterModel.fillModels()
+       // FilterModel.fillModels()
+      //  SubfilterModel.fillModels()
         
         window = UIWindow()
         if let window = window {
