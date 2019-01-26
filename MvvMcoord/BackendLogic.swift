@@ -10,6 +10,7 @@ protocol ApiBackendLogic {
     func apiApplyFromFilter(appliedSubFilters: Set<Int>,  selectedSubFilters: Set<Int>) -> Observable<([Int?], [Int?], Set<Int>, Set<Int>)>
     func apiApplyFromSubFilters(filterId:Int, appliedSubFilters: Set<Int>,  selectedSubFilters: Set<Int>) -> Observable<([Int?], [Int?], Set<Int>, Set<Int>)>
     func apiRemoveFilter(filterId: Int, appliedSubFilters: Set<Int>,  selectedSubFilters: Set<Int>) -> Observable<([Int?], [Int?], Set<Int>, Set<Int>)>
+    
 }
 
 class BackendLogic {
@@ -217,6 +218,7 @@ class BackendLogic {
         let applying = applied
         
         if applying.count == 0 {
+            enableAllSubFilters2(enable: true)
             return
         }
         
@@ -283,6 +285,7 @@ class BackendLogic {
         appliedSubFilters.subtract(removing)
         selectedSubFilters.subtract(removing)
     }
+    
     
     private func resetFilters(exceptFilterId: Int = 0){
         selectedSubFilters = []
@@ -608,6 +611,5 @@ extension BackendLogic: ApiBackendLogic {
     func apiLoadFilters() -> Observable<([FilterModel], [SubfilterModel])> {
         return Observable.just((self.loadFilters(),self.loadSubFilters(filterId: 0)))
     }
-    
 
 }

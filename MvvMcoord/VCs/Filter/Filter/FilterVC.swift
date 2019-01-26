@@ -130,10 +130,10 @@ class FilterVC: UIViewController {
     private func bindApply(){
         
         applyView.applyButton.rx.tap
-            .take(1)
+           // .take(1)
             .subscribe{[weak self] _ in
                 self?.viewModel.inApply.onNext(.reloadData)
-                self?.viewModel.inApply.onCompleted()
+             //   self?.viewModel.inApply.onCompleted()
             }
             .disposed(by: bag)
         

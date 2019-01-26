@@ -19,6 +19,8 @@ class NetworkMgt{
     
     static var outApplyFromSubFilterResponse = PublishSubject<([Int?], [Int?], Set<Int>, Set<Int>)>()
 
+    
+    
     static let delay = 0
     
     public static let sharedManager: SessionManager = {
@@ -54,11 +56,12 @@ class NetworkMgt{
         // let params: Parameters = [:]
         //AlamofireNetworkManager.request(clazz: SubFilterModel.self, urlPath: "", params: params, observer: reqFilter)
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
-            print("network Sub done")
+            
             backend.apiLoadSubFilters(filterId: filterId, appliedSubFilters: appliedSubFilters)
                 .asObservable()
                 .subscribe(onNext: {res in
                     outSubFilters.onNext((res))
+                    print("network requestSubFilters")
                 })
                 .disposed(by: bag)
         })
@@ -71,6 +74,7 @@ class NetworkMgt{
                 .share()
                 .subscribe(onNext: { res in
                     outApplyFromSubFilterResponse.onNext((res.0, res.1, res.2, res.3 ))
+                    print("network requestApplyFromFilter")
                 })
                 .disposed(by: bag)
         })
@@ -83,6 +87,7 @@ class NetworkMgt{
                 .share()
                 .subscribe(onNext: { res in
                     outApplyFromSubFilterResponse.onNext((res.0, res.1, res.2, res.3 ))
+                    print("network requestApplyFromSubFilter")
                 })
                 .disposed(by: bag)
         })
@@ -96,6 +101,21 @@ class NetworkMgt{
                 .share()
                 .subscribe(onNext: { res in
                     outApplyFromSubFilterResponse.onNext((res.0, res.1, res.2, res.3 ))
+                    print("network requestRemoveFilter")
+                })
+                .disposed(by: bag)
+        })
+    }
+    
+    
+    public static func requestCleanupFromSubFilter(filterId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>){
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
+            backend.apiRemoveFilter(filterId: filterId, appliedSubFilters: appliedSubFilters, selectedSubFilters: selectedSubFilters)
+                .asObservable()
+                .share()
+                .subscribe(onNext: { res in
+                    outApplyFromSubFilterResponse.onNext((res.0, res.1, res.2, res.3 ))
+                    print("network requestCleanupFromSubFilter")
                 })
                 .disposed(by: bag)
         })

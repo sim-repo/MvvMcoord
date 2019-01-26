@@ -30,6 +30,7 @@ protocol FilterActionDelegate : class {
     func getTitle(filterId: Int) -> String
     func getFilterEnum(filterId: Int)->FilterEnum
     func cleanupFromFilterEvent() -> PublishSubject<Void>
+    func cleanupFromSubFilterEvent() -> PublishSubject<Int>
     func requestComplete() -> PublishSubject<Int>
 }
 
@@ -61,6 +62,8 @@ class CatalogVM : BaseVM {
     private var appliedSubFilters: Set<Int> = Set() //loc
     private var selectedSubFilters: Set<Int> = Set()    //loc
     private var applyingByFilter: [Int:[Int]] = [:] //loc
+    private var unapplying: Set<Int> = Set()
+    
     
     private var currState = UUID()
     private var prevState = UUID()
@@ -74,6 +77,8 @@ class CatalogVM : BaseVM {
     private var outSectionSubFiltersEvent = BehaviorSubject<[SectionOfSubFilterModel]>(value: [])
     private var outRequestComplete = PublishSubject<Int>()
     private var inCleanUpFromFilterEvent = PublishSubject<Void>()
+    private var inCleanUpFromSubFilterEvent = PublishSubject<Int>()
+    
     
     init(categoryId: Int = 0){
         
@@ -147,6 +152,7 @@ class CatalogVM : BaseVM {
 
 extension CatalogVM : FilterActionDelegate {
     
+
     
     func applyFromFilterEvent() -> PublishSubject<Void> {
         return inApplyFromFilterEvent
@@ -200,6 +206,10 @@ extension CatalogVM : FilterActionDelegate {
         return inCleanUpFromFilterEvent
     }
     
+    func cleanupFromSubFilterEvent() -> PublishSubject<Int> {
+        return inCleanUpFromSubFilterEvent
+    }
+    
     func appliedTitle(filterId: Int) -> String {
         var res = ""
         let arr = appliedSubFilters
@@ -244,7 +254,9 @@ extension CatalogVM : FilterActionDelegate {
             .subscribe(onNext: {[weak self] _ in
                 if let `self` = self {
                     self.showCleanFilterVC()
-                    NetworkMgt.requestApplyFromFilter(appliedSubFilters: self.appliedSubFilters, selectedSubFilters: self.selectedSubFilters)
+                    let applied = self.appliedSubFilters.subtracting(self.unapplying)
+                    self.unapplying.removeAll()
+                    NetworkMgt.requestApplyFromFilter(appliedSubFilters: applied, selectedSubFilters: self.selectedSubFilters)
                 }
             })
             .disposed(by: bag)
@@ -252,6 +264,7 @@ extension CatalogVM : FilterActionDelegate {
         inApplyFromSubFilterEvent
             .subscribe(onNext: {[weak self] filterId in
                 if let `self` = self {
+                    self.unapplying.removeAll()
                     self.showCleanFilterVC()
                     NetworkMgt.requestApplyFromSubFilter(filterId: filterId, appliedSubFilters: self.appliedSubFilters, selectedSubFilters: self.selectedSubFilters)
                 }
@@ -261,6 +274,7 @@ extension CatalogVM : FilterActionDelegate {
         inRemoveFilterEvent
             .subscribe(onNext: {[weak self] filterId in
                 if let `self` = self {
+                    self.unapplying.removeAll()
                     NetworkMgt.requestRemoveFilter(filterId: filterId, appliedSubFilters: self.appliedSubFilters, selectedSubFilters: self.selectedSubFilters)
                 }
             })
@@ -276,12 +290,24 @@ extension CatalogVM : FilterActionDelegate {
         inCleanUpFromFilterEvent
             .subscribe(onNext: {[weak self] _ in
                 if let `self` = self {
+                    
                     self.showCleanFilterVC()
                     self.cleanupAllFilters()
                     self.outFiltersEvent.onNext(self.getEnabledFilters())
                 }
             })
             .disposed(by: bag)
+        
+        
+        inCleanUpFromSubFilterEvent
+            .subscribe(onNext: {[weak self] filterId in
+                if let `self` = self {
+                    self.showCleanFilterVC()
+                    NetworkMgt.requestRemoveFilter(filterId: filterId, appliedSubFilters: self.appliedSubFilters, selectedSubFilters: self.selectedSubFilters)
+                }
+            })
+            .disposed(by: bag)
+        
         
         NetworkMgt.outFilters
             .subscribe(onNext: { [weak self] res in
@@ -397,6 +423,16 @@ extension CatalogVM {
     }
     
     private func selectSubFilter(subFilterId: Int, selected: Bool) {
+        if selected == true {
+            if appliedSubFilters.contains(subFilterId) {
+                return
+            }
+        } else {
+            if appliedSubFilters.contains(subFilterId) {
+                unapplying.insert(subFilterId)
+            }
+        }
+        
         if selected {
             selectedSubFilters.insert(subFilterId)
         } else {
@@ -453,6 +489,7 @@ extension CatalogVM {
         for subf in subFilters {
             subf.value.enabled = true
         }
+        unapplying = []
         appliedSubFilters = []
         selectedSubFilters = []
     }
