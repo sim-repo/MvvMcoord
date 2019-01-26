@@ -73,14 +73,14 @@ class FilterVM : BaseVM {
             .subscribe(onNext: {[weak self] _ in
                 if let `self` = self {
                     self.filterActionDelegate?.applyFromFilterEvent().onNext(Void())
-                    self.outCloseVC.onCompleted()
+                   // self.outCloseVC.onCompleted()
                 }
             })
             .disposed(by: bag)
         
         inCleanUp
             .subscribe(onCompleted: {
-                print("clean up")
+                self.filterActionDelegate?.cleanupFromFilterEvent().onNext(Void())
             })
             .disposed(by: bag)
         

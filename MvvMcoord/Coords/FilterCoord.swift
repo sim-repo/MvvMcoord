@@ -56,7 +56,7 @@ class FilterCoord : BaseCoord<CoordRetEnum>{
         }
         
         return Observable
-            .amb([vm.backEvent, vm.inApply])
+            .amb([vm.backEvent/*, vm.inApply*/])
             .take(1)
     }
     

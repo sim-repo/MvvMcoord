@@ -10,13 +10,16 @@ class NetworkMgt{
     private init(){}
     
     
-    static let outFilters = BehaviorSubject<[FilterModel]>(value: [])
-    static let outSubFilters = BehaviorSubject<[SubfilterModel]>(value: [])
+
+    
+    static let outFilters = BehaviorSubject<([FilterModel], [SubfilterModel])>(value: ([],[]))
+    static var outSubFilters = PublishSubject<(Int, [Int?], Set<Int>)>()
     
     static let backend: ApiBackendLogic = BackendLogic.shared
     
     static var outApplyFromSubFilterResponse = PublishSubject<([Int?], [Int?], Set<Int>, Set<Int>)>()
 
+    static let delay = 0
     
     public static let sharedManager: SessionManager = {
         let config = URLSessionConfiguration.default
@@ -34,7 +37,7 @@ class NetworkMgt{
         
         //   let params: Parameters = [:]
         //AlamofireNetworkManager.request(clazz: FilterModel.self, urlPath: "", params: params, observer: reqFilter)
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2), execute: {
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
             print("network Filter done")
             
             backend.apiLoadFilters()
@@ -43,34 +46,38 @@ class NetworkMgt{
                     outFilters.onNext(res)
                 })
                 .disposed(by: bag)
-            
-            backend.apiLoadSubFilters(filterId: 0)
-                .asObservable()
-                .subscribe(onNext: {res in
-                    outSubFilters.onNext(res)
-                })
-                .disposed(by: bag)
         })
     }
     
     
-    public static func requestSubFilters(filterId: Int){
+    public static func requestSubFilters(filterId: Int, appliedSubFilters: Set<Int>){
         // let params: Parameters = [:]
         //AlamofireNetworkManager.request(clazz: SubFilterModel.self, urlPath: "", params: params, observer: reqFilter)
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2), execute: {
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
             print("network Sub done")
-            backend.apiLoadSubFilters(filterId: filterId)
+            backend.apiLoadSubFilters(filterId: filterId, appliedSubFilters: appliedSubFilters)
                 .asObservable()
                 .subscribe(onNext: {res in
-                    outSubFilters.onNext(res)
+                    outSubFilters.onNext((res))
                 })
                 .disposed(by: bag)
         })
     }
     
+    public static func requestApplyFromFilter(appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>){
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
+            backend.apiApplyFromFilter(appliedSubFilters: appliedSubFilters, selectedSubFilters: selectedSubFilters)
+                .asObservable()
+                .share()
+                .subscribe(onNext: { res in
+                    outApplyFromSubFilterResponse.onNext((res.0, res.1, res.2, res.3 ))
+                })
+                .disposed(by: bag)
+        })
+    }
     
     public static func requestApplyFromSubFilter(filterId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>){
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2), execute: {
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
             backend.apiApplyFromSubFilters(filterId: filterId, appliedSubFilters: appliedSubFilters, selectedSubFilters: selectedSubFilters)
                 .asObservable()
                 .share()
@@ -83,7 +90,7 @@ class NetworkMgt{
     
     
     public static func requestRemoveFilter(filterId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>){
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2), execute: {
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
             backend.apiRemoveFilter(filterId: filterId, appliedSubFilters: appliedSubFilters, selectedSubFilters: selectedSubFilters)
                 .asObservable()
                 .share()
@@ -93,6 +100,7 @@ class NetworkMgt{
                 .disposed(by: bag)
         })
     }
+    
     
     
     public static func request<T: ModelProtocol>(clazz: T.Type , urlPath: String, params: Parameters, observer: BehaviorSubject<[T]>){

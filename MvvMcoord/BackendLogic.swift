@@ -5,8 +5,9 @@ import SwiftyJSON
 
 
 protocol ApiBackendLogic {
-    func apiLoadSubFilters(filterId: Int) -> Observable<[SubfilterModel]>
-    func apiLoadFilters() -> Observable<[FilterModel]>
+    func apiLoadSubFilters(filterId: Int, appliedSubFilters: Set<Int>) -> Observable<(Int, [Int?], Set<Int>)>
+    func apiLoadFilters() -> Observable<([FilterModel], [SubfilterModel])>
+    func apiApplyFromFilter(appliedSubFilters: Set<Int>,  selectedSubFilters: Set<Int>) -> Observable<([Int?], [Int?], Set<Int>, Set<Int>)>
     func apiApplyFromSubFilters(filterId:Int, appliedSubFilters: Set<Int>,  selectedSubFilters: Set<Int>) -> Observable<([Int?], [Int?], Set<Int>, Set<Int>)>
     func apiRemoveFilter(filterId: Int, appliedSubFilters: Set<Int>,  selectedSubFilters: Set<Int>) -> Observable<([Int?], [Int?], Set<Int>, Set<Int>)>
 }
@@ -60,7 +61,8 @@ class BackendLogic {
     }
     
     
-    private func getItems(exceptFilterId: Int = 0, applyingByFilter: [Int:[Int]]) -> Set<Int> {
+    
+    private func getItemsIntersect(exceptFilterId: Int = 0) -> Set<Int> {
         var res = Set<Int>()
         var tmp = Set<Int>()
         
@@ -73,7 +75,7 @@ class BackendLogic {
         return res
     }
     
-    
+
     private func groupApplying(applying: Set<Int>){
         applyingByFilter.removeAll()
         for id in applying {
@@ -88,6 +90,7 @@ class BackendLogic {
     }
     
     private func applyFromFilter() {
+        
         let selected = selectedSubFilters
         let applied = getApplied()
         let applying = selected.union(applied)
@@ -95,7 +98,7 @@ class BackendLogic {
             
             groupApplying(applying: applying)
             
-            let items = getItems()
+            let items = getItemsIntersect()
             
             let rem = getSubFilters(by: items)
             
@@ -121,18 +124,7 @@ class BackendLogic {
         return res
     }
     
-    private func getItems(exceptFilterId: Int = 0) -> Set<Int> {
-        var res = Set<Int>()
-        var tmp = Set<Int>()
 
-        for (filterId, applying) in applyingByFilter {
-            if filterId != exceptFilterId || exceptFilterId == 0  {
-                tmp = Set(getItemIds(by: applying))
-            }
-            res = (res.count == 0) ? tmp : res.intersection(tmp)
-        }
-        return res
-    }
     
     private func applyFromSubFilter(filterId: Int) {
         var inFilter: Set<Int> = Set()
@@ -155,7 +147,7 @@ class BackendLogic {
         
         
         // network >>>
-        let items = getItems()
+        let items = getItemsIntersect()
         
         if items.count == 0 {
             enableAllFilters(exceptFilterId: filterId, enable: false)
@@ -191,7 +183,7 @@ class BackendLogic {
         }
         
         groupApplying(applying: applying)
-        let items = getItems()
+        let items = getItemsIntersect()
         
         if items.count == 0 {
             resetFilters()
@@ -230,7 +222,7 @@ class BackendLogic {
         
         groupApplying(applying: applying)
         
-        let items = getItems()
+        let items = getItemsIntersect()
         
         if items.count == 0 {
             resetFilters(exceptFilterId: filterId)
@@ -521,72 +513,51 @@ class BackendLogic {
             subfiltersByFilter[5] = [56, 57, 58, 59]
             subfiltersByFilter[6] = [60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72]
             
-            subfByItem(item: 3, subfilters: [f11.id, size38.id, size39.id, size40.id, круглогодичный.id, полиамид.id, дня4.id,  желтый.id])
-            subfByItem(item: 7, subfilters: [f13.id, size42.id, size42.id, size44.id, круглогодичный.id, шелк.id, дня4.id,  оранжевый.id])
-            subfByItem(item: 11, subfilters: [f14.id, size46.id, size47.id, size48.id, круглогодичный.id, вискоза.id, дня4.id,  фиолетовый.id]) //f50.id?
-            subfByItem(item: 17, subfilters: [f17.id, size34.id, size36.id, size42.id, круглогодичный.id, шерсть.id, день1.id,  коричневый.id])
-            subfByItem(item: 21, subfilters: [f20.id, size34.id, size36.id, size46.id, демисезон.id, полиамид.id, день1.id,  серый.id])
-            subfByItem(item: 25, subfilters: [f23.id, size34.id, зима.id, ангора.id, день1.id,  белый.id])
-            subfByItem(item: 29, subfilters: [f25.id, size34.id, зима.id, ангора.id, день1.id,  красный.id])
-            subfByItem(item: 33, subfilters: [f28.id, size34.id, зима.id, ангора.id, день1.id,  белый.id])
-            subfByItem(item: 37, subfilters: [f30.id, size34.id, зима.id, ангора.id, день1.id,  белый.id])
+            subfByItem(item: 3,  subfilters: [f11.id, size38.id, круглогодичный.id, полиамид.id,    дня4.id,    желтый.id])
+            subfByItem(item: 7,  subfilters: [f13.id, size42.id, круглогодичный.id, полиэстер.id,   дня4.id,    оранжевый.id])
+            subfByItem(item: 11, subfilters: [f14.id, size46.id, круглогодичный.id, полиуретан.id,  дня4.id,    фиолетовый.id])
+            subfByItem(item: 17, subfilters: [f17.id, size34.id, круглогодичный.id, эластан.id,     день1.id,   коричневый.id])
+            subfByItem(item: 21, subfilters: [f20.id, size34.id, демисезон.id,      вискоза.id,     день1.id,   желтый.id])
+            subfByItem(item: 2,  subfilters: [f11.id, size36.id, демисезон.id,      вискоза.id,     дня3.id,    желтый.id])
+            subfByItem(item: 5,  subfilters: [f12.id, size40.id, демисезон.id,      вискоза.id,     день1.id,   коричневый.id])
+            subfByItem(item: 9,  subfilters: [f14.id, size44.id, демисезон.id,      вискоза.id,     день1.id,   коричневый.id])
+            subfByItem(item: 14, subfilters: [f16.id, size36.id, демисезон.id,      шерсть.id,      дня3.id,    черный.id])
+            subfByItem(item: 15, subfilters: [f17.id, size36.id, демисезон.id,      шерсть.id,      дня3.id,    красный.id])
+            subfByItem(item: 23, subfilters: [f22.id, size34.id, демисезон.id,      шерсть.id,      дня4.id,    фиолетовый.id])
+            subfByItem(item: 19, subfilters: [f18.id, size34.id, демисезон.id,      шерсть.id,      дня4.id,    оранжевый.id])
+            subfByItem(item: 25, subfilters: [f23.id, size34.id, зима.id,           ангора.id,      день1.id,   синий.id])
+            subfByItem(item: 29, subfilters: [f25.id, size34.id, зима.id,           ангора.id,      день1.id,   синий.id])
+            subfByItem(item: 33, subfilters: [f28.id, size34.id, зима.id,           ангора.id,      день1.id,   синий.id])
+            subfByItem(item: 37, subfilters: [f30.id, size34.id, зима.id,           ангора.id,      день1.id,   синий.id])
+            subfByItem(item: 1,  subfilters: [f10.id, size34.id, зима.id,           ангора.id,      день1.id,   синий.id])
+            subfByItem(item: 10, subfilters: [f14.id, size36.id, зима.id,           ангора.id,      дня4.id,    синий.id])
+            subfByItem(item: 28, subfilters: [f24.id, size34.id, зима.id,           ангора.id,      дня4.id,    синий.id])
+            subfByItem(item: 6,  subfilters: [f12.id, size36.id, зима.id,           шерсть.id,      дня4.id,    синий.id])
+            subfByItem(item: 24, subfilters: [f22.id, size36.id, зима.id,           шерсть.id,      дня4.id,    синий.id])
+            subfByItem(item: 13, subfilters: [f15.id, size34.id, зима.id,           шерсть.id,      дня4.id,    белый.id])
+            subfByItem(item: 32, subfilters: [f27.id, size34.id, зима.id,           шерсть.id,      дня4.id,    белый.id])
+            subfByItem(item: 16, subfilters: [f17.id, size34.id, зима.id,           шерсть.id,      дня4.id,    белый.id])
+            subfByItem(item: 20, subfilters: [f19.id, size34.id, зима.id,           шерсть.id,      дня4.id,    белый.id])
+            subfByItem(item: 27, subfilters: [f24.id, size34.id, зима.id,           эластан.id,     дня4.id,    белый.id])
+            subfByItem(item: 36, subfilters: [f30.id, size34.id, зима.id,           эластан.id,     дня4.id,    белый.id])
+            subfByItem(item: 4,  subfilters: [f12.id, size39.id, лето.id,           хлопок.id,      день1.id,   зеленый.id])
+            subfByItem(item: 8,  subfilters: [f14.id, size42.id, лето.id,           хлопок.id,      день1.id,   розовый.id])
+            subfByItem(item: 12, subfilters: [f15.id, size36.id, лето.id,           хлопок.id,      день1.id,   черный.id])
+            subfByItem(item: 18, subfilters: [f18.id, size36.id, лето.id,           хлопок.id,      день1.id,   черный.id])
+            subfByItem(item: 22, subfilters: [f21.id, size36.id, лето.id,           шелк.id,        день1.id,   черный.id])
+            subfByItem(item: 26, subfilters: [f23.id, size34.id, лето.id,           шелк.id,        дня3.id,    белый.id])
+            subfByItem(item: 30, subfilters: [f26.id, size45.id, лето.id,           шелк.id,        дня3.id,    бежевый.id])
+            subfByItem(item: 31, subfilters: [f27.id, size34.id, лето.id,           эластан.id,     дня3.id,    белый.id])
+            subfByItem(item: 34, subfilters: [f29.id, size34.id, лето.id,           эластан.id,     дня3.id,    белый.id])
+            subfByItem(item: 35, subfilters: [f29.id, size34.id, лето.id,           эластан.id,     дня3.id,    белый.id])
             
+            // демисезон -> вискоза, шерсть
+            // зима -> ангора, шерсть, эластан
+            // лето -> хлопок, шелк, вискоза
+            // круглогодичный -> полиамид, полиэстер, полиуретан, эластан
             
+
             
-            
-            subfByItem(item: 1, subfilters: [f10.id, size34.id, зима.id, ангора.id, день1.id,  белый.id])
-            subfByItem(item: 2, subfilters: [f11.id, size36.id, size37.id, демисезон.id, вискоза.id, дня3.id, желтый.id])
-            
-            subfByItem(item: 4, subfilters: [f12.id, size39.id, size40.id, size41.id, лето.id, полиуретан.id, дней5.id,  зеленый.id])
-            subfByItem(item: 5, subfilters: [f12.id, size40.id, size41.id, size42.id, демисезон.id, полиэстер.id, день1.id,  коричневый.id])
-            subfByItem(item: 6, subfilters: [f12.id, size36.id, size37.id, зима.id, хлопок.id, дня3.id, черный.id])
-            
-            
-            
-            subfByItem(item: 8, subfilters: [f14.id, size42.id, size44.id, size45.id, лето.id, шерсть.id, дней5.id, розовый.id])
-            subfByItem(item: 9, subfilters: [f14.id, size44.id, size45.id, size46.id, демисезон.id, эластан.id, день1.id, серый.id])
-            subfByItem(item: 10, subfilters: [f14.id, size36.id, size37.id, зима.id, ангора.id, дня3.id,  черный.id])
-            
-            
-            subfByItem(item: 12, subfilters: [f15.id, size36.id, size37.id, лето.id, полиамид.id, дней5.id,  черный.id])
-            subfByItem(item: 13, subfilters: [f15.id, size34.id, зима.id, полиуретан.id, день1.id,  белый.id])
-            
-            
-            subfByItem(item: 14, subfilters: [f16.id,size36.id, size37.id, демисезон.id, полиэстер.id, дня3.id, черный.id])
-            
-            subfByItem(item: 15, subfilters: [f17.id, size36.id, size37.id, демисезон.id, хлопок.id, дня3.id,  красный.id])
-            subfByItem(item: 16, subfilters: [f17.id, size34.id, size36.id, size41.id, зима.id, шелк.id, дней5.id, зеленый.id])
-            
-            
-            subfByItem(item: 18, subfilters: [f18.id, size36.id, size37.id, лето.id, эластан.id, дня3.id,  черный.id])
-            subfByItem(item: 19, subfilters: [f18.id, size34.id, size36.id, size44.id, демисезон.id, ангора.id, дня4.id,  оранжевый.id])
-            
-            subfByItem(item: 20, subfilters: [f19.id, size34.id, size36.id, size45.id, зима.id, вискоза.id, дней5.id, розовый.id])
-            
-            
-            
-            subfByItem(item: 22, subfilters: [f21.id, size36.id, size37.id, лето.id, полиуретан.id, дня3.id,  черный.id])
-            
-            subfByItem(item: 23, subfilters: [f22.id, size34.id, size36.id, size48.id, демисезон.id, шерсть.id, дня4.id,  фиолетовый.id])
-            subfByItem(item: 24, subfilters: [f22.id,size36.id, size37.id, зима.id, хлопок.id, дня3.id, синий.id])
-            
-            
-            subfByItem(item: 26, subfilters: [f23.id, size34.id,  лето.id, эластан.id, дня3.id, белый.id])
-            
-            subfByItem(item: 27, subfilters: [f24.id, size34.id, зима.id, эластан.id, дня4.id,  белый.id])
-            subfByItem(item: 28, subfilters: [f24.id, size34.id,  зима.id, ангора.id, дней5.id, белый.id])
-            
-            subfByItem(item: 30, subfilters: [f26.id, size45.id,  лето.id, хлопок.id, дней5.id,  бежевый.id])
-            subfByItem(item: 31, subfilters: [f27.id, size34.id,  лето.id, полиуретан.id, дня4.id, белый.id])
-            subfByItem(item: 32, subfilters: [f27.id, size34.id,  зима.id, полиуретан.id, дней5.id, белый.id])
-            
-            
-            subfByItem(item: 34, subfilters: [f29.id, size34.id,  лето.id, хлопок.id, дня3.id, белый.id])
-            subfByItem(item: 35, subfilters: [f29.id, size34.id,  лето.id, эластан.id, дня4.id,  белый.id])
-            
-            
-            
-            subfByItem(item: 36, subfilters: [f30.id, size34.id,  зима.id, эластан.id, дней5.id, белый.id])
         }
         
         return tmp
@@ -597,6 +568,15 @@ class BackendLogic {
 
 extension BackendLogic: ApiBackendLogic {
     
+    
+    func apiApplyFromFilter(appliedSubFilters: Set<Int>,  selectedSubFilters: Set<Int>) -> Observable<([Int?], [Int?], Set<Int>, Set<Int>)> {
+        self.appliedSubFilters = appliedSubFilters
+        self.selectedSubFilters = selectedSubFilters
+        applyFromFilter()
+        let filtersIds = getEnabledFiltersIds()
+        let subFiltersIds = getEnabledSubFiltersIds()
+        return Observable.just((filtersIds, subFiltersIds, self.appliedSubFilters, self.selectedSubFilters))
+    }
     
     func apiApplyFromSubFilters(filterId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>) -> Observable<([Int?], [Int?], Set<Int>, Set<Int>)> {
         self.appliedSubFilters = appliedSubFilters
@@ -617,11 +597,17 @@ extension BackendLogic: ApiBackendLogic {
     }
     
     
-    func apiLoadSubFilters(filterId: Int = 0) -> Observable<[SubfilterModel]> {
-        return Observable.just(self.loadSubFilters(filterId: filterId))
+    func apiLoadSubFilters(filterId: Int = 0, appliedSubFilters: Set<Int>) -> Observable<(Int, [Int?], Set<Int>)> {
+        self.appliedSubFilters = appliedSubFilters
+        self.selectedSubFilters = []
+        applyBeforeEnter(filterId: filterId)
+        let subFiltersIds = getEnabledSubFiltersIds()
+        return Observable.just((filterId, subFiltersIds, self.appliedSubFilters))
     }
     
-    func apiLoadFilters() -> Observable<[FilterModel]> {
-        return Observable.just(self.loadFilters())
+    func apiLoadFilters() -> Observable<([FilterModel], [SubfilterModel])> {
+        return Observable.just((self.loadFilters(),self.loadSubFilters(filterId: 0)))
     }
+    
+
 }
