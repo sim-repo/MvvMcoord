@@ -13,6 +13,7 @@ class SubFilterVM : BaseVM {
     var filterEnum: FilterEnum = .select
     var outCloseVC = PublishSubject<Void>()
     
+    
     // MARK: - during user activies. Input from ViewController
     var inSelectModel = PublishSubject<Int>()
     var inDeselectModel = PublishSubject<Int>()
@@ -30,6 +31,10 @@ class SubFilterVM : BaseVM {
         bindData()
         bindSelection()
         bindUserActivities()
+    }
+    
+    public func showApplyingView()->BehaviorSubject<Bool> {
+        return filterActionDelegate!.showApplyingViewEvent() 
     }
     
     public func bindData(){

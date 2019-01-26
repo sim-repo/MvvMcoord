@@ -32,6 +32,7 @@ protocol FilterActionDelegate : class {
     func cleanupFromFilterEvent() -> PublishSubject<Void>
     func cleanupFromSubFilterEvent() -> PublishSubject<Int>
     func requestComplete() -> PublishSubject<Int>
+    func showApplyingViewEvent() -> BehaviorSubject<Bool>
 }
 
 
@@ -78,7 +79,7 @@ class CatalogVM : BaseVM {
     private var outRequestComplete = PublishSubject<Int>()
     private var inCleanUpFromFilterEvent = PublishSubject<Void>()
     private var inCleanUpFromSubFilterEvent = PublishSubject<Int>()
-    
+    private var outShowApplyingViewEvent = BehaviorSubject<Bool>(value: false)
     
     init(categoryId: Int = 0){
         
@@ -208,6 +209,10 @@ extension CatalogVM : FilterActionDelegate {
     
     func cleanupFromSubFilterEvent() -> PublishSubject<Int> {
         return inCleanUpFromSubFilterEvent
+    }
+    
+    func showApplyingViewEvent() -> BehaviorSubject<Bool> {
+        return outShowApplyingViewEvent
     }
     
     func appliedTitle(filterId: Int) -> String {
@@ -380,6 +385,23 @@ extension CatalogVM {
     }
     
     
+    private func showApplyingView(isSelectNow: Bool){
+        if isSelectNow {
+            outShowApplyingViewEvent.onNext(true)
+            return
+        }
+        
+        if self.appliedSubFilters.isEmpty == false ||
+           self.selectedSubFilters.isEmpty == false ||
+           self.unapplying.isEmpty == false {
+            
+            outShowApplyingViewEvent.onNext(true)
+            return
+        }
+        
+        outShowApplyingViewEvent.onNext(false)
+    }
+    
     private func showCleanFilterVC(){
        self.outFiltersEvent.onNext([])
     }
@@ -423,6 +445,7 @@ extension CatalogVM {
     }
     
     private func selectSubFilter(subFilterId: Int, selected: Bool) {
+
         if selected == true {
             if appliedSubFilters.contains(subFilterId) {
                 return
@@ -438,6 +461,7 @@ extension CatalogVM {
         } else {
             selectedSubFilters.remove(subFilterId)
         }
+        self.showApplyingView(isSelectNow: selected)
     }
     
     private func getEnabledSubFilters(ids: [Int]) -> [SubfilterModel?] {

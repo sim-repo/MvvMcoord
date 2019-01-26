@@ -70,13 +70,13 @@ class SubFilterSelectVC: UIViewController {
             })
             .disposed(by: bag)
         
-        selected
-            .take(1)
-            .subscribe{[weak self] _ in
-                self?.applyViewBottomCon.constant = 0
-                self?.view.layoutIfNeeded()
-            }
-            .disposed(by: bag)
+//        selected
+//            .take(1)
+//            .subscribe{[weak self] _ in
+//                self?.applyViewBottomCon.constant = 0
+//                self?.view.layoutIfNeeded()
+//            }
+//            .disposed(by: bag)
     }
     
     
@@ -102,6 +102,14 @@ class SubFilterSelectVC: UIViewController {
             self?.navigationController?.popViewController(animated: true)
         }
         .disposed(by: bag)
+        
+        viewModel.showApplyingView()
+            .bind(onNext: {[weak self] isShow in
+                guard let `self` = self else {return}
+                self.applyViewBottomCon.constant = isShow ? 0 : self.applyView.frame.height
+                self.view.layoutIfNeeded()
+            })
+            .disposed(by: bag)
     }
 }
 

@@ -575,7 +575,11 @@ extension BackendLogic: ApiBackendLogic {
     func apiApplyFromFilter(appliedSubFilters: Set<Int>,  selectedSubFilters: Set<Int>) -> Observable<([Int?], [Int?], Set<Int>, Set<Int>)> {
         self.appliedSubFilters = appliedSubFilters
         self.selectedSubFilters = selectedSubFilters
-        applyFromFilter()
+        if self.appliedSubFilters.isEmpty && self.selectedSubFilters.isEmpty {
+            resetFilters()
+        } else {
+            applyFromFilter()
+        }
         let filtersIds = getEnabledFiltersIds()
         let subFiltersIds = getEnabledSubFiltersIds()
         return Observable.just((filtersIds, subFiltersIds, self.appliedSubFilters, self.selectedSubFilters))
