@@ -9,19 +9,17 @@ class SubFilterSectionVC: UIViewController {
     var bag = DisposeBag()
     @IBOutlet weak var tableView: UITableView!
     
-
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        registerTableView()
+      //  registerTableView()
         bindingCell()
     }
     
-    
-    private func registerTableView(){
-        tableView.rx.setDelegate(self)
-            .disposed(by: bag)
-    }
+//    private func registerTableView(){
+//        tableView.rx.setDelegate(self)
+//            .disposed(by: bag)
+//    }
     
     private func bindingCell(){
         let dataSource = RxTableViewSectionedReloadDataSource<SectionOfSubFilterModel>(
@@ -35,8 +33,7 @@ class SubFilterSectionVC: UIViewController {
             return dataSource.sectionModels[index].header
         }
         
-        viewModel.outModelSections
-            .asObservable()
+        viewModel.filterActionDelegate?.sectionSubFiltersEvent()
             .bind(to: tableView.rx.items(dataSource: dataSource))
             .disposed(by: bag)
     }

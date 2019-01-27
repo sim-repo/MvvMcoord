@@ -15,12 +15,6 @@ class FilterCoord : BaseCoord<CoordRetEnum>{
         self.filterActionDelegate = filterActionDelegate
     }
 
-    private func reload(){
-        print("reload filter")
-        guard let vm = viewModel as? FilterVM
-            else { fatalError("view model") }
-        vm.bindData()
-    }
     
     override func start() -> Observable<CoordRetEnum> {
         viewModel = FilterVM(categoryId: categoryId, filterActionDelegate: filterActionDelegate)
@@ -40,7 +34,7 @@ class FilterCoord : BaseCoord<CoordRetEnum>{
                         .asObservable()
                         .subscribe(onNext: {event in
                             switch event {
-                            case .reloadData: self.reload()
+                            case .reloadData: print("reaload")
                             case .back: print("back")
                             }
                         })

@@ -33,6 +33,8 @@ protocol FilterActionDelegate : class {
     func cleanupFromSubFilterEvent() -> PublishSubject<Int>
     func requestComplete() -> PublishSubject<Int>
     func showApplyingViewEvent() -> BehaviorSubject<Bool>
+    
+    func didNetworkRequestCompleteEvent()->PublishSubject<Void>
 }
 
 
@@ -43,7 +45,7 @@ class CatalogVM : BaseVM {
     
     // MARK: - Inputs from ViewController
     var inPressLayout:Variable<Void> = Variable<Void>(Void())
-    var inPressFilter:Variable<Void> = Variable<Void>(Void())
+    var inPressFilter = PublishSubject<Void>()
     
     // MARK: - Outputs to ViewController or Coord
     var outCatalog = Variable<[CatalogModel]?>(nil)
@@ -80,6 +82,9 @@ class CatalogVM : BaseVM {
     private var inCleanUpFromFilterEvent = PublishSubject<Void>()
     private var inCleanUpFromSubFilterEvent = PublishSubject<Int>()
     private var outShowApplyingViewEvent = BehaviorSubject<Bool>(value: false)
+    
+    private var outDidNetworkRequestCompleteEvent = PublishSubject<Void>()
+    
     
     init(categoryId: Int = 0){
         
@@ -123,13 +128,6 @@ class CatalogVM : BaseVM {
                 }
             })
             .disposed(by: bag)
-            
-            
-//            .map{[weak self] _ -> Int in
-//                return self!.categoryId
-//            }
-//            .bind(to: outShowFilters)
-//            .disposed(by: bag)
     }
     
     // MARK: - Logic
@@ -148,12 +146,20 @@ class CatalogVM : BaseVM {
         }
     }
     
+    
+    // unit-test function
+    public func utRefreshSubFilters(filterId: Int){
+        subFiltersFromCache(filterId: filterId)
+    }
+    
 }
 
 
 extension CatalogVM : FilterActionDelegate {
     
-
+    func didNetworkRequestCompleteEvent()->PublishSubject<Void>{
+        return outDidNetworkRequestCompleteEvent
+    }
     
     func applyFromFilterEvent() -> PublishSubject<Void> {
         return inApplyFromFilterEvent
@@ -187,7 +193,6 @@ extension CatalogVM : FilterActionDelegate {
     func requestSubFilters(filterId: Int) {
         showCleanSubFilterVC(filterId: filterId)
         NetworkMgt.requestSubFilters(filterId: filterId, appliedSubFilters: self.appliedSubFilters)
-        //subFiltersFromCache(filterId: filterId)
     }
     
     
@@ -315,6 +320,7 @@ extension CatalogVM : FilterActionDelegate {
         
         
         NetworkMgt.outFilters
+            .skip(1)
             .subscribe(onNext: { [weak self] res in
                 guard let `self` = self else {return}
                 let filters = res.0
@@ -355,8 +361,15 @@ extension CatalogVM : FilterActionDelegate {
                 self.appliedSubFilters = _filters.2
                 self.selectedSubFilters = _filters.3
                 self.outFiltersEvent.onNext(self.getEnabledFilters())
+                self.signalForUnitTest()
             })
             .disposed(by: bag)
+    }
+    private func signalForUnitTest(){
+        //for test:
+        print("send signal")
+        self.outDidNetworkRequestCompleteEvent.onNext(Void())
+        
     }
 }
 

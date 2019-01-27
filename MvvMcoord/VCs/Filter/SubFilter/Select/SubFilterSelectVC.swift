@@ -18,12 +18,8 @@ class SubFilterSelectVC: UIViewController {
         print("init SubFilterSelectVC")
     }
     
-   
-    
     override func viewDidLoad() {
-        
         super.viewDidLoad()
-        
         registerTableView()
         bindCell()
         bindSelection()
@@ -34,14 +30,17 @@ class SubFilterSelectVC: UIViewController {
         print("deinit SubFilterSelectVC 4")
     }
     
+    
     private func registerTableView(){
+        
         tableView.rx.setDelegate(self)
             .disposed(by: bag)
     }
     
+    
     private func bindCell(){
-        viewModel.outModels
-            .asObservable()
+        
+        viewModel.filterActionDelegate?.subFiltersEvent()
             .bind(to: self.tableView.rx.items) { [weak self] tableView, index, model in
                 guard let `self` = self else { return UITableViewCell() }
                 let indexPath = IndexPath(item: index, section: 0)
@@ -57,26 +56,16 @@ class SubFilterSelectVC: UIViewController {
     
     private func bindSelection(){
         
-        let selected = tableView.rx.itemSelected
-            
-        selected
+        tableView.rx.itemSelected
             .subscribe(onNext: {[weak self] indexPath  in
                let cell = self!.tableView.cellForRow(at: indexPath) as! SubFilterSelectCell
                 if cell.selectedCell() {
-                    self?.viewModel.inSelectModel.onNext(cell.id)
+                    self?.viewModel?.filterActionDelegate?.selectSubFilterEvent().onNext((cell.id, true))
                 } else {
-                    self?.viewModel.inDeselectModel.onNext(cell.id)
+                    self?.viewModel?.filterActionDelegate?.selectSubFilterEvent().onNext((cell.id, false))
                 }
             })
             .disposed(by: bag)
-        
-//        selected
-//            .take(1)
-//            .subscribe{[weak self] _ in
-//                self?.applyViewBottomCon.constant = 0
-//                self?.view.layoutIfNeeded()
-//            }
-//            .disposed(by: bag)
     }
     
     
@@ -85,8 +74,7 @@ class SubFilterSelectVC: UIViewController {
         applyView.applyButton.rx.tap
             .take(1)
             .subscribe{[weak self] _ in
-                self?.viewModel.inApply.onNext(.reloadData)
-                //self?.viewModel.inApply.onCompleted() // ?
+                self?.viewModel.inApply.onCompleted()
             }
             .disposed(by: bag)
         
@@ -103,7 +91,7 @@ class SubFilterSelectVC: UIViewController {
         }
         .disposed(by: bag)
         
-        viewModel.showApplyingView()
+        viewModel.filterActionDelegate?.showApplyingViewEvent()
             .bind(onNext: {[weak self] isShow in
                 guard let `self` = self else {return}
                 self.applyViewBottomCon.constant = isShow ? 0 : self.applyView.frame.height

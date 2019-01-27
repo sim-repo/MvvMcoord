@@ -60,8 +60,8 @@ class NetworkMgt{
             backend.apiLoadSubFilters(filterId: filterId, appliedSubFilters: appliedSubFilters)
                 .asObservable()
                 .subscribe(onNext: {res in
-                    outSubFilters.onNext((res))
                     print("network requestSubFilters")
+                    outSubFilters.onNext((res))
                 })
                 .disposed(by: bag)
         })
@@ -73,8 +73,8 @@ class NetworkMgt{
                 .asObservable()
                 .share()
                 .subscribe(onNext: { res in
-                    outApplyFromSubFilterResponse.onNext((res.0, res.1, res.2, res.3 ))
                     print("network requestApplyFromFilter")
+                    outApplyFromSubFilterResponse.onNext((res.0, res.1, res.2, res.3 ))
                 })
                 .disposed(by: bag)
         })
@@ -86,8 +86,8 @@ class NetworkMgt{
                 .asObservable()
                 .share()
                 .subscribe(onNext: { res in
-                    outApplyFromSubFilterResponse.onNext((res.0, res.1, res.2, res.3 ))
                     print("network requestApplyFromSubFilter")
+                    outApplyFromSubFilterResponse.onNext((res.0, res.1, res.2, res.3 ))
                 })
                 .disposed(by: bag)
         })
@@ -100,8 +100,8 @@ class NetworkMgt{
                 .asObservable()
                 .share()
                 .subscribe(onNext: { res in
-                    outApplyFromSubFilterResponse.onNext((res.0, res.1, res.2, res.3 ))
                     print("network requestRemoveFilter")
+                    outApplyFromSubFilterResponse.onNext((res.0, res.1, res.2, res.3 ))
                 })
                 .disposed(by: bag)
         })

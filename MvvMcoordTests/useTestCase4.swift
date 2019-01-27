@@ -14,29 +14,30 @@ class useTestCase4: XCTestCase {
     var subFilterVM4: SubFilterVM!
     var subFilterVM5: SubFilterVM!
     
-    let event1 = Variable<Int>(1)
-    let event2 = Variable<Int>(1)
-    let event3 = Variable<Int>(1)
-    let event4 = Variable<Int>(1)
-    let event5 = Variable<Int>(1)
-    let event6 = Variable<Int>(1)
-    let event7 = Variable<Int>(1)
-    let event8 = Variable<Int>(1)
-    let event9 = Variable<Int>(1)
-    let event10 = Variable<Int>(1)
-    let event11 = Variable<Int>(1)
-    let event12 = Variable<Int>(1)
-    let event13 = Variable<Int>(1)
-    let event14 = Variable<Int>(1)
-    let event15 = Variable<Int>(1)
-    let event16 = Variable<Int>(1)
-    let event17 = Variable<Int>(1)
-    let event18 = Variable<Int>(1)
-    let event19 = Variable<Int>(1)
-    let event20 = Variable<Int>(1)
-    let event21 = Variable<Int>(1)
-    let event22 = Variable<Int>(1)
+    let event1 = Variable<Int>(0)
+    let event2 = Variable<Int>(0)
+    let event3 = Variable<Int>(0)
+    let event4 = Variable<Int>(0)
+    let event5 = Variable<Int>(0)
+    let event6 = Variable<Int>(0)
+    let event7 = Variable<Int>(0)
+    let event8 = Variable<Int>(0)
+    let event9 = Variable<Int>(0)
+    let event10 = Variable<Int>(0)
+    let event11 = Variable<Int>(0)
+    let event12 = Variable<Int>(0)
+    let event13 = Variable<Int>(0)
+    let event14 = Variable<Int>(0)
+    let event15 = Variable<Int>(0)
+    let event16 = Variable<Int>(0)
+    let event17 = Variable<Int>(0)
+    let event18 = Variable<Int>(0)
+    let event19 = Variable<Int>(0)
+    let event20 = Variable<Int>(0)
+    let event21 = Variable<Int>(0)
+    let event22 = Variable<Int>(0)
     
+    var catalogVM: CatalogVM!
     var filterVM: FilterVM!
     var bag = DisposeBag()
     
@@ -67,44 +68,49 @@ class useTestCase4: XCTestCase {
     override func setUp() {
         CategoryModel.fillModels()
         CatalogModel.fillModels()
-        FilterModel.fillModels()
-        SubfilterModel.fillModels()
+        catalogVM = CatalogVM(categoryId: categoryId)
+        catalogVM.requestFilters(categoryId: categoryId)
         
-        filterVM = FilterVM(categoryId: categoryId)
+        filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
     }
     
     override func tearDown() {
         subFilterVM1 = nil
     }
     
-    func selectSubFilter(vm: SubFilterVM, subFilterId: Int){
-        subFilterVM2.inSelectModel.onNext(subFilterId)
-        
+    
+    func refreshSubFilters(observableEvent: Variable<Int>, filterId: Int, observerEvent: Variable<Int>) {
+        observableEvent
+            .asObservable()
+            .filter({$0 != 0})
+            .take(1)
+            .subscribe(onNext: {[weak self] _ in
+                self?.filterVM.filterActionDelegate?.didNetworkRequestCompleteEvent()
+                    .take(1)
+                    .subscribe(onNext: {[weak self] _ in
+                
+                        self?.catalogVM.utRefreshSubFilters(filterId: filterId)
+                        observerEvent.value = 1
+                })
+                .disposed(by: self!.bag)
+            })
+            .disposed(by: bag)
     }
     
+    func selectSubFilter(vm: SubFilterVM, subFilterId: Int, select: Bool){
+        vm.filterActionDelegate?.selectSubFilterEvent().onNext((subFilterId, select))
+    }
+    
+    
     func applySubFilter(vm: SubFilterVM){
-        vm.inApply.onNext(.reloadData)
+        vm.inApply.onCompleted()
     }
     
     
     func selectApply(vm: SubFilterVM, subFilterId: Int, observerEvent: Variable<Int>){
-        vm.inSelectModel.onNext(subFilterId)
-        vm.inApply.onNext(.reloadData)
+        vm.filterActionDelegate?.selectSubFilterEvent().onNext((subFilterId, true))
+        vm.inApply.onCompleted()
         observerEvent.value = 1
-    }
-    
-    
-    func select(observableEvent: Variable<Int>, vm: SubFilterVM, selectIds: [Int], observerEvent: Variable<Int>) {
-        
-        observableEvent
-            .asObservable()
-            .subscribe(onNext: {[weak self] _ in
-                for subFilterId in selectIds {
-                    self?.selectSubFilter(vm: vm, subFilterId: subFilterId)
-                }
-                observerEvent.value = 1
-            })
-            .disposed(by: bag)
     }
     
     
@@ -112,23 +118,13 @@ class useTestCase4: XCTestCase {
         
         observableEvent
             .asObservable()
+            .filter({$0 != 0})
+            .take(1)
             .subscribe(onNext: {[weak self] _ in
                 for subFilterId in selectIds {
-                    self?.selectSubFilter(vm: vm, subFilterId: subFilterId)
+                    self?.selectSubFilter(vm: vm, subFilterId: subFilterId, select: true)
                 }
                 self?.applySubFilter(vm: vm)
-                observerEvent.value = 1
-            })
-            .disposed(by: bag)
-    }
-    
-    
-    
-    func refreshDataSource(observableEvent: Variable<Int>, vm: SubFilterVM, observerEvent: Variable<Int>) {
-        observableEvent
-            .asObservable()
-            .subscribe(onNext: {_ in
-                vm.bindData()
                 observerEvent.value = 1
             })
             .disposed(by: bag)
@@ -138,14 +134,14 @@ class useTestCase4: XCTestCase {
     func removeAppliedFilter(observableEvent: Variable<Int>, filterId: Int, observerEvent: Variable<Int>){
         observableEvent
             .asObservable()
+            .filter({$0 != 0})
+            .take(1)
             .subscribe(onNext: {[weak self] _ in
                 self!.filterVM.inRemoveFilter.onNext(filterId)
                 observerEvent.value = 1
             })
             .disposed(by: bag)
     }
-    
-    
     
     
     func clearTestCase(){
@@ -160,20 +156,24 @@ class useTestCase4: XCTestCase {
     func takeFromFilterVM(operationId: Int, observableEvent: Variable<Int>, observerEvent: Variable<Int>){
         observableEvent
             .asObservable()
+            .filter({$0 != 0})
+            .take(1)
             .subscribe(onNext: {[weak self] _ in
-                self?.filterVM.bindData()
-                self?.filterVM.outFilters
-                    .asObservable()
+                self?.filterVM.filterActionDelegate?.didNetworkRequestCompleteEvent()
                     .take(1)
-                    .debug()
-                    .subscribe(onNext: {[weak self] sf in
-                        self?.result += ("\(operationId): ")
-                        for element in sf {
-                            self?.result += (element!.title + " ")
-                            print("\(element!.title)")
-                        }
-                        self?.result += "\\\\\\"
-                        observerEvent.value = 1
+                    .subscribe(onNext: {[weak self] _ in
+                        self?.filterVM.filterActionDelegate?.filtersEvent()
+                            .take(1)
+                            .subscribe(onNext: {[weak self] sf in
+                                self?.result += ("\(operationId): ")
+                                for element in sf {
+                                    self?.result += (element!.title + " ")
+                                }
+                                self?.result += "\\\\\\"
+                                print(self?.result)
+                                observerEvent.value = 1
+                            })
+                            .disposed(by: self!.bag)
                     })
                     .disposed(by: self!.bag)
             }).disposed(by: bag)
@@ -183,48 +183,56 @@ class useTestCase4: XCTestCase {
     func takeFromVM(operationId: Int, observableEvent: Variable<Int>, vm: SubFilterVM, observerEvent: Variable<Int>){
         observableEvent
             .asObservable()
+            .filter({$0 != 0})
+            .take(1)
             .subscribe(onNext: {[weak self] _ in
-                vm.bindData()
-                vm.outModels
-                    .asObservable()
+                self?.filterVM.filterActionDelegate?.didNetworkRequestCompleteEvent()
                     .take(1)
-                    .subscribe(onNext: {[weak self] sf in
-                        self?.result += ("\(operationId): ")
-                        for element in sf {
-                            self?.result += (element!.title + " \(vm.isCheckmark(subFilterId: element!.id)) ")
-                        }
-                        self?.result += "\\\\\\"
-                        observerEvent.value = 1
-                    })
-                    .disposed(by: self!.bag)
+                    .subscribe(onNext: {[weak self] res in
+                            vm.filterActionDelegate?.subFiltersEvent()
+                                .take(1)
+                                .subscribe(onNext: {[weak self] sf in
+                                    self?.result += ("\(operationId): ")
+                                    for element in sf {
+                                        self?.result += (element!.title + " \(vm.isCheckmark(subFilterId: element!.id)) ")
+                                    }
+                                    self?.result += "\\\\\\"
+                                    observerEvent.value = 1
+                                })
+                                .disposed(by: self!.bag)
+                }).disposed(by: self!.bag)
             }).disposed(by: bag)
     }
     
     func takeFilterFinish(observableEvent: Variable<Int>, expect: XCTestExpectation){
         observableEvent
             .asObservable()
+            .filter({$0 != 0})
+            .take(1)
             .subscribe(onNext: {[weak self] _ in
-                self?.filterVM.bindData()
-                self?.filterVM.outFilters
-                    .asObservable()
+                self?.filterVM.filterActionDelegate?.didNetworkRequestCompleteEvent()
                     .take(1)
-                    .subscribe(onNext: {[weak self] sf in
-                        for element in sf {
-                            self?.result += (element!.title + " ")
-                        }
-                        expect.fulfill()
-                    })
-                    .disposed(by: self!.bag)
+                    .subscribe(onNext: {[weak self] res in
+                        self?.filterVM.filterActionDelegate?.filtersEvent()
+                            .take(1)
+                            .subscribe(onNext: {[weak self] sf in
+                                for element in sf {
+                                    self?.result += (element!.title + " ")
+                                }
+                                expect.fulfill()
+                            })
+                            .disposed(by: self!.bag)
+                    }).disposed(by: self!.bag)
             }).disposed(by: bag)
     }
     
     func takeFinish(observableEvent: Variable<Int>, vm: SubFilterVM, expect: XCTestExpectation){
         observableEvent
             .asObservable()
-            .subscribe(onNext: {[weak self] _ in
-                vm.bindData()
-                vm.outModels
-                    .asObservable()
+            .filter({$0 != 0})
+            .take(1)
+            .subscribe(onNext: {[weak self] res in
+                vm.filterActionDelegate?.subFiltersEvent()
                     .take(1)
                     .subscribe(onNext: {[weak self] sf in
                         for element in sf {
@@ -238,11 +246,12 @@ class useTestCase4: XCTestCase {
     
     
     func initTestCase0(filterId1: Int, filterId2: Int, filterId3: Int, filterId4: Int, filterId5: Int){
-        subFilterVM1 = SubFilterVM(filterId: filterId1)
-        subFilterVM2 = SubFilterVM(filterId: filterId2)
-        subFilterVM3 = SubFilterVM(filterId: filterId3)
-        subFilterVM4 = SubFilterVM(filterId: filterId4)
-        subFilterVM5 = SubFilterVM(filterId: filterId5)
+        subFilterVM1 = SubFilterVM(filterId: filterId1, filterActionDelegate: filterVM.filterActionDelegate)
+        subFilterVM2 = SubFilterVM(filterId: filterId2, filterActionDelegate: filterVM.filterActionDelegate)
+        subFilterVM3 = SubFilterVM(filterId: filterId3, filterActionDelegate: filterVM.filterActionDelegate)
+        subFilterVM4 = SubFilterVM(filterId: filterId4, filterActionDelegate: filterVM.filterActionDelegate)
+        subFilterVM5 = SubFilterVM(filterId: filterId5, filterActionDelegate: filterVM.filterActionDelegate)
+        
         result = ""
     }
 
@@ -254,8 +263,10 @@ class useTestCase4: XCTestCase {
         // 1 apply pink
         selectApply(vm: subFilterVM2, subFilterId: pink, observerEvent: event1)
         
+        refreshSubFilters(observableEvent: event1, filterId: deliveryFilterId, observerEvent: event2)
+        
         // 2 take available subfilters from Delivery Filter
-        takeFromVM(operationId:2, observableEvent: event1, vm: subFilterVM4, observerEvent: event2)
+        takeFromVM(operationId:2, observableEvent: event2, vm: subFilterVM4, observerEvent: event3)
         
         // 3 apply 5days
         selectApply(observableEvent: event3, vm: subFilterVM4, selectIds: [days5], observerEvent: event4)
@@ -286,8 +297,8 @@ class useTestCase4: XCTestCase {
     }
     
     func initTestCase1(filterId1: Int, filterId2: Int){
-        subFilterVM1 = SubFilterVM(filterId: filterId1)
-        subFilterVM2 = SubFilterVM(filterId: filterId2)
+        subFilterVM1 = SubFilterVM(filterId: filterId1, filterActionDelegate: filterVM.filterActionDelegate)
+        subFilterVM2 = SubFilterVM(filterId: filterId2, filterActionDelegate: filterVM.filterActionDelegate)
         result = ""
     }
     
@@ -299,9 +310,7 @@ class useTestCase4: XCTestCase {
         // 1 apply violet
         selectApply(vm: subFilterVM1, subFilterId: violet, observerEvent: event1)
         
-        // 2 applied materials must be equal
-        refreshDataSource(observableEvent: event1, vm: subFilterVM2, observerEvent: event2)
-        
+
         // 2 take available subfilters from Season Filter
         takeFromVM(operationId:1, observableEvent: event3, vm: subFilterVM2, observerEvent: event4)
         
@@ -334,7 +343,7 @@ class useTestCase4: XCTestCase {
         selectApply(vm: subFilterVM1, subFilterId: violet, observerEvent: event1)
         
         // 2 select
-        select(observableEvent: event1, vm: subFilterVM2, selectIds: [demiseason], observerEvent: event2)
+       // select(observableEvent: event1, vm: subFilterVM2, selectIds: [demiseason], observerEvent: event2)
         
         // 3 take available subfilters from Color Filter
         takeFinish(observableEvent: event2, vm: subFilterVM1, expect: expect )

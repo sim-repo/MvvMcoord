@@ -33,7 +33,6 @@
 		161AC87A21DB6B080078F020 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 161AC87821DB6B080078F020 /* Main.storyboard */; };
 		161AC87F21DB6B090078F020 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 161AC87D21DB6B090078F020 /* LaunchScreen.storyboard */; };
 		161AC88A21DB6B090078F020 /* MvvMcoordTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161AC88921DB6B090078F020 /* MvvMcoordTests.swift */; };
-		161AC89521DB6B090078F020 /* MvvMcoordUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161AC89421DB6B090078F020 /* MvvMcoordUITests.swift */; };
 		161AC8A321DB6B950078F020 /* CategoryCoord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161AC8A221DB6B950078F020 /* CategoryCoord.swift */; };
 		161AC8AB21DB6D050078F020 /* BaseCoord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161AC8AA21DB6D050078F020 /* BaseCoord.swift */; };
 		161AC8AF21DBBABF0078F020 /* AppCoord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161AC8AE21DBBABF0078F020 /* AppCoord.swift */; };
@@ -41,7 +40,6 @@
 		161AC8BB21DBBCF50078F020 /* CategoryVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161AC8BA21DBBCF50078F020 /* CategoryVC.swift */; };
 		161AC8C421DBBEE60078F020 /* CategoryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161AC8C321DBBEE60078F020 /* CategoryModel.swift */; };
 		161AC8C621DC1FBB0078F020 /* RootCoord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161AC8C521DC1FBB0078F020 /* RootCoord.swift */; };
-		161BCA9E21F4E073005A7D38 /* MvvMcoordTests2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161BCA9D21F4E073005A7D38 /* MvvMcoordTests2.swift */; };
 		161BCAA621F4E0A5005A7D38 /* useTestCase4.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161BCAA521F4E0A5005A7D38 /* useTestCase4.swift */; };
 		163AD71B21E5516F00EA91B0 /* SubFilterSectionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163AD71A21E5516F00EA91B0 /* SubFilterSectionVC.swift */; };
 		163AD71D21E551D100EA91B0 /* SubFilterSectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163AD71C21E551D100EA91B0 /* SubFilterSectionCell.swift */; };
@@ -53,25 +51,10 @@
 		16D58B1221EC725C0025FE15 /* ApplyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D58B1121EC725C0025FE15 /* ApplyButton.swift */; };
 		4E4A586EF74EBEF14CD71FD2 /* Pods_MvvMcoordTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8AD693E6BF8BF30274F3558D /* Pods_MvvMcoordTests.framework */; };
 		70782BD21052B1ABA3D97A10 /* Pods_MvvMcoord.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 779FB9AB84C24DE60C170F72 /* Pods_MvvMcoord.framework */; };
-		AE923DB4703AFED60B911DFA /* Pods_MvvMcoordUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9434EC67B107D472632D066 /* Pods_MvvMcoordUITests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		161AC88621DB6B090078F020 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 161AC86921DB6B080078F020 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 161AC87021DB6B080078F020;
-			remoteInfo = MvvMcoord;
-		};
-		161AC89121DB6B090078F020 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 161AC86921DB6B080078F020 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 161AC87021DB6B080078F020;
-			remoteInfo = MvvMcoord;
-		};
-		161BCAA021F4E073005A7D38 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 161AC86921DB6B080078F020 /* Project object */;
 			proxyType = 1;
@@ -112,9 +95,6 @@
 		161AC88521DB6B090078F020 /* MvvMcoordTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MvvMcoordTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		161AC88921DB6B090078F020 /* MvvMcoordTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MvvMcoordTests.swift; sourceTree = "<group>"; };
 		161AC88B21DB6B090078F020 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		161AC89021DB6B090078F020 /* MvvMcoordUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MvvMcoordUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		161AC89421DB6B090078F020 /* MvvMcoordUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MvvMcoordUITests.swift; sourceTree = "<group>"; };
-		161AC89621DB6B090078F020 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		161AC8A221DB6B950078F020 /* CategoryCoord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCoord.swift; sourceTree = "<group>"; };
 		161AC8AA21DB6D050078F020 /* BaseCoord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseCoord.swift; sourceTree = "<group>"; };
 		161AC8AE21DBBABF0078F020 /* AppCoord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoord.swift; sourceTree = "<group>"; };
@@ -122,9 +102,6 @@
 		161AC8BA21DBBCF50078F020 /* CategoryVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryVC.swift; sourceTree = "<group>"; };
 		161AC8C321DBBEE60078F020 /* CategoryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryModel.swift; sourceTree = "<group>"; };
 		161AC8C521DC1FBB0078F020 /* RootCoord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootCoord.swift; sourceTree = "<group>"; };
-		161BCA9B21F4E073005A7D38 /* MvvMcoordTests2.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MvvMcoordTests2.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		161BCA9D21F4E073005A7D38 /* MvvMcoordTests2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MvvMcoordTests2.swift; sourceTree = "<group>"; };
-		161BCA9F21F4E073005A7D38 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		161BCAA521F4E0A5005A7D38 /* useTestCase4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = useTestCase4.swift; sourceTree = "<group>"; };
 		163AD71A21E5516F00EA91B0 /* SubFilterSectionVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubFilterSectionVC.swift; sourceTree = "<group>"; };
 		163AD71C21E551D100EA91B0 /* SubFilterSectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubFilterSectionCell.swift; sourceTree = "<group>"; };
@@ -161,21 +138,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		161AC88D21DB6B090078F020 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				AE923DB4703AFED60B911DFA /* Pods_MvvMcoordUITests.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		161BCA9821F4E073005A7D38 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -194,8 +156,6 @@
 			children = (
 				161AC87321DB6B080078F020 /* MvvMcoord */,
 				161AC88821DB6B090078F020 /* MvvMcoordTests */,
-				161AC89321DB6B090078F020 /* MvvMcoordUITests */,
-				161BCA9C21F4E073005A7D38 /* MvvMcoordTests2 */,
 				161AC87221DB6B080078F020 /* Products */,
 				F61A8F95246FD9802D609F0C /* Pods */,
 				50D4D3EAC344FB633A477C23 /* Frameworks */,
@@ -207,8 +167,6 @@
 			children = (
 				161AC87121DB6B080078F020 /* MvvMcoord.app */,
 				161AC88521DB6B090078F020 /* MvvMcoordTests.xctest */,
-				161AC89021DB6B090078F020 /* MvvMcoordUITests.xctest */,
-				161BCA9B21F4E073005A7D38 /* MvvMcoordTests2.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -246,15 +204,6 @@
 			path = MvvMcoordTests;
 			sourceTree = "<group>";
 		};
-		161AC89321DB6B090078F020 /* MvvMcoordUITests */ = {
-			isa = PBXGroup;
-			children = (
-				161AC89421DB6B090078F020 /* MvvMcoordUITests.swift */,
-				161AC89621DB6B090078F020 /* Info.plist */,
-			);
-			path = MvvMcoordUITests;
-			sourceTree = "<group>";
-		};
 		161AC8B021DBBBB90078F020 /* Coords */ = {
 			isa = PBXGroup;
 			children = (
@@ -289,15 +238,6 @@
 				163AD72221E552E600EA91B0 /* Filter */,
 			);
 			path = VCs;
-			sourceTree = "<group>";
-		};
-		161BCA9C21F4E073005A7D38 /* MvvMcoordTests2 */ = {
-			isa = PBXGroup;
-			children = (
-				161BCA9D21F4E073005A7D38 /* MvvMcoordTests2.swift */,
-				161BCA9F21F4E073005A7D38 /* Info.plist */,
-			);
-			path = MvvMcoordTests2;
 			sourceTree = "<group>";
 		};
 		163AD72021E552D100EA91B0 /* Catalog */ = {
@@ -444,6 +384,7 @@
 				161AC88121DB6B090078F020 /* Sources */,
 				161AC88221DB6B090078F020 /* Frameworks */,
 				161AC88321DB6B090078F020 /* Resources */,
+				0FB8EEE57A93DEFA2185BF26 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -453,43 +394,6 @@
 			name = MvvMcoordTests;
 			productName = MvvMcoordTests;
 			productReference = 161AC88521DB6B090078F020 /* MvvMcoordTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		161AC88F21DB6B090078F020 /* MvvMcoordUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 161AC89F21DB6B090078F020 /* Build configuration list for PBXNativeTarget "MvvMcoordUITests" */;
-			buildPhases = (
-				F1903D6747964FA2E56D8762 /* [CP] Check Pods Manifest.lock */,
-				161AC88C21DB6B090078F020 /* Sources */,
-				161AC88D21DB6B090078F020 /* Frameworks */,
-				161AC88E21DB6B090078F020 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				161AC89221DB6B090078F020 /* PBXTargetDependency */,
-			);
-			name = MvvMcoordUITests;
-			productName = MvvMcoordUITests;
-			productReference = 161AC89021DB6B090078F020 /* MvvMcoordUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
-		161BCA9A21F4E073005A7D38 /* MvvMcoordTests2 */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 161BCAA421F4E073005A7D38 /* Build configuration list for PBXNativeTarget "MvvMcoordTests2" */;
-			buildPhases = (
-				161BCA9721F4E073005A7D38 /* Sources */,
-				161BCA9821F4E073005A7D38 /* Frameworks */,
-				161BCA9921F4E073005A7D38 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				161BCAA121F4E073005A7D38 /* PBXTargetDependency */,
-			);
-			name = MvvMcoordTests2;
-			productName = MvvMcoordTests2;
-			productReference = 161BCA9B21F4E073005A7D38 /* MvvMcoordTests2.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -506,14 +410,6 @@
 						CreatedOnToolsVersion = 10.1;
 					};
 					161AC88421DB6B090078F020 = {
-						CreatedOnToolsVersion = 10.1;
-						TestTargetID = 161AC87021DB6B080078F020;
-					};
-					161AC88F21DB6B090078F020 = {
-						CreatedOnToolsVersion = 10.1;
-						TestTargetID = 161AC87021DB6B080078F020;
-					};
-					161BCA9A21F4E073005A7D38 = {
 						CreatedOnToolsVersion = 10.1;
 						TestTargetID = 161AC87021DB6B080078F020;
 					};
@@ -534,8 +430,6 @@
 			targets = (
 				161AC87021DB6B080078F020 /* MvvMcoord */,
 				161AC88421DB6B090078F020 /* MvvMcoordTests */,
-				161AC88F21DB6B090078F020 /* MvvMcoordUITests */,
-				161BCA9A21F4E073005A7D38 /* MvvMcoordTests2 */,
 			);
 		};
 /* End PBXProject section */
@@ -559,23 +453,35 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		161AC88E21DB6B090078F020 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		161BCA9921F4E073005A7D38 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		0FB8EEE57A93DEFA2185BF26 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-MvvMcoordTests/Pods-MvvMcoordTests-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/RxAtomic/RxAtomic.framework",
+				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/RxTest/RxTest.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxAtomic.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxTest.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-MvvMcoordTests/Pods-MvvMcoordTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		27FD14680EB315841DD34863 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -614,7 +520,6 @@
 				"${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework",
 				"${BUILT_PRODUCTS_DIR}/RxDataSources/RxDataSources.framework",
 				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
-				"${BUILT_PRODUCTS_DIR}/RxTest/RxTest.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
@@ -628,7 +533,6 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxCocoa.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxDataSources.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxTest.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -652,28 +556,6 @@
 			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-MvvMcoordTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		F1903D6747964FA2E56D8762 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-MvvMcoordUITests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -735,22 +617,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		161AC88C21DB6B090078F020 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				161AC89521DB6B090078F020 /* MvvMcoordUITests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		161BCA9721F4E073005A7D38 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				161BCA9E21F4E073005A7D38 /* MvvMcoordTests2.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -758,16 +624,6 @@
 			isa = PBXTargetDependency;
 			target = 161AC87021DB6B080078F020 /* MvvMcoord */;
 			targetProxy = 161AC88621DB6B090078F020 /* PBXContainerItemProxy */;
-		};
-		161AC89221DB6B090078F020 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 161AC87021DB6B080078F020 /* MvvMcoord */;
-			targetProxy = 161AC89121DB6B090078F020 /* PBXContainerItemProxy */;
-		};
-		161BCAA121F4E073005A7D38 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 161AC87021DB6B080078F020 /* MvvMcoord */;
-			targetProxy = 161BCAA021F4E073005A7D38 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -826,6 +682,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -887,6 +744,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_BITCODE = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -955,6 +813,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 78S4SSQ86F;
+				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = MvvMcoordTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -977,6 +836,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 78S4SSQ86F;
+				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = MvvMcoordTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -984,88 +844,6 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.garneteum.MvvMcoordTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MvvMcoord.app/MvvMcoord";
-			};
-			name = Release;
-		};
-		161AC8A021DB6B090078F020 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0E5592B96EFF73B37D27934F /* Pods-MvvMcoordUITests.debug.xcconfig */;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 78S4SSQ86F;
-				INFOPLIST_FILE = MvvMcoordUITests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.garneteum.MvvMcoordUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = MvvMcoord;
-			};
-			name = Debug;
-		};
-		161AC8A121DB6B090078F020 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 64FFDAEAC1A833EBA5D55674 /* Pods-MvvMcoordUITests.release.xcconfig */;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 78S4SSQ86F;
-				INFOPLIST_FILE = MvvMcoordUITests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.garneteum.MvvMcoordUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = MvvMcoord;
-			};
-			name = Release;
-		};
-		161BCAA221F4E073005A7D38 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 78S4SSQ86F;
-				INFOPLIST_FILE = MvvMcoordTests2/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.garneteum.MvvMcoordTests2;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MvvMcoord.app/MvvMcoord";
-			};
-			name = Debug;
-		};
-		161BCAA321F4E073005A7D38 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 78S4SSQ86F;
-				INFOPLIST_FILE = MvvMcoordTests2/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.garneteum.MvvMcoordTests2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1099,24 +877,6 @@
 			buildConfigurations = (
 				161AC89D21DB6B090078F020 /* Debug */,
 				161AC89E21DB6B090078F020 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		161AC89F21DB6B090078F020 /* Build configuration list for PBXNativeTarget "MvvMcoordUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				161AC8A021DB6B090078F020 /* Debug */,
-				161AC8A121DB6B090078F020 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		161BCAA421F4E073005A7D38 /* Build configuration list for PBXNativeTarget "MvvMcoordTests2" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				161BCAA221F4E073005A7D38 /* Debug */,
-				161BCAA321F4E073005A7D38 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

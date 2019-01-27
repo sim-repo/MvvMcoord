@@ -43,7 +43,7 @@ class SubFilterCoord : BaseCoord<CoordRetEnum>{
         }
         
         return Observable
-            .amb([vm.backEvent, vm.inApply])
+            .amb([vm.backEvent])
             .take(1)
     }
 }

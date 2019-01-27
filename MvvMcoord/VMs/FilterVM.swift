@@ -13,21 +13,21 @@ class FilterVM : BaseVM {
     
     
     // MARK: - Outputs to ViewController or Coord
-    var outFilters = Variable<[FilterModel?]>([]) // added
+   // var outFilters = Variable<[FilterModel?]>([]) // added
     var outShowSubFilters = PublishSubject<Int>()
     var outCloseVC = PublishSubject<Void>()
     
     var categoryId : Int
     var filters: [Int:FilterModel] = [:] 
     
-    private weak var filterActionDelegate: FilterActionDelegate?
+    public weak var filterActionDelegate: FilterActionDelegate?
     
     init(categoryId: Int = 0, filterActionDelegate: FilterActionDelegate?){
         self.categoryId = categoryId
         self.filterActionDelegate = filterActionDelegate
         super.init()
         
-        bindData()
+       // bindData()
         bindSelection()
         bindUserActivities()
     }
@@ -39,17 +39,19 @@ class FilterVM : BaseVM {
             .sorted(by: {$0.id < $1.id })
     }
     
-    //network request
-    public func bindData(){
-        filterActionDelegate?.filtersEvent()
-        .bind(to: outFilters)
-        .disposed(by: bag)
-    }
+//    //network request
+//    public func bindData(){
+//        filterActionDelegate?.filtersEvent()
+//        .bind(to: outFilters)
+//        .disposed(by: bag)
+//    }
     
     
     public func appliedTitles(filterId: Int)->String {
         return self.filterActionDelegate?.appliedTitle(filterId: filterId) ?? ""
     }
+    
+    
     
     private func bindSelection(){
         inSelectFilter

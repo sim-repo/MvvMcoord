@@ -36,8 +36,7 @@ class FilterVC: UIViewController {
     }
     
     private func bindCell(){
-        viewModel.outFilters
-            .asObservable()
+        viewModel?.filterActionDelegate?.filtersEvent()
             .bind(to: self.tableView.rx.items) { [weak self] tableView, index, model in
                 if let `self` = self,
                    let `model` = model {
@@ -84,7 +83,6 @@ class FilterVC: UIViewController {
                     self!.tableView.deselectRow(at: indexPath, animated: true)
                     let id = (cell as! FilterCellSelect).id!
                     self!.viewModel.inSelectFilter.onNext(id)
-                    
                     
                 case is FilterCell:
                     if let `cell` = cell as? FilterCell {

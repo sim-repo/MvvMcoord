@@ -103,7 +103,8 @@ class CatalogVC: UIViewController {
         
         filterButton.rx.tap
             .bind{[weak self] _ -> Void in
-                self?.viewModel.inPressFilter.value = Void()}
+                self?.viewModel.inPressFilter.onNext(Void())
+            }
             .disposed(by: bag)
         
         
