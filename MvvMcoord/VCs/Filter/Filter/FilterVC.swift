@@ -15,7 +15,6 @@ class FilterVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // registerTableView()
         bindCell()
         bindApply()
         bindSelection()
@@ -30,10 +29,6 @@ class FilterVC: UIViewController {
         print("deinit FilterVC")
     }
     
-    private func registerTableView(){
-        tableView.rx.setDelegate(self)
-            .disposed(by: bag)
-    }
     
     private func bindCell(){
         viewModel?.filterActionDelegate?.filtersEvent()
@@ -79,7 +74,6 @@ class FilterVC: UIViewController {
                 
                 switch cell {
                 case is FilterCellSelect:
-                    
                     self!.tableView.deselectRow(at: indexPath, animated: true)
                     let id = (cell as! FilterCellSelect).id!
                     self!.viewModel.inSelectFilter.onNext(id)
@@ -130,7 +124,7 @@ class FilterVC: UIViewController {
         applyView.applyButton.rx.tap
            // .take(1)
             .subscribe{[weak self] _ in
-                self?.viewModel.inApply.onNext(.reloadData)
+                self?.viewModel.inApply.onNext(Void())
              //   self?.viewModel.inApply.onCompleted()
             }
             .disposed(by: bag)

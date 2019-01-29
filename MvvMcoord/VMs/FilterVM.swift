@@ -7,7 +7,7 @@ class FilterVM : BaseVM {
     
     // MARK: - during user activies. Input from ViewController
     var inSelectFilter = PublishSubject<Int>()
-    var inApply = PublishSubject<CoordRetEnum>()
+    var inApply = PublishSubject<Void>()
     var inCleanUp = PublishSubject<Void>()
     var inRemoveFilter = PublishSubject<Int>()
     
@@ -26,8 +26,7 @@ class FilterVM : BaseVM {
         self.categoryId = categoryId
         self.filterActionDelegate = filterActionDelegate
         super.init()
-        
-       // bindData()
+
         bindSelection()
         bindUserActivities()
     }
@@ -38,14 +37,6 @@ class FilterVM : BaseVM {
             .filter({$0.enabled == true})
             .sorted(by: {$0.id < $1.id })
     }
-    
-//    //network request
-//    public func bindData(){
-//        filterActionDelegate?.filtersEvent()
-//        .bind(to: outFilters)
-//        .disposed(by: bag)
-//    }
-    
     
     public func appliedTitles(filterId: Int)->String {
         return self.filterActionDelegate?.appliedTitle(filterId: filterId) ?? ""
@@ -75,7 +66,8 @@ class FilterVM : BaseVM {
             .subscribe(onNext: {[weak self] _ in
                 if let `self` = self {
                     self.filterActionDelegate?.applyFromFilterEvent().onNext(Void())
-                   // self.outCloseVC.onCompleted()
+                    // раскомментировать когда после тестирования!!
+                    // self.outCloseVC.onCompleted()
                 }
             })
             .disposed(by: bag)
