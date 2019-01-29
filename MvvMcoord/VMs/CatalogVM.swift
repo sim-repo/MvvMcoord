@@ -33,8 +33,6 @@ protocol FilterActionDelegate : class {
     func cleanupFromSubFilterEvent() -> PublishSubject<Int>
     func requestComplete() -> PublishSubject<Int>
     func showApplyingViewEvent() -> BehaviorSubject<Bool>
-    
-    func didNetworkRequestCompleteEvent()->PublishSubject<Void>
 }
 
 
@@ -83,7 +81,10 @@ class CatalogVM : BaseVM {
     private var inCleanUpFromSubFilterEvent = PublishSubject<Int>()
     private var outShowApplyingViewEvent = BehaviorSubject<Bool>(value: false)
     
-    private var outDidNetworkRequestCompleteEvent = PublishSubject<Void>()
+    
+    public var unitTestSignalOperationComplete = BehaviorSubject<Int>(value: 0)
+    public var utMsgId = 0
+    
     
     
     init(categoryId: Int = 0){
@@ -149,17 +150,17 @@ class CatalogVM : BaseVM {
     
     // unit-test function
     public func utRefreshSubFilters(filterId: Int){
-        subFiltersFromCache(filterId: filterId)
+       subFiltersFromCache(filterId: filterId)
+    }
+    
+    public func utEnterSubFilter(filterId: Int){
+        NetworkMgt.requestSubFilters(filterId: filterId, appliedSubFilters: self.appliedSubFilters)
     }
     
 }
 
 
 extension CatalogVM : FilterActionDelegate {
-    
-    func didNetworkRequestCompleteEvent()->PublishSubject<Void>{
-        return outDidNetworkRequestCompleteEvent
-    }
     
     func applyFromFilterEvent() -> PublishSubject<Void> {
         return inApplyFromFilterEvent
@@ -351,7 +352,7 @@ extension CatalogVM : FilterActionDelegate {
                 self.subFiltersFromCache(filterId: res.0)
             })
             .disposed(by: bag)
-        
+
         
         NetworkMgt.outApplyFromSubFilterResponse
             .subscribe(onNext: {[weak self] _filters in
@@ -361,15 +362,10 @@ extension CatalogVM : FilterActionDelegate {
                 self.appliedSubFilters = _filters.2
                 self.selectedSubFilters = _filters.3
                 self.outFiltersEvent.onNext(self.getEnabledFilters())
-                self.signalForUnitTest()
+                
+                self.unitTestSignalOperationComplete.onNext(self.utMsgId)
             })
             .disposed(by: bag)
-    }
-    private func signalForUnitTest(){
-        //for test:
-        print("send signal")
-        self.outDidNetworkRequestCompleteEvent.onNext(Void())
-        
     }
 }
 
@@ -394,7 +390,7 @@ extension CatalogVM {
         default:
             print("todo")
         }
-       // self.outRequestComplete.onNext(filterId)
+        unitTestSignalOperationComplete.onNext(utMsgId)
     }
     
     

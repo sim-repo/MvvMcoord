@@ -74,13 +74,13 @@ class SubFilterSelectVC: UIViewController {
         applyView.applyButton.rx.tap
             .take(1)
             .subscribe{[weak self] _ in
-                self?.viewModel.inApply.onCompleted()
+                self?.viewModel.inApply.onNext(Void())
             }
             .disposed(by: bag)
         
         applyView.cleanUpButton.rx.tap
             .subscribe{[weak self] _ in
-                self?.viewModel.inCleanUp.onCompleted()
+                self?.viewModel.inCleanUp.onNext(Void())
         }
         .disposed(by: bag)
         
