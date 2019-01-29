@@ -18,4 +18,10 @@ class SubFilterSelectCell : UITableViewCell{
         self.accessoryType = checkmarked ? .checkmark : .none
         return checkmarked
     }
+    
+    func selectCell() {
+        let checkmarked = self.accessoryType == .checkmark ? false : true
+        checkmarked != checkmarked
+        self.accessoryType = checkmarked ? .checkmark : .none
+    }
 }

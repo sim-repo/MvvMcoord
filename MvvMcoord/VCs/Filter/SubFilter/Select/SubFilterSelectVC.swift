@@ -59,10 +59,26 @@ class SubFilterSelectVC: UIViewController {
         tableView.rx.itemSelected
             .subscribe(onNext: {[weak self] indexPath  in
                let cell = self!.tableView.cellForRow(at: indexPath) as! SubFilterSelectCell
+                
                 if cell.selectedCell() {
                     self?.viewModel?.filterActionDelegate?.selectSubFilterEvent().onNext((cell.id, true))
                 } else {
                     self?.viewModel?.filterActionDelegate?.selectSubFilterEvent().onNext((cell.id, false))
+                }
+            })
+            .disposed(by: bag)
+        
+        
+        viewModel.filterActionDelegate?.refreshedCellSelectionsEvent()
+            .subscribe(onNext: {[weak self] ids in
+                guard let `self` = self else { return }
+                
+                for row in 0...self.tableView.numberOfRows(inSection: 0) - 1 {
+                    if let cell = self.tableView.cellForRow(at: IndexPath(row: row, section: 0)) as? SubFilterSelectCell {
+                        if ids.contains(cell.id) {
+                            cell.selectCell()
+                        }
+                    }
                 }
             })
             .disposed(by: bag)
@@ -72,11 +88,11 @@ class SubFilterSelectVC: UIViewController {
     private func bindApply(){
         
         applyView.applyButton.rx.tap
-            .take(1)
-            .subscribe{[weak self] _ in
-                self?.viewModel.inApply.onNext(Void())
-            }
-            .disposed(by: bag)
+        .take(1)
+        .subscribe{[weak self] _ in
+            self?.viewModel.inApply.onNext(Void())
+        }
+        .disposed(by: bag)
         
         applyView.cleanUpButton.rx.tap
             .subscribe{[weak self] _ in

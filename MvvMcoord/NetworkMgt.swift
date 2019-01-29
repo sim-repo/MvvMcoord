@@ -5,24 +5,8 @@ import RxSwift
 
 
 class NetworkMgt{
-    static let baseURL = "https://api.vk.com/method/"
     
     private init(){}
-    
-    
-
-    
-    static let outFilters = BehaviorSubject<([FilterModel], [SubfilterModel])>(value: ([],[]))
-    static var outSubFilters = PublishSubject<(Int, [Int?], Set<Int>)>()
-    
-    static let backend: ApiBackendLogic = BackendLogic.shared
-    
-    static var outApplyFromSubFilterResponse = PublishSubject<([Int?], [Int?], Set<Int>, Set<Int>)>()
-
-    
-    
-    static let delay = 0
-    
     public static let sharedManager: SessionManager = {
         let config = URLSessionConfiguration.default
         config.httpAdditionalHeaders = SessionManager.defaultHTTPHeaders
@@ -32,40 +16,61 @@ class NetworkMgt{
         return manager
     }()
     
+    static let baseURL = "https://api.vk.com/method/"
+
+    public static let outFullFilterEntities = BehaviorSubject<([FilterModel], [SubfilterModel])>(value: ([],[]))
+    public static var outCurrentSubFilterIds = PublishSubject<(Int, [Int?], Set<Int>)>()
+    
+    static let backend: ApiBackendLogic = BackendLogic.shared
+    
+    static var outAfterApplyResponse = PublishSubject<([Int?], [Int?], Set<Int>, Set<Int>)>()
+
+    static let delay = 0
+    
+    
+    // MARK: - next functions
+    private static func nextCurrentSubFilterIds(filterId: Int, subFiltersIds: [Int?], appliedSubFilters: Set<Int>) {
+        outCurrentSubFilterIds.onNext((filterId, subFiltersIds, appliedSubFilters))
+    }
+    
+    private static func nextFullFilterEntities(filterModels: [FilterModel], subFilterModels: [SubfilterModel]) {
+        outFullFilterEntities.onNext((filterModels, subFilterModels))
+    }
+    
+    private static func nextAfterApplyingIds(filterIds: [Int?], subFiltersIds: [Int?], appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>) {
+        outAfterApplyResponse.onNext((filterIds, subFiltersIds, appliedSubFilters, selectedSubFilters))
+    }
     
     
     
-    public static func requestFilters(categoryId: Int){
-        
+    // MARK: - request functions
+    public static func requestFullFilterEntities(categoryId: Int){
         //   let params: Parameters = [:]
         //AlamofireNetworkManager.request(clazz: FilterModel.self, urlPath: "", params: params, observer: reqFilter)
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
-            print("network Filter done")
-            
             backend.apiLoadFilters()
                 .asObservable()
                 .subscribe(onNext: {res in
-                    outFilters.onNext(res)
+                    nextFullFilterEntities(filterModels: res.0, subFilterModels: res.1)
                 })
                 .disposed(by: bag)
         })
     }
     
     
-    public static func requestSubFilters(filterId: Int, appliedSubFilters: Set<Int>){
+    public static func requestCurrentSubFilterIds(filterId: Int, appliedSubFilters: Set<Int>){
         // let params: Parameters = [:]
         //AlamofireNetworkManager.request(clazz: SubFilterModel.self, urlPath: "", params: params, observer: reqFilter)
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
-            
             backend.apiLoadSubFilters(filterId: filterId, appliedSubFilters: appliedSubFilters)
                 .asObservable()
                 .subscribe(onNext: {res in
-                    print("network requestSubFilters")
-                    outSubFilters.onNext((res))
+                    nextCurrentSubFilterIds(filterId: res.0, subFiltersIds: res.1, appliedSubFilters: res.2)
                 })
                 .disposed(by: bag)
         })
     }
+    
     
     public static func requestApplyFromFilter(appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>){
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
@@ -73,8 +78,7 @@ class NetworkMgt{
                 .asObservable()
                 .share()
                 .subscribe(onNext: { res in
-                    print("network requestApplyFromFilter")
-                    outApplyFromSubFilterResponse.onNext((res.0, res.1, res.2, res.3 ))
+                    nextAfterApplyingIds(filterIds: res.0, subFiltersIds: res.1, appliedSubFilters: res.2, selectedSubFilters: res.3)
                 })
                 .disposed(by: bag)
         })
@@ -86,8 +90,7 @@ class NetworkMgt{
                 .asObservable()
                 .share()
                 .subscribe(onNext: { res in
-                    print("network requestApplyFromSubFilter")
-                    outApplyFromSubFilterResponse.onNext((res.0, res.1, res.2, res.3 ))
+                    nextAfterApplyingIds(filterIds: res.0, subFiltersIds: res.1, appliedSubFilters: res.2, selectedSubFilters: res.3)
                 })
                 .disposed(by: bag)
         })
@@ -100,8 +103,7 @@ class NetworkMgt{
                 .asObservable()
                 .share()
                 .subscribe(onNext: { res in
-                    print("network requestRemoveFilter")
-                    outApplyFromSubFilterResponse.onNext((res.0, res.1, res.2, res.3 ))
+                    nextAfterApplyingIds(filterIds: res.0, subFiltersIds: res.1, appliedSubFilters: res.2, selectedSubFilters: res.3)
                 })
                 .disposed(by: bag)
         })
@@ -114,13 +116,11 @@ class NetworkMgt{
                 .asObservable()
                 .share()
                 .subscribe(onNext: { res in
-                    outApplyFromSubFilterResponse.onNext((res.0, res.1, res.2, res.3 ))
-                    print("network requestCleanupFromSubFilter")
+                    nextAfterApplyingIds(filterIds: res.0, subFiltersIds: res.1, appliedSubFilters: res.2, selectedSubFilters: res.3)
                 })
                 .disposed(by: bag)
         })
     }
-    
     
     
     public static func request<T: ModelProtocol>(clazz: T.Type , urlPath: String, params: Parameters, observer: BehaviorSubject<[T]>){
