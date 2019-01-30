@@ -309,6 +309,7 @@ extension CatalogVM : FilterActionDelegate {
                     self.showCleanFilterVC()
                     self.cleanupAllFilters()
                     self.outFiltersEvent.onNext(self.getEnabledFilters())
+                    self.unitTestSignalOperationComplete.onNext(self.utMsgId)
                 }
             })
             .disposed(by: bag)
@@ -326,6 +327,7 @@ extension CatalogVM : FilterActionDelegate {
                 for id in ids {
                     self.selectSubFilter(subFilterId: id, selected: false)
                 }
+                self.unitTestSignalOperationComplete.onNext(self.utMsgId)
             })
             .disposed(by: bag)
         

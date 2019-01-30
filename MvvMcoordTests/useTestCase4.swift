@@ -32,6 +32,11 @@ class useTestCase4: XCTestCase {
     let green = 64
     let pink = 68
     let violet = 71
+    let brown = 65
+    let angora = 47
+    let red = 66
+    let orange = 67
+    
     let days5 = 59
     let day1 = 56
     let viscose = 48
@@ -56,6 +61,18 @@ class useTestCase4: XCTestCase {
     override func tearDown() {
         subFilterVM1 = nil
     }
+    
+    
+    func capsule(msgId: Int, completion: @escaping ()->(Void)) {
+        catalogVM.unitTestSignalOperationComplete
+            .filter({$0 == msgId})
+            .take(1)
+            .observeOn(MainScheduler.asyncInstance)
+            .subscribe(onNext: {_ in
+                completion()
+            }).disposed(by: bag)
+    }
+    
     
     
     func refreshSubFilters(filterId: Int, msgId: Int, newMsgId: Int) {
@@ -110,6 +127,14 @@ class useTestCase4: XCTestCase {
     }
     
     
+    func apply(vm: SubFilterVM, msgId: Int, newMsgId: Int){
+        let completion: (() -> Void) = {[weak self]  in
+            self?.catalogVM.utMsgId = newMsgId
+            self?.applySubFilter(vm: vm)
+        }
+        capsule(msgId: msgId, completion: completion)
+    }
+    
     func selectApply(vm: SubFilterVM, selectIds: [Int], msgId: Int){
         catalogVM.utMsgId = msgId
         selectSubFilters(vm: vm, selectIds: selectIds, select: true)
@@ -127,16 +152,28 @@ class useTestCase4: XCTestCase {
     }
     
     
-    func removeAppliedFilter(observableEvent: Variable<Int>, filterId: Int, observerEvent: Variable<Int>){
-        observableEvent
-            .asObservable()
-            .filter({$0 != 0})
-            .take(1)
-            .subscribe(onNext: {[weak self] _ in
-                self!.filterVM.inRemoveFilter.onNext(filterId)
-                observerEvent.value = 1
-            })
-            .disposed(by: bag)
+    func removeAppliedFilter(filterId: Int, msgId: Int, newMsgId: Int){
+        let completion: (() -> Void) = {[weak self]  in
+            self?.catalogVM.utMsgId = newMsgId
+            self?.filterVM.inRemoveFilter.onNext(filterId)
+        }
+        capsule(msgId: msgId, completion: completion)
+    }
+    
+    func cleanupFromFilter(msgId: Int, newMsgId: Int){
+        let completion: (() -> Void) = {[weak self]  in
+            self?.catalogVM.utMsgId = newMsgId
+            self?.filterVM.filterActionDelegate?.cleanupFromFilterEvent().onNext(Void())
+        }
+        capsule(msgId: msgId, completion: completion)
+    }
+    
+    func cleanupFromSubFilter(filterId: Int, msgId: Int, newMsgId: Int){
+        let completion: (() -> Void) = {[weak self]  in
+            self?.catalogVM.utMsgId = newMsgId
+            self?.filterVM.filterActionDelegate?.cleanupFromSubFilterEvent().onNext(filterId)
+        }
+        capsule(msgId: msgId, completion: completion)
     }
     
     
@@ -148,17 +185,9 @@ class useTestCase4: XCTestCase {
         subFilterVM5 = nil
     }
     
-    func capsule(msgId: Int, completion: @escaping ()->(Void)) {
-        catalogVM.unitTestSignalOperationComplete
-            .filter({$0 == msgId})
-            .take(1)
-            .observeOn(MainScheduler.asyncInstance)
-            .subscribe(onNext: {_ in
-               completion()
-            }).disposed(by: bag)
-    }
     
-    func applyFromFilterVM(msgId: Int, newMsgId: Int) {
+    
+    func applyFromFilter(msgId: Int, newMsgId: Int) {
         let completion: (() -> Void) = {[weak self]  in
             self?.catalogVM.utMsgId = newMsgId
             self?.filterVM.inApply.onNext(Void())
@@ -167,7 +196,7 @@ class useTestCase4: XCTestCase {
     }
     
     
-    func takeFromFilterVM(operationId: Int, msgId: Int, newMsgId: Int){
+    func takeFromFilter(operationId: Int, msgId: Int, newMsgId: Int){
         let completion: (() -> Void) = {[weak self]  in
             self?.catalogVM.filtersEvent()
                 .take(1)
@@ -248,6 +277,8 @@ class useTestCase4: XCTestCase {
         result = ""
     }
     
+    
+    // check accuracy of filter
     func testExample() {
         let expect = expectation(description: #function)
         initTestCase0(filterId1: materialFilterId, filterId2: colorFilterId, filterId3: seasonFilterId, filterId4: deliveryFilterId, filterId5: sizeFilterId)
@@ -308,6 +339,8 @@ class useTestCase4: XCTestCase {
         result = ""
     }
     
+    
+    // check relative applying
     func testExample2() {
         
         let expect = expectation(description: #function)
@@ -339,7 +372,7 @@ class useTestCase4: XCTestCase {
     }
     
     
-    
+    // check relative applying
     func testExample3() {
         
         let expect = expectation(description: #function)
@@ -373,6 +406,7 @@ class useTestCase4: XCTestCase {
         result = ""
     }
     
+    // check entering to subfilter after applying
     func testExample4() {
         
         let expect = expectation(description: #function)
@@ -381,7 +415,7 @@ class useTestCase4: XCTestCase {
 
         selectApply(vm: subFilterVM1, selectIds: [blue], msgId: 1)
         
-        takeFromFilterVM(operationId: 1, msgId: 1, newMsgId: 2)
+        takeFromFilter(operationId: 1, msgId: 1, newMsgId: 2)
         
         enterSubFilter(filterId: colorFilterId, msgId: 2, newMsgId: 3)
         takeFromVM(operationId:2, vm: subFilterVM1, msgId: 3, newMsgId: 4)
@@ -389,7 +423,7 @@ class useTestCase4: XCTestCase {
         
         selectApply(vm: subFilterVM1, selectIds: [yellow], msgId: 4, newMsgId: 5)
         
-        takeFromFilterVM(operationId: 3, msgId: 5, newMsgId: 6)
+        takeFromFilter(operationId: 3, msgId: 5, newMsgId: 6)
         
         
         enterSubFilter(filterId: materialFilterId, msgId: 6, newMsgId: 7)
@@ -414,6 +448,7 @@ class useTestCase4: XCTestCase {
     }
     
     
+    // select null-subf and apply from filter
     func testExample5(){
         
         let expect = expectation(description: #function)
@@ -421,9 +456,9 @@ class useTestCase4: XCTestCase {
         
         selectSubFilters(vm: subFilterVM1, selectIds: [blue], select: true, newMsgId: 2)
         
-        applyFromFilterVM(msgId: 2, newMsgId: 3)
+        applyFromFilter(msgId: 2, newMsgId: 3)
         
-        takeFromFilterVM(operationId: 1, msgId: 3, newMsgId: 4)
+        takeFromFilter(operationId: 1, msgId: 3, newMsgId: 4)
         
         takeFinish(vm: subFilterVM1, msgId: 4, expect: expect )
         
@@ -436,7 +471,7 @@ class useTestCase4: XCTestCase {
         }
     }
     
-    
+    // select from subfilter and apply from filter, deselect from subfilter and apply from filter again
     func testExample6(){
         
         let expect = expectation(description: #function)
@@ -444,9 +479,9 @@ class useTestCase4: XCTestCase {
         
         selectSubFilters(vm: subFilterVM1, selectIds: [yellow, green], select: true, newMsgId: 2)
         
-        applyFromFilterVM(msgId: 2, newMsgId: 3)
+        applyFromFilter(msgId: 2, newMsgId: 3)
         
-        takeFromFilterVM(operationId: 1, msgId: 3, newMsgId: 4)
+        takeFromFilter(operationId: 1, msgId: 3, newMsgId: 4)
         
         enterSubFilter(filterId: colorFilterId, msgId: 4, newMsgId: 5)
         
@@ -458,7 +493,7 @@ class useTestCase4: XCTestCase {
         
         selectSubFilters(vm: subFilterVM1, selectIds: [green], select: false, msgId: 8, newMsgId: 9)
         
-        applyFromFilterVM(msgId: 9, newMsgId: 10)
+        applyFromFilter(msgId: 9, newMsgId: 10)
         
         enterSubFilter(filterId: materialFilterId, msgId: 10, newMsgId: 11)
         
@@ -472,4 +507,236 @@ class useTestCase4: XCTestCase {
             XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: бежевый false белый false голубой false желтый true зеленый true коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный false \\\\\\3: вискоза false полиамид false хлопок false \\\\\\вискоза false полиамид false ", self?.result)
         }
     }
+    
+    func initTestCase7(filterId1: Int){
+        subFilterVM1 = SubFilterVM(filterId: filterId1, filterActionDelegate: filterVM.filterActionDelegate)
+        result = ""
+    }
+    
+    // remove subf from filter
+    func testExample7(){
+        let expect = expectation(description: #function)
+        
+        initTestCase7(filterId1: colorFilterId)
+        
+        selectSubFilters(vm: subFilterVM1, selectIds: [yellow, green], select: true, newMsgId: 2)
+        
+        applyFromFilter(msgId: 2, newMsgId: 3)
+        
+        takeFromFilter(operationId: 1, msgId: 3, newMsgId: 4)
+        
+        removeAppliedFilter(filterId: colorFilterId, msgId: 4, newMsgId: 5)
+        
+        takeFilterFinish(msgId: 5, expect: expect )
+        
+        waitForExpectations(timeout: 20.0) { [weak self] error in
+            guard error == nil else {
+                XCTFail(error!.localizedDescription)
+                return
+            }
+            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава ", self?.result)
+        }
+    }
+    
+    // cleanup from filter
+    func testExample8(){
+        let expect = expectation(description: #function)
+        
+        initTestCase4(filterId1: colorFilterId, filterId2: materialFilterId)
+        
+        selectApply(vm: subFilterVM1, selectIds: [yellow, green], msgId: 1)
+        
+        takeFromFilter(operationId: 1, msgId: 1, newMsgId: 2)
+        
+        selectApply(vm: subFilterVM2, selectIds: [viscose, cotton], msgId: 2, newMsgId: 3)
+        
+        takeFromFilter(operationId: 1, msgId: 3, newMsgId: 4)
+        
+        cleanupFromFilter(msgId: 4, newMsgId: 5)
+        
+        takeFilterFinish(msgId: 5, expect: expect )
+        
+
+        waitForExpectations(timeout: 20.0) { [weak self] error in
+            guard error == nil else {
+                XCTFail(error!.localizedDescription)
+                return
+            }
+            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава ", self?.result)
+        }
+    }
+    
+    
+    // cleanup from subfilter
+    func testExample9(){
+        let expect = expectation(description: #function)
+        
+        initTestCase7(filterId1: colorFilterId)
+        
+        selectApply(vm: subFilterVM1, selectIds: [black, yellow, green], msgId: 1)
+        
+        takeFromFilter(operationId: 1, msgId: 1, newMsgId: 2)
+        
+        enterSubFilter(filterId: colorFilterId, msgId: 2, newMsgId: 3)
+        
+        takeFromVM(operationId: 2, vm: subFilterVM1, msgId: 3, newMsgId: 4)
+        
+        selectSubFilters(vm: subFilterVM1, selectIds: [blue, violet], select: true, msgId: 4, newMsgId: 5)
+        
+        cleanupFromSubFilter(filterId: colorFilterId, msgId: 5, newMsgId: 6)
+        
+        apply(vm: subFilterVM1, msgId: 6, newMsgId: 7)
+        
+        takeFilterFinish(msgId: 7, expect: expect )
+        
+        
+        waitForExpectations(timeout: 20.0) { [weak self] error in
+            guard error == nil else {
+                XCTFail(error!.localizedDescription)
+                return
+            }
+            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: бежевый false белый false голубой false желтый true зеленый true коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный true \\\\\\Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава ", self?.result)
+        }
+    }
+    
+    // check repeated applying
+    func testExample10(){
+        let expect = expectation(description: #function)
+        
+        initTestCase7(filterId1: colorFilterId)
+        
+        selectApply(vm: subFilterVM1, selectIds: [black, yellow, green], msgId: 1)
+        
+        takeFromFilter(operationId: 1, msgId: 1, newMsgId: 2)
+        
+        apply(vm: subFilterVM1, msgId: 2, newMsgId: 3)
+        
+        takeFilterFinish(msgId: 3, expect: expect )
+        
+        
+        waitForExpectations(timeout: 20.0) { [weak self] error in
+            guard error == nil else {
+                XCTFail(error!.localizedDescription)
+                return
+            }
+            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\Бренд Размер Сезон Состав Срок доставки Цвет ", self?.result)
+        }
+    }
+    
+    
+    // check relative applying
+    func testExample11(){
+        let expect = expectation(description: #function)
+        
+        initTestCase4(filterId1: colorFilterId, filterId2: materialFilterId)
+        
+        selectSubFilters(vm: subFilterVM1, selectIds: [green, yellow, brown], select: true, newMsgId: 1)
+        
+        selectSubFilters(vm: subFilterVM2, selectIds: [cotton], select: true, msgId: 1, newMsgId: 2)
+        
+        applyFromFilter(msgId: 2, newMsgId: 3)
+        
+        takeFromFilter(operationId: 1, msgId: 3, newMsgId: 4)
+        
+        enterSubFilter(filterId: colorFilterId, msgId: 4, newMsgId: 5)
+        
+        takeFromVM(operationId: 2, vm: subFilterVM1, msgId: 5, newMsgId: 6)
+        
+        enterSubFilter(filterId: materialFilterId, msgId: 6, newMsgId: 7)
+        
+        takeFinish(vm: subFilterVM2, msgId: 7, expect: expect)
+        
+        waitForExpectations(timeout: 20.0) { [weak self] error in
+            guard error == nil else {
+                XCTFail(error!.localizedDescription)
+                return
+            }
+            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: зеленый true розовый false черный false \\\\\\вискоза false полиамид false хлопок true эластан false ", self?.result)
+        }
+    }
+    
+    
+    // check mutual exclusion
+    func testExample12(){
+        let expect = expectation(description: #function)
+        
+        initTestCase4(filterId1: colorFilterId, filterId2: materialFilterId)
+        
+        selectSubFilters(vm: subFilterVM1, selectIds: [green, yellow, brown], select: true, newMsgId: 1)
+        
+        selectSubFilters(vm: subFilterVM2, selectIds: [angora], select: true, msgId: 1, newMsgId: 2)
+        
+        applyFromFilter(msgId: 2, newMsgId: 3)
+        
+        takeFilterFinish(msgId: 3, expect: expect )
+        
+        waitForExpectations(timeout: 20.0) { [weak self] error in
+            guard error == nil else {
+                XCTFail(error!.localizedDescription)
+                return
+            }
+            XCTAssertEqual("", self?.result)
+        }
+    }
+    
+    
+    // cleanup mutual exclusion
+    func testExample13(){
+        let expect = expectation(description: #function)
+        
+        initTestCase4(filterId1: colorFilterId, filterId2: materialFilterId)
+        
+        selectSubFilters(vm: subFilterVM1, selectIds: [green, yellow, brown], select: true, newMsgId: 1)
+        
+        selectSubFilters(vm: subFilterVM2, selectIds: [angora], select: true, msgId: 1, newMsgId: 2)
+        
+        applyFromFilter(msgId: 2, newMsgId: 3)
+        
+        cleanupFromFilter(msgId: 3, newMsgId: 4)
+        
+        takeFilterFinish(msgId: 4, expect: expect )
+        
+        waitForExpectations(timeout: 20.0) { [weak self] error in
+            guard error == nil else {
+                XCTFail(error!.localizedDescription)
+                return
+            }
+            XCTAssertEqual("Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава ", self?.result)
+        }
+    }
+    
+    
+    // apply from subf, new select and apply again from subf
+    func testExample14(){
+        let expect = expectation(description: #function)
+        
+        initTestCase4(filterId1: colorFilterId, filterId2: materialFilterId)
+        
+        selectSubFilters(vm: subFilterVM1, selectIds: [green, yellow, brown], select: true, newMsgId: 1)
+        
+        apply(vm: subFilterVM1, msgId: 1, newMsgId: 2)
+        
+        enterSubFilter(filterId: materialFilterId, msgId: 2, newMsgId: 3)
+        
+        takeFromVM(operationId: 1, vm: subFilterVM2, msgId: 3, newMsgId: 4)
+        
+        selectSubFilters(vm: subFilterVM1, selectIds: [red, orange], select: true, msgId: 4, newMsgId: 5)
+        
+        apply(vm: subFilterVM1, msgId: 5, newMsgId: 6)
+        
+        enterSubFilter(filterId: materialFilterId, msgId: 6, newMsgId: 7)
+        
+        takeFinish(vm: subFilterVM2, msgId: 7, expect: expect)
+        
+        waitForExpectations(timeout: 20.0) { [weak self] error in
+            guard error == nil else {
+                XCTFail(error!.localizedDescription)
+                return
+            }
+            XCTAssertEqual("1: вискоза false полиамид false хлопок false эластан false \\\\\\вискоза false полиамид false полиэстер false хлопок false шерсть false эластан false ", self?.result)
+        }
+    }
+    
+    
+    
 }
