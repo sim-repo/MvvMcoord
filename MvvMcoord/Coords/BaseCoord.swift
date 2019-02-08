@@ -9,12 +9,16 @@ class BaseCoord<ResultType> {
     let disposeBag = DisposeBag()
     private var childCoords = [UUID:Any]()
     
+    public func getChild()->BaseCoord? {
+        return childCoords.first?.value as? BaseCoord
+    }
     
     private func store<T>(coord: BaseCoord<T>){
         childCoords[coord.id] = coord
     }
     //3 add func to release child-coord
     private func free<T>(coord: BaseCoord<T>){
+        print("free")
         coord.viewModel = nil
         childCoords[coord.id] = nil
     }

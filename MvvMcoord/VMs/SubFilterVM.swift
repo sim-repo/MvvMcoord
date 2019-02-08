@@ -29,16 +29,14 @@ class SubFilterVM : BaseVM {
     private func bindUserActivities(){
         
         inApply
-            .subscribe(onNext: {[weak self] _ in
-                guard let `self` = self else { return }
+            .subscribe(onCompleted: {
                 self.filterActionDelegate?.applyFromSubFilterEvent().onNext(self.filterId)
                 self.outCloseVC.onCompleted()
             })
             .disposed(by: bag)
         
         inCleanUp
-            .subscribe(onNext: {[weak self] _ in
-                guard let `self` = self else { return }
+            .subscribe(onCompleted: {
                 self.filterActionDelegate?.cleanupFromSubFilterEvent().onNext(self.filterId)
             })
             .disposed(by: bag)

@@ -13,6 +13,7 @@ class useTestCase4: XCTestCase {
     var subFilterVM4: SubFilterVM!
     var subFilterVM5: SubFilterVM!
     
+    var categoryVM: CategoryVM!
     var catalogVM: CatalogVM!
     var filterVM: FilterVM!
     var bag = DisposeBag()
@@ -48,6 +49,12 @@ class useTestCase4: XCTestCase {
     let demiseason = 43
     
     var result = ""
+    
+    var categoryVM1: CategoryVM!
+    var categoryVM2: CategoryVM!
+    var categoryVM3: CategoryVM!
+    var categoryVM4: CategoryVM!
+    var categoryVM5: CategoryVM!
     
     override func setUp() {
         CategoryModel.fillModels()
@@ -736,7 +743,5 @@ class useTestCase4: XCTestCase {
             XCTAssertEqual("1: вискоза false полиамид false хлопок false эластан false \\\\\\вискоза false полиамид false полиэстер false хлопок false шерсть false эластан false ", self?.result)
         }
     }
-    
-    
     
 }

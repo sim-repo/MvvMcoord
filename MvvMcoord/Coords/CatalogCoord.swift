@@ -29,6 +29,7 @@ class CatalogCoord : BaseCoord<CoordRetEnum>{
 
         viewController.viewModel = vm
         
+        
         vm.outShowFilters
             .asObserver()
             .do(onNext: {[weak self] categoryId in
@@ -38,7 +39,7 @@ class CatalogCoord : BaseCoord<CoordRetEnum>{
                         .subscribe(onNext: {event in
                             switch event {
                             case .reloadData: self.reload()
-                            case .back: print("back")
+                            case .back: vm.cleanupUnapplied()
                             }
                         })
                         .disposed(by: self.disposeBag)

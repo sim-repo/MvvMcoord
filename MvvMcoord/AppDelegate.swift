@@ -1,5 +1,8 @@
 import UIKit
 import RxSwift
+import Firebase
+
+
 
 
 @UIApplicationMain
@@ -12,11 +15,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
-        
+        FirebaseApp.configure()
         CategoryModel.fillModels()
-        CatalogModel.fillModels()
-       // FilterModel.fillModels()
-      //  SubfilterModel.fillModels()
+
+        BackendLogic.shared.setup()
         
         window = UIWindow()
         if let window = window {

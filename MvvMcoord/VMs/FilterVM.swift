@@ -43,7 +43,6 @@ class FilterVM : BaseVM {
     }
     
     
-    
     private func bindSelection(){
         inSelectFilter
             .subscribe(
@@ -66,8 +65,7 @@ class FilterVM : BaseVM {
             .subscribe(onNext: {[weak self] _ in
                 if let `self` = self {
                     self.filterActionDelegate?.applyFromFilterEvent().onNext(Void())
-                    // раскомментировать когда после тестирования!!
-                    // self.outCloseVC.onCompleted()
+                    self.outCloseVC.onCompleted()
                 }
             })
             .disposed(by: bag)

@@ -3,10 +3,16 @@ import UIKit
 class CategoryVC: UITableViewController {
     
     var viewModel: CategoryVM!
-   
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        uitCurrMemVCs += 1  // uitest
+    }
+    
+    
     override func viewDidLoad() {
-        
         super.viewDidLoad()
+        bindNavigation()
         setupNavigation()
     }
 
@@ -16,6 +22,7 @@ class CategoryVC: UITableViewController {
         navigationController?.navigationBar.tintColor = UIColor.white
         setAttributedTitle()
     }
+    
     
     private func setAttributedTitle(){
         var title = viewModel.outTitle.value
@@ -29,6 +36,8 @@ class CategoryVC: UITableViewController {
         
         navLabel.attributedText = navTitle
         self.navigationItem.titleView = navLabel
+        
+        self.navigationItem.titleView?.accessibilityIdentifier = "My"+String(uitCurrMemVCs)
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -42,6 +51,7 @@ class CategoryVC: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         let title = cell.viewWithTag(1000) as! UILabel
+        
         let model =  viewModel.outCategories.value?[indexPath.row]
         guard let category = model else {return cell}
         if category.last == false {
@@ -58,7 +68,17 @@ class CategoryVC: UITableViewController {
     
     
     deinit {
-        print("deinit CategoryVC")
+        uitCurrMemVCs -= 1  // uitest
+    }
+    
+    
+    private func bindNavigation() {
+        viewModel.outCloseVC
+            .take(1)
+            .subscribe{[weak self] _ in
+                self?.navigationController?.popViewController(animated: true)
+            }
+            .disposed(by: bag)
     }
     
     override func didMove(toParent parent: UIViewController?) {
@@ -67,3 +87,4 @@ class CategoryVC: UITableViewController {
         }
     }
 }
+

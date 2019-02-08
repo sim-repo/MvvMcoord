@@ -46,30 +46,38 @@ class CatalogVM : BaseVM {
     var inPressLayout:Variable<Void> = Variable<Void>(Void())
     var inPressFilter = PublishSubject<Void>()
     
+    
     // MARK: - Outputs to ViewController or Coord
-    var outCatalog = Variable<[CatalogModel]?>(nil)
+    var outCatalog = PublishSubject<[CatalogModel?]>()
     var outTitle = Variable<String>("")
     var outLayout = Variable<CellLayout?>(nil)
     var outShowFilters = PublishSubject<Int>()
-
+    var outCloseVC = PublishSubject<Void>()
     
     // MARK: - Filters
-    private var filters: [Int:FilterModel] = [:]    //loc
-    private var subfiltersByFilter: [Int:[Int]] = [:]   // loc
-    private var sectionSubFiltersByFilter: [Int:[SectionOfSubFilterModel]] = [:]  //loc
+    private var filters: [Int:FilterModel] = [:]
+    private var subFilters: [Int:SubfilterModel] = [:]
+    private var subfiltersByFilter: [Int:[Int]] = [:]
+    private var sectionSubFiltersByFilter: [Int:[SectionOfSubFilterModel]] = [:]
     
-   
-    private var subFilters: [Int:SubfilterModel] = [:]  //loc
-    
-    private var appliedSubFilters: Set<Int> = Set() //loc
-    private var selectedSubFilters: Set<Int> = Set()    //loc
-    private var applyingByFilter: [Int:[Int]] = [:] //loc
+
+    // MARK: - Module State:
+    private var appliedSubFilters: Set<Int> = Set()
+    private var midAppliedSubFilters: Set<Int> = Set()
+    private var selectedSubFilters: Set<Int> = Set()
     private var unapplying: Set<Int> = Set()
     
     
     private var currState = UUID()
     private var prevState = UUID()
     
+    
+    // MARK:
+    private var inNextItemsEvent = PublishSubject<[CatalogModel?]>()
+    private var offset = 0
+    
+    
+    // MARK: FilterActionDelegate vars
     private var inApplyFromFilterEvent = PublishSubject<Void>()
     private var inApplyFromSubFilterEvent = PublishSubject<Int>()
     private var inRemoveFilterEvent = PublishSubject<Int>()
@@ -103,13 +111,15 @@ class CatalogVM : BaseVM {
             .disposed(by: bag)
     }
     
-    //network or local request
+   
     public func bindData(){
-        let catalog = CatalogModel.nerworkRequest(baseId: categoryId)
+    
+        NetworkMgt.requestCatalogModel(categoryId: categoryId, appliedSubFilters: appliedSubFilters, offset: 0) // true
         
-        catalog
-            .bind(to: outCatalog)
-            .disposed(by: bag)
+        inNextItemsEvent
+        .asObservable()
+        .bind(to: outCatalog)
+        .disposed(by: bag)
     }
     
     private func bindUserActivities(){
@@ -132,7 +142,7 @@ class CatalogVM : BaseVM {
             .disposed(by: bag)
     }
     
-    // MARK: - Logic
+    
     private func changeLayout()->Observable<CellLayout>{
         
         switch currCellLayout {
@@ -155,7 +165,9 @@ class CatalogVM : BaseVM {
     }
     
     public func utEnterSubFilter(filterId: Int){
-        NetworkMgt.requestCurrentSubFilterIds(filterId: filterId, appliedSubFilters: self.appliedSubFilters)
+        let fullApplying = self.appliedSubFilters.union(self.midAppliedSubFilters) // added
+        NetworkMgt.requestCurrentSubFilterIds(filterId: filterId, appliedSubFilters: fullApplying)
+        //NetworkMgt.requestCurrentSubFilterIds(filterId: filterId, appliedSubFilters: self.appliedSubFilters)
     }
     
 }
@@ -175,7 +187,6 @@ extension CatalogVM : FilterActionDelegate {
         return inRemoveFilterEvent
     }
     
-    
     func filtersEvent() -> BehaviorSubject<[FilterModel?]> {
         return outFiltersEvent
     }
@@ -184,6 +195,8 @@ extension CatalogVM : FilterActionDelegate {
         if (prevState != currState) {
             NetworkMgt.requestFullFilterEntities(categoryId: categoryId)
             prevState = currState
+        } else {
+            NetworkMgt.requestApplyFromFilter(appliedSubFilters: appliedSubFilters, selectedSubFilters: selectedSubFilters)
         }
     }
     
@@ -194,7 +207,10 @@ extension CatalogVM : FilterActionDelegate {
     
     func requestSubFilters(filterId: Int) {
         showCleanSubFilterVC(filterId: filterId)
-        NetworkMgt.requestCurrentSubFilterIds(filterId: filterId, appliedSubFilters: self.appliedSubFilters)
+        let fullApplying = self.appliedSubFilters.union(self.midAppliedSubFilters) // added
+        NetworkMgt.requestCurrentSubFilterIds(filterId: filterId, appliedSubFilters: fullApplying) // added
+        
+       // NetworkMgt.requestCurrentSubFilterIds(filterId: filterId, appliedSubFilters: self.appliedSubFilters)
     }
     
     
@@ -228,9 +244,21 @@ extension CatalogVM : FilterActionDelegate {
     
     func appliedTitle(filterId: Int) -> String {
         var res = ""
-        let arr = appliedSubFilters
+        
+        
+        let fullApplied = appliedSubFilters.union(midAppliedSubFilters) // added
+        
+        let arr = fullApplied
             .compactMap({subFilters[$0]})
             .filter({$0.filterId == filterId && $0.enabled == true})
+        
+        
+//        let arr = appliedSubFilters
+//            .compactMap({subFilters[$0]})
+//            .filter({$0.filterId == filterId && $0.enabled == true})
+        
+        
+        
         arr.forEach({ subf in
             res.append(subf.title + ",")
         })
@@ -271,8 +299,17 @@ extension CatalogVM : FilterActionDelegate {
                 if let `self` = self {
                     self.showCleanFilterVC()
                     let applied = self.appliedSubFilters.subtracting(self.unapplying)
+                    
+                    let applying = self.midAppliedSubFilters.subtracting(self.unapplying) // added
+                    
+                    let fullApplying = applied.union(applying) // added
+                    
                     self.unapplying.removeAll()
-                    NetworkMgt.requestApplyFromFilter(appliedSubFilters: applied, selectedSubFilters: self.selectedSubFilters)
+                    self.midAppliedSubFilters.removeAll() // added
+                    
+                    NetworkMgt.requestApplyFromFilter(appliedSubFilters: fullApplying, selectedSubFilters: self.selectedSubFilters) // added
+                    
+                    //NetworkMgt.requestApplyFromFilter(appliedSubFilters: applied, selectedSubFilters: self.selectedSubFilters)
                 }
             })
             .disposed(by: bag)
@@ -280,9 +317,14 @@ extension CatalogVM : FilterActionDelegate {
         inApplyFromSubFilterEvent
             .subscribe(onNext: {[weak self] filterId in
                 if let `self` = self {
+                    
+                    
+                    let fullApplying = self.appliedSubFilters.union(self.midAppliedSubFilters) // added
                     self.unapplying.removeAll()
                     self.showCleanFilterVC()
-                    NetworkMgt.requestApplyFromSubFilter(filterId: filterId, appliedSubFilters: self.appliedSubFilters, selectedSubFilters: self.selectedSubFilters)
+                    NetworkMgt.requestApplyFromSubFilter(filterId: filterId, appliedSubFilters: fullApplying, selectedSubFilters: self.selectedSubFilters)
+                    
+                   // NetworkMgt.requestApplyFromSubFilter(filterId: filterId, appliedSubFilters: self.appliedSubFilters, selectedSubFilters: self.selectedSubFilters)
                 }
             })
             .disposed(by: bag)
@@ -290,8 +332,10 @@ extension CatalogVM : FilterActionDelegate {
         inRemoveFilterEvent
             .subscribe(onNext: {[weak self] filterId in
                 if let `self` = self {
+                    let fullApplying = self.appliedSubFilters.union(self.midAppliedSubFilters) // added
                     self.unapplying.removeAll()
-                    NetworkMgt.requestRemoveFilter(filterId: filterId, appliedSubFilters: self.appliedSubFilters, selectedSubFilters: self.selectedSubFilters)
+                    NetworkMgt.requestRemoveFilter(filterId: filterId, appliedSubFilters: fullApplying, selectedSubFilters: self.selectedSubFilters) // added
+                   // NetworkMgt.requestRemoveFilter(filterId: filterId, appliedSubFilters: self.appliedSubFilters, selectedSubFilters: self.selectedSubFilters)
                 }
             })
             .disposed(by: bag)
@@ -360,22 +404,49 @@ extension CatalogVM : FilterActionDelegate {
                 guard let `self` = self else { return }
                 let filterIds = res.1
                 self.enableSubFilters(ids: filterIds)
-                self.appliedSubFilters = res.2
+                self.midAppliedSubFilters = res.2 //added
+                //self.appliedSubFilters = res.2
                 self.subFiltersFromCache(filterId: res.0)
             })
             .disposed(by: bag)
 
         
-        NetworkMgt.outAfterApplyResponse
+        NetworkMgt.outApplyItemsResponse
             .subscribe(onNext: {[weak self] _filters in
                 guard let `self` = self else {return}
                 self.enableFilters(ids: _filters.0)
                 self.enableSubFilters(ids: _filters.1)
+                
                 self.appliedSubFilters = _filters.2
+                self.selectedSubFilters = _filters.3
+                self.outFiltersEvent.onNext(self.getEnabledFilters())
+             
+                NetworkMgt.requestCatalogModel(categoryId: self.categoryId, appliedSubFilters: self.appliedSubFilters, offset: 0)
+                
+                self.unitTestSignalOperationComplete.onNext(self.utMsgId)
+            })
+            .disposed(by: bag)
+        
+        
+        NetworkMgt.outApplyFiltersResponse
+            .subscribe(onNext: {[weak self] _filters in
+                guard let `self` = self else {return}
+                self.enableFilters(ids: _filters.0)
+                self.enableSubFilters(ids: _filters.1)
+                self.midAppliedSubFilters = _filters.2 // added
+                //self.appliedSubFilters = _filters.2
                 self.selectedSubFilters = _filters.3
                 self.outFiltersEvent.onNext(self.getEnabledFilters())
                 
                 self.unitTestSignalOperationComplete.onNext(self.utMsgId)
+            })
+            .disposed(by: bag)
+        
+        
+        NetworkMgt.outCatalogModel
+            .subscribe(onNext: {[weak self] res in
+                guard let `self` = self else { return }
+                self.inNextItemsEvent.onNext(res)
             })
             .disposed(by: bag)
     }
@@ -413,8 +484,9 @@ extension CatalogVM {
         }
         
         if self.appliedSubFilters.isEmpty == false ||
-           self.selectedSubFilters.isEmpty == false ||
-           self.unapplying.isEmpty == false {
+            self.midAppliedSubFilters.isEmpty == false ||
+            self.selectedSubFilters.isEmpty == false ||
+            self.unapplying.isEmpty == false {
             
             outShowApplyingViewEvent.onNext(true)
             return
@@ -467,15 +539,13 @@ extension CatalogVM {
     
     private func selectSubFilter(subFilterId: Int, selected: Bool) {
 
-        if selected == true {
-            if appliedSubFilters.contains(subFilterId) {
-                return
-            }
-        } else {
-            if appliedSubFilters.contains(subFilterId) {
-                unapplying.insert(subFilterId)
-            }
+        if appliedSubFilters.contains(subFilterId) ||
+            midAppliedSubFilters.contains(subFilterId) {
+    
+            guard selected == false else {return}
+            unapplying.insert(subFilterId)
         }
+        
         
         if selected {
             selectedSubFilters.insert(subFilterId)
@@ -527,6 +597,13 @@ extension CatalogVM {
         }
     }
     
+    
+    public func cleanupUnapplied(){
+        unapplying = []
+        midAppliedSubFilters = []
+        selectedSubFilters = []
+    }
+    
     private func cleanupAllFilters(){
         for filter in filters {
             filter.value.enabled = true
@@ -535,6 +612,7 @@ extension CatalogVM {
             subf.value.enabled = true
         }
         unapplying = []
+        midAppliedSubFilters = []
         appliedSubFilters = []
         selectedSubFilters = []
     }

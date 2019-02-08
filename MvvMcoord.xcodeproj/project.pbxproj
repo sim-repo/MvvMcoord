@@ -11,10 +11,13 @@
 		1609263221FB261500AD8CE3 /* BackendLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1609263121FB261500AD8CE3 /* BackendLogic.swift */; };
 		1609E7EA21DF598600306676 /* CatalogVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1609E7E921DF598600306676 /* CatalogVC.swift */; };
 		1609E7EC21DF612600306676 /* CatalogListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1609E7EB21DF612600306676 /* CatalogListCell.swift */; };
+		160A92E62202615200A97DDA /* MvvMcoordUITests2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 160A92E52202615200A97DDA /* MvvMcoordUITests2.swift */; };
 		160C002321FB734900C8C44F /* FilterModel2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 160C002221FB734900C8C44F /* FilterModel2.swift */; };
 		1611908E21DDF8CB00E3CB93 /* UIView+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1611908D21DDF8CB00E3CB93 /* UIView+Ext.swift */; };
 		1611909021DDFEB300E3CB93 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1611908F21DDFEB300E3CB93 /* Assets.xcassets */; };
 		1611909221DE231400E3CB93 /* DiscountLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1611909121DE231400E3CB93 /* DiscountLabel.swift */; };
+		16123A922203075C004E507C /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16123A912203075C004E507C /* Test.swift */; };
+		16123A932203078C004E507C /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16123A912203075C004E507C /* Test.swift */; };
 		1615B26E21DCF9EC00E84801 /* CatalogVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1615B26D21DCF9EC00E84801 /* CatalogVM.swift */; };
 		1615B27021DCFC8600E84801 /* CatalogModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1615B26F21DCFC8600E84801 /* CatalogModel.swift */; };
 		1615B27321DD003C00E84801 /* CatalogCoord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1615B27221DD003C00E84801 /* CatalogCoord.swift */; };
@@ -27,6 +30,7 @@
 		1617B57521E3F1A200FFE2DA /* SubFilterSelectCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1617B57421E3F1A200FFE2DA /* SubFilterSelectCell.swift */; };
 		1617B57721E3F20000FFE2DA /* SubFilterVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1617B57621E3F20000FFE2DA /* SubFilterVM.swift */; };
 		1617B57921E3F28600FFE2DA /* SubFilterCoord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1617B57821E3F28600FFE2DA /* SubFilterCoord.swift */; };
+		1619ECFF220D873100B452E4 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1619ECFE220D873100B452E4 /* TestData.swift */; };
 		161A440021F740E400D16F1E /* NetworkMgt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161A43FF21F740E400D16F1E /* NetworkMgt.swift */; };
 		161AC87521DB6B080078F020 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161AC87421DB6B080078F020 /* AppDelegate.swift */; };
 		161AC87721DB6B080078F020 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161AC87621DB6B080078F020 /* ViewController.swift */; };
@@ -41,6 +45,8 @@
 		161AC8C421DBBEE60078F020 /* CategoryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161AC8C321DBBEE60078F020 /* CategoryModel.swift */; };
 		161AC8C621DC1FBB0078F020 /* RootCoord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161AC8C521DC1FBB0078F020 /* RootCoord.swift */; };
 		161BCAA621F4E0A5005A7D38 /* useTestCase4.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161BCAA521F4E0A5005A7D38 /* useTestCase4.swift */; };
+		161D84C8220A3AEB008D74F0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 161D84C7220A3AEB008D74F0 /* GoogleService-Info.plist */; };
+		161D84CB220A5572008D74F0 /* UploadModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161D84CA220A5572008D74F0 /* UploadModel.swift */; };
 		163AD71B21E5516F00EA91B0 /* SubFilterSectionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163AD71A21E5516F00EA91B0 /* SubFilterSectionVC.swift */; };
 		163AD71D21E551D100EA91B0 /* SubFilterSectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163AD71C21E551D100EA91B0 /* SubFilterSectionCell.swift */; };
 		163AD71F21E5529E00EA91B0 /* FilterCellSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163AD71E21E5529E00EA91B0 /* FilterCellSection.swift */; };
@@ -50,10 +56,18 @@
 		16D58B1021EC724C0025FE15 /* ApplyButton.xib in Resources */ = {isa = PBXBuildFile; fileRef = 16D58B0F21EC724C0025FE15 /* ApplyButton.xib */; };
 		16D58B1221EC725C0025FE15 /* ApplyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D58B1121EC725C0025FE15 /* ApplyButton.swift */; };
 		4E4A586EF74EBEF14CD71FD2 /* Pods_MvvMcoordTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8AD693E6BF8BF30274F3558D /* Pods_MvvMcoordTests.framework */; };
+		585E65B983A218B022A72C18 /* Pods_MvvMcoordUITests2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F7B82A48C565567B9BE09272 /* Pods_MvvMcoordUITests2.framework */; };
 		70782BD21052B1ABA3D97A10 /* Pods_MvvMcoord.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 779FB9AB84C24DE60C170F72 /* Pods_MvvMcoord.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		160A92E82202615200A97DDA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 161AC86921DB6B080078F020 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 161AC87021DB6B080078F020;
+			remoteInfo = MvvMcoord;
+		};
 		161AC88621DB6B090078F020 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 161AC86921DB6B080078F020 /* Project object */;
@@ -69,10 +83,14 @@
 		1609263121FB261500AD8CE3 /* BackendLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendLogic.swift; sourceTree = "<group>"; };
 		1609E7E921DF598600306676 /* CatalogVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogVC.swift; sourceTree = "<group>"; };
 		1609E7EB21DF612600306676 /* CatalogListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogListCell.swift; sourceTree = "<group>"; };
+		160A92E32202615200A97DDA /* MvvMcoordUITests2.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MvvMcoordUITests2.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		160A92E52202615200A97DDA /* MvvMcoordUITests2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MvvMcoordUITests2.swift; sourceTree = "<group>"; };
+		160A92E72202615200A97DDA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		160C002221FB734900C8C44F /* FilterModel2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterModel2.swift; sourceTree = "<group>"; };
 		1611908D21DDF8CB00E3CB93 /* UIView+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Ext.swift"; sourceTree = "<group>"; };
 		1611908F21DDFEB300E3CB93 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1611909121DE231400E3CB93 /* DiscountLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscountLabel.swift; sourceTree = "<group>"; };
+		16123A912203075C004E507C /* Test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
 		1615B26D21DCF9EC00E84801 /* CatalogVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogVM.swift; sourceTree = "<group>"; };
 		1615B26F21DCFC8600E84801 /* CatalogModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogModel.swift; sourceTree = "<group>"; };
 		1615B27221DD003C00E84801 /* CatalogCoord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogCoord.swift; sourceTree = "<group>"; };
@@ -85,6 +103,7 @@
 		1617B57421E3F1A200FFE2DA /* SubFilterSelectCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubFilterSelectCell.swift; sourceTree = "<group>"; };
 		1617B57621E3F20000FFE2DA /* SubFilterVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubFilterVM.swift; sourceTree = "<group>"; };
 		1617B57821E3F28600FFE2DA /* SubFilterCoord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubFilterCoord.swift; sourceTree = "<group>"; };
+		1619ECFE220D873100B452E4 /* TestData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestData.swift; sourceTree = "<group>"; };
 		161A43FF21F740E400D16F1E /* NetworkMgt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMgt.swift; sourceTree = "<group>"; };
 		161AC87121DB6B080078F020 /* MvvMcoord.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MvvMcoord.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		161AC87421DB6B080078F020 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -103,6 +122,8 @@
 		161AC8C321DBBEE60078F020 /* CategoryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryModel.swift; sourceTree = "<group>"; };
 		161AC8C521DC1FBB0078F020 /* RootCoord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootCoord.swift; sourceTree = "<group>"; };
 		161BCAA521F4E0A5005A7D38 /* useTestCase4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = useTestCase4.swift; sourceTree = "<group>"; };
+		161D84C7220A3AEB008D74F0 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		161D84CA220A5572008D74F0 /* UploadModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadModel.swift; sourceTree = "<group>"; };
 		163AD71A21E5516F00EA91B0 /* SubFilterSectionVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubFilterSectionVC.swift; sourceTree = "<group>"; };
 		163AD71C21E551D100EA91B0 /* SubFilterSectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubFilterSectionCell.swift; sourceTree = "<group>"; };
 		163AD71E21E5529E00EA91B0 /* FilterCellSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterCellSection.swift; sourceTree = "<group>"; };
@@ -118,10 +139,21 @@
 		8AD693E6BF8BF30274F3558D /* Pods_MvvMcoordTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MvvMcoordTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B8E6DD092F96F67DA2F1F0EC /* Pods-MvvMcoord.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MvvMcoord.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MvvMcoord/Pods-MvvMcoord.debug.xcconfig"; sourceTree = "<group>"; };
 		BCE88BC879F12E9AEF3AB711 /* Pods-MvvMcoord.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MvvMcoord.release.xcconfig"; path = "Pods/Target Support Files/Pods-MvvMcoord/Pods-MvvMcoord.release.xcconfig"; sourceTree = "<group>"; };
+		C28ADC6F3A8B649F6D97151E /* Pods-MvvMcoordUITests2.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MvvMcoordUITests2.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MvvMcoordUITests2/Pods-MvvMcoordUITests2.debug.xcconfig"; sourceTree = "<group>"; };
+		D509C9F9A30D8C687121CE40 /* Pods-MvvMcoordUITests2.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MvvMcoordUITests2.release.xcconfig"; path = "Pods/Target Support Files/Pods-MvvMcoordUITests2/Pods-MvvMcoordUITests2.release.xcconfig"; sourceTree = "<group>"; };
+		F7B82A48C565567B9BE09272 /* Pods_MvvMcoordUITests2.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MvvMcoordUITests2.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9434EC67B107D472632D066 /* Pods_MvvMcoordUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MvvMcoordUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		160A92E02202615200A97DDA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				585E65B983A218B022A72C18 /* Pods_MvvMcoordUITests2.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		161AC86E21DB6B080078F020 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -141,6 +173,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		160A92E42202615200A97DDA /* MvvMcoordUITests2 */ = {
+			isa = PBXGroup;
+			children = (
+				160A92E52202615200A97DDA /* MvvMcoordUITests2.swift */,
+				160A92E72202615200A97DDA /* Info.plist */,
+			);
+			path = MvvMcoordUITests2;
+			sourceTree = "<group>";
+		};
+		16123A9022030722004E507C /* Testing */ = {
+			isa = PBXGroup;
+			children = (
+				16123A912203075C004E507C /* Test.swift */,
+				1619ECFE220D873100B452E4 /* TestData.swift */,
+			);
+			path = Testing;
+			sourceTree = "<group>";
+		};
 		1615B27121DCFCAC00E84801 /* Model */ = {
 			isa = PBXGroup;
 			children = (
@@ -156,6 +206,7 @@
 			children = (
 				161AC87321DB6B080078F020 /* MvvMcoord */,
 				161AC88821DB6B090078F020 /* MvvMcoordTests */,
+				160A92E42202615200A97DDA /* MvvMcoordUITests2 */,
 				161AC87221DB6B080078F020 /* Products */,
 				F61A8F95246FD9802D609F0C /* Pods */,
 				50D4D3EAC344FB633A477C23 /* Frameworks */,
@@ -167,6 +218,7 @@
 			children = (
 				161AC87121DB6B080078F020 /* MvvMcoord.app */,
 				161AC88521DB6B090078F020 /* MvvMcoordTests.xctest */,
+				160A92E32202615200A97DDA /* MvvMcoordUITests2.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -174,6 +226,8 @@
 		161AC87321DB6B080078F020 /* MvvMcoord */ = {
 			isa = PBXGroup;
 			children = (
+				161D84C9220A5543008D74F0 /* Upload */,
+				16123A9022030722004E507C /* Testing */,
 				16EAE04821EBCE14007ACCCB /* XIB */,
 				1611908F21DDFEB300E3CB93 /* Assets.xcassets */,
 				161AC87421DB6B080078F020 /* AppDelegate.swift */,
@@ -190,6 +244,7 @@
 				16C6CC6B21E0026000F535D0 /* Formatter.swift */,
 				161A43FF21F740E400D16F1E /* NetworkMgt.swift */,
 				1609263121FB261500AD8CE3 /* BackendLogic.swift */,
+				161D84C7220A3AEB008D74F0 /* GoogleService-Info.plist */,
 			);
 			path = MvvMcoord;
 			sourceTree = "<group>";
@@ -238,6 +293,14 @@
 				163AD72221E552E600EA91B0 /* Filter */,
 			);
 			path = VCs;
+			sourceTree = "<group>";
+		};
+		161D84C9220A5543008D74F0 /* Upload */ = {
+			isa = PBXGroup;
+			children = (
+				161D84CA220A5572008D74F0 /* UploadModel.swift */,
+			);
+			path = Upload;
 			sourceTree = "<group>";
 		};
 		163AD72021E552D100EA91B0 /* Catalog */ = {
@@ -337,6 +400,7 @@
 				779FB9AB84C24DE60C170F72 /* Pods_MvvMcoord.framework */,
 				8AD693E6BF8BF30274F3558D /* Pods_MvvMcoordTests.framework */,
 				F9434EC67B107D472632D066 /* Pods_MvvMcoordUITests.framework */,
+				F7B82A48C565567B9BE09272 /* Pods_MvvMcoordUITests2.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -350,6 +414,8 @@
 				831B5AA6921E008C615BB963 /* Pods-MvvMcoordTests.release.xcconfig */,
 				0E5592B96EFF73B37D27934F /* Pods-MvvMcoordUITests.debug.xcconfig */,
 				64FFDAEAC1A833EBA5D55674 /* Pods-MvvMcoordUITests.release.xcconfig */,
+				C28ADC6F3A8B649F6D97151E /* Pods-MvvMcoordUITests2.debug.xcconfig */,
+				D509C9F9A30D8C687121CE40 /* Pods-MvvMcoordUITests2.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -357,6 +423,26 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		160A92E22202615200A97DDA /* MvvMcoordUITests2 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 160A92EA2202615200A97DDA /* Build configuration list for PBXNativeTarget "MvvMcoordUITests2" */;
+			buildPhases = (
+				93C8C269AAEA4ED5D6EF927C /* [CP] Check Pods Manifest.lock */,
+				160A92DF2202615200A97DDA /* Sources */,
+				160A92E02202615200A97DDA /* Frameworks */,
+				160A92E12202615200A97DDA /* Resources */,
+				EAE92AFE000BE8A8343DA60B /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				160A92E92202615200A97DDA /* PBXTargetDependency */,
+			);
+			name = MvvMcoordUITests2;
+			productName = MvvMcoordUITests2;
+			productReference = 160A92E32202615200A97DDA /* MvvMcoordUITests2.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		161AC87021DB6B080078F020 /* MvvMcoord */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 161AC89921DB6B090078F020 /* Build configuration list for PBXNativeTarget "MvvMcoord" */;
@@ -406,6 +492,10 @@
 				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = "Igor Ivanov";
 				TargetAttributes = {
+					160A92E22202615200A97DDA = {
+						CreatedOnToolsVersion = 10.1;
+						TestTargetID = 161AC87021DB6B080078F020;
+					};
 					161AC87021DB6B080078F020 = {
 						CreatedOnToolsVersion = 10.1;
 					};
@@ -430,17 +520,26 @@
 			targets = (
 				161AC87021DB6B080078F020 /* MvvMcoord */,
 				161AC88421DB6B090078F020 /* MvvMcoordTests */,
+				160A92E22202615200A97DDA /* MvvMcoordUITests2 */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		160A92E12202615200A97DDA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		161AC86F21DB6B080078F020 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				161AC87F21DB6B090078F020 /* LaunchScreen.storyboard in Resources */,
 				1611909021DDFEB300E3CB93 /* Assets.xcassets in Resources */,
+				161D84C8220A3AEB008D74F0 /* GoogleService-Info.plist in Resources */,
 				16D58B1021EC724C0025FE15 /* ApplyButton.xib in Resources */,
 				161AC87A21DB6B080078F020 /* Main.storyboard in Resources */,
 			);
@@ -515,12 +614,16 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-MvvMcoord/Pods-MvvMcoord-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
 				"${BUILT_PRODUCTS_DIR}/Differentiator/Differentiator.framework",
+				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/RxAtomic/RxAtomic.framework",
 				"${BUILT_PRODUCTS_DIR}/RxBlocking/RxBlocking.framework",
 				"${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework",
 				"${BUILT_PRODUCTS_DIR}/RxDataSources/RxDataSources.framework",
 				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
+				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
+				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
@@ -528,16 +631,42 @@
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Differentiator.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxAtomic.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxBlocking.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxCocoa.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxDataSources.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-MvvMcoord/Pods-MvvMcoord-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		93C8C269AAEA4ED5D6EF927C /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MvvMcoordUITests2-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		9AA2CECCCE646919D388BD17 /* [CP] Check Pods Manifest.lock */ = {
@@ -562,9 +691,44 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		EAE92AFE000BE8A8343DA60B /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-MvvMcoordUITests2/Pods-MvvMcoordUITests2-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/RxAtomic/RxAtomic.framework",
+				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/RxTest/RxTest.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxAtomic.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxTest.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-MvvMcoordUITests2/Pods-MvvMcoordUITests2-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		160A92DF2202615200A97DDA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				160A92E62202615200A97DDA /* MvvMcoordUITests2.swift in Sources */,
+				16123A932203078C004E507C /* Test.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		161AC86D21DB6B080078F020 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -594,14 +758,17 @@
 				161AC8AB21DB6D050078F020 /* BaseCoord.swift in Sources */,
 				1617B56A21E34BBF00FFE2DA /* FilterVM.swift in Sources */,
 				161AC87721DB6B080078F020 /* ViewController.swift in Sources */,
+				16123A922203075C004E507C /* Test.swift in Sources */,
 				16D58B1221EC725C0025FE15 /* ApplyButton.swift in Sources */,
 				161AC87521DB6B080078F020 /* AppDelegate.swift in Sources */,
 				161AC8BB21DBBCF50078F020 /* CategoryVC.swift in Sources */,
 				1615B27321DD003C00E84801 /* CatalogCoord.swift in Sources */,
+				1619ECFF220D873100B452E4 /* TestData.swift in Sources */,
 				1617B56F21E3532F00FFE2DA /* FilterCoord.swift in Sources */,
 				1617B57121E3BEDF00FFE2DA /* FilterCellSelect.swift in Sources */,
 				1615B27021DCFC8600E84801 /* CatalogModel.swift in Sources */,
 				1615B26E21DCF9EC00E84801 /* CatalogVM.swift in Sources */,
+				161D84CB220A5572008D74F0 /* UploadModel.swift in Sources */,
 				161A440021F740E400D16F1E /* NetworkMgt.swift in Sources */,
 				1617B56821E34B5400FFE2DA /* FilterVC.swift in Sources */,
 				161AC8A321DB6B950078F020 /* CategoryCoord.swift in Sources */,
@@ -620,6 +787,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		160A92E92202615200A97DDA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 161AC87021DB6B080078F020 /* MvvMcoord */;
+			targetProxy = 160A92E82202615200A97DDA /* PBXContainerItemProxy */;
+		};
 		161AC88721DB6B090078F020 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 161AC87021DB6B080078F020 /* MvvMcoord */;
@@ -647,6 +819,46 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		160A92EB2202615200A97DDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C28ADC6F3A8B649F6D97151E /* Pods-MvvMcoordUITests2.debug.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 78S4SSQ86F;
+				INFOPLIST_FILE = MvvMcoordUITests2/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.garneteum.MvvMcoordUITests2;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MvvMcoord;
+			};
+			name = Debug;
+		};
+		160A92EC2202615200A97DDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D509C9F9A30D8C687121CE40 /* Pods-MvvMcoordUITests2.release.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 78S4SSQ86F;
+				INFOPLIST_FILE = MvvMcoordUITests2/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.garneteum.MvvMcoordUITests2;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MvvMcoord;
+			};
+			name = Release;
+		};
 		161AC89721DB6B090078F020 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -854,6 +1066,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		160A92EA2202615200A97DDA /* Build configuration list for PBXNativeTarget "MvvMcoordUITests2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				160A92EB2202615200A97DDA /* Debug */,
+				160A92EC2202615200A97DDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		161AC86C21DB6B080078F020 /* Build configuration list for PBXProject "MvvMcoord" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

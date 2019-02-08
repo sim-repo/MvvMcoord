@@ -10,16 +10,16 @@ class SubFilterSelectVC: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var applyView: ApplyButton!
     @IBOutlet weak var applyViewBottomCon: NSLayoutConstraint!
-    
-    
+
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        print("init SubFilterSelectVC")
+        uitCurrMemVCs += 1    // uitest
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setTitle()
         registerTableView()
         bindCell()
         bindSelection()
@@ -27,7 +27,19 @@ class SubFilterSelectVC: UIViewController {
     }
     
     deinit {
-        print("deinit SubFilterSelectVC 4")
+        uitCurrMemVCs -= 1    // uitest
+    }
+    
+    private func setTitle(){
+        let title = "Фильтры"
+        navigationController?.navigationBar.tintColor = UIColor.white
+        let navLabel = UILabel()
+        let navTitle = NSMutableAttributedString(string: title, attributes:[
+            NSAttributedString.Key.foregroundColor: UIColor.white,
+            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 17.0, weight: UIFont.Weight.light)])
+        navLabel.attributedText = navTitle
+        self.navigationItem.titleView = navLabel
+        self.navigationItem.titleView?.accessibilityIdentifier = "My"+String(uitCurrMemVCs)
     }
     
     
@@ -88,15 +100,14 @@ class SubFilterSelectVC: UIViewController {
     private func bindApply(){
         
         applyView.applyButton.rx.tap
-        .take(1)
         .subscribe{[weak self] _ in
-            self?.viewModel.inApply.onNext(Void())
+            self?.viewModel.inApply.onCompleted()
         }
         .disposed(by: bag)
         
         applyView.cleanUpButton.rx.tap
             .subscribe{[weak self] _ in
-                self?.viewModel.inCleanUp.onNext(Void())
+                self?.viewModel.inApply.onCompleted()
         }
         .disposed(by: bag)
         

@@ -13,20 +13,41 @@ class FilterVC: UIViewController {
     private var indexPaths: Set<IndexPath> = []
     var removeFilterEvent = PublishSubject<Int>()
     
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        uitCurrMemVCs += 1  // uitest
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         bindCell()
         bindApply()
         bindSelection()
         bindRemoveFilter()
-        setupNavigation()
+        setTitle()
+        bindNavigation()
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 52
         tableView.contentInset = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 0.0, right: 0.0)
     }
     
     deinit {
-        print("deinit FilterVC")
+        uitCurrMemVCs -= 1  // uitest
+    }
+    
+    
+    private func setTitle(){
+        navigationController?.navigationBar.tintColor = UIColor.white
+        
+        let title = "Фильтры"
+        let navLabel = UILabel()
+        let navTitle = NSMutableAttributedString(string: title, attributes:[
+            NSAttributedString.Key.foregroundColor: UIColor.white,
+            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 17.0, weight: UIFont.Weight.light)])
+        navLabel.attributedText = navTitle
+        self.navigationItem.titleView = navLabel
+        self.navigationItem.titleView?.accessibilityIdentifier = "My"+String(uitCurrMemVCs)
     }
     
     
@@ -134,19 +155,21 @@ class FilterVC: UIViewController {
                 self?.viewModel.inCleanUp.onCompleted()
             }
             .disposed(by: bag)
-        
+
+    }
+    
+    private func bindNavigation() {
         viewModel.outCloseVC
-            .take(1)
-            .subscribe{[weak self] _ in
-                self?.navigationController?.popViewController(animated: true)
-            }
-            .disposed(by: bag)
+        .take(1)
+        .subscribe{[weak self] _ in
+            self?.navigationController?.popViewController(animated: true)
+        }
+        .disposed(by: bag)
     }
     
     
     private func bindRemoveFilter(){
         removeFilterEvent
-            .debug()
             .subscribe(onNext: {[weak self] filterId in
                 self!.viewModel.inRemoveFilter.onNext(filterId)
             })
@@ -169,22 +192,9 @@ class FilterVC: UIViewController {
     }
     
     
-    private func setupNavigation(){
-        navigationController?.navigationBar.tintColor = UIColor.white
-        setAttributedTitle()
-    }
+
     
-    private func setAttributedTitle(){
-        let title = "Фильтры"
-        
-        let navLabel = UILabel()
-        let navTitle = NSMutableAttributedString(string: title, attributes:[
-            NSAttributedString.Key.foregroundColor: UIColor.white,
-            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 17.0, weight: UIFont.Weight.light)])
-        
-        navLabel.attributedText = navTitle
-        self.navigationItem.titleView = navLabel
-    }
+
     
 }
 

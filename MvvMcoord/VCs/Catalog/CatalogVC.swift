@@ -8,9 +8,7 @@ class CatalogVC: UIViewController {
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var planButton: UIButton!
     @IBOutlet weak var filterButton: UIButton!
-    
-    
-    
+
     var bag = DisposeBag()
     var collectionDisposable: Disposable?
     
@@ -22,16 +20,22 @@ class CatalogVC: UIViewController {
     var planButtonImage = ""
     
     
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        uitCurrMemVCs += 1 // uitest
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setFlowLayout()
         setTitle()
         registerCollectionView()
+        bindNavigation()
         bindingLayout()
     }
     
     deinit {
-        print("deinit CatalogVC")
+        uitCurrMemVCs -= 1 // uitest
     }
     
     private func setFlowLayout(){
@@ -53,6 +57,7 @@ class CatalogVC: UIViewController {
         
         navLabel.attributedText = navTitle
         self.navigationItem.titleView = navLabel
+        self.navigationItem.titleView?.accessibilityIdentifier = "My"+String(uitCurrMemVCs)
     }
     
     private func bindingCell(){
@@ -62,18 +67,21 @@ class CatalogVC: UIViewController {
         case .list:
             collectionDisposable =  dataSource()
                 .bind(to: collectionView.rx.items(cellIdentifier: "CatalogCellList", cellType:  CatalogListCell.self)) {row, model, cell in
+                    guard let `model` = model else {return}
                     cell.configCell(model: model)
             }
             
         case .square:
             collectionDisposable =  dataSource()
                 .bind(to: collectionView.rx.items(cellIdentifier: "CatalogCellSquare", cellType:  CatalogSquareCell.self)) {row, model, cell in
+                    guard let `model` = model else {return}
                     cell.configCell(model: model)
             }
             
         case .squares:
             collectionDisposable =  dataSource()
                 .bind(to: collectionView.rx.items(cellIdentifier: "CatalogCellSquares", cellType:  CatalogSquaresCell.self)) {row, model, cell in
+                    guard let `model` = model else {return}
                     cell.configCell(model: model)
             }
         }
@@ -87,10 +95,10 @@ class CatalogVC: UIViewController {
     }
     
     
-    private func dataSource()->Observable<[CatalogModel]> {
+    private func dataSource()->Observable<[CatalogModel?]> {
         return viewModel.outCatalog.asObservable()
             .map{catalog in
-                return catalog ?? []
+                return catalog
         }
     }
     
@@ -123,6 +131,16 @@ class CatalogVC: UIViewController {
             })
             .disposed(by: bag)
     }
+    
+    
+    public func bindNavigation() {
+        viewModel.outCloseVC
+            .take(1)
+            .subscribe{[weak self] _ in
+                self?.navigationController?.popViewController(animated: true)
+            }
+            .disposed(by: bag)
+    }
 }
 
 
@@ -144,4 +162,3 @@ extension CatalogVC: UICollectionViewDelegate, UICollectionViewDelegateFlowLayou
     }
     
 }
-

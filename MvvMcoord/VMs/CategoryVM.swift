@@ -16,6 +16,8 @@ class CategoryVM : BaseVM {
     
     var outShowCatalog = PublishSubject<Int>()
  
+    var outCloseVC = PublishSubject<Void>()
+    
     init(parentBaseId: Int){
         super.init()
         //network request
@@ -31,7 +33,6 @@ class CategoryVM : BaseVM {
         .bind(to: outTitle)
         .disposed(by: bag)
         
-
        inSelectCategory
             .subscribe(
                 onNext: {[weak self] baseId in
@@ -45,5 +46,4 @@ class CategoryVM : BaseVM {
             )
             .disposed(by: bag)
     }
-    
 }
