@@ -165,9 +165,7 @@ class CatalogVM : BaseVM {
     }
     
     public func utEnterSubFilter(filterId: Int){
-        let fullApplying = self.appliedSubFilters.union(self.midAppliedSubFilters) // added
-        NetworkMgt.requestCurrentSubFilterIds(filterId: filterId, appliedSubFilters: fullApplying)
-        //NetworkMgt.requestCurrentSubFilterIds(filterId: filterId, appliedSubFilters: self.appliedSubFilters)
+        NetworkMgt.requestCurrentSubFilterIds(filterId: filterId, appliedSubFilters: self.midAppliedSubFilters)
     }
     
 }
@@ -209,11 +207,7 @@ extension CatalogVM : FilterActionDelegate {
     
     func requestSubFilters(filterId: Int) {
         showCleanSubFilterVC(filterId: filterId)
-        
-       // let fullApplying = self.appliedSubFilters.union(self.midAppliedSubFilters) // added
-        NetworkMgt.requestCurrentSubFilterIds(filterId: filterId, appliedSubFilters: self.midAppliedSubFilters) // added
-        
-       // NetworkMgt.requestCurrentSubFilterIds(filterId: filterId, appliedSubFilters: self.appliedSubFilters)
+        NetworkMgt.requestCurrentSubFilterIds(filterId: filterId, appliedSubFilters: self.midAppliedSubFilters)
     }
     
     
@@ -247,20 +241,10 @@ extension CatalogVM : FilterActionDelegate {
     
     func appliedTitle(filterId: Int) -> String {
         var res = ""
-        
-        
-       // let fullApplied = appliedSubFilters.union(midAppliedSubFilters) // added
         let fullApplied = midAppliedSubFilters // added
         let arr = fullApplied
             .compactMap({subFilters[$0]})
             .filter({$0.filterId == filterId && $0.enabled == true})
-        
-        
-//        let arr = appliedSubFilters
-//            .compactMap({subFilters[$0]})
-//            .filter({$0.filterId == filterId && $0.enabled == true})
-        
-        
         
         arr.forEach({ subf in
             res.append(subf.title + ",")
@@ -301,19 +285,9 @@ extension CatalogVM : FilterActionDelegate {
             .subscribe(onNext: {[weak self] _ in
                 if let `self` = self {
                     self.showCleanFilterVC()
-                   
-                  //  let applied = self.appliedSubFilters.subtracting(self.unapplying)
-                    
-                    let midApplying = self.midAppliedSubFilters.subtracting(self.unapplying) // added
-                    
-                    //let fullApplying = applied.union(applying) // added
-                    
+                    let midApplying = self.midAppliedSubFilters.subtracting(self.unapplying)
                     self.unapplying.removeAll()
-                   // self.midAppliedSubFilters.removeAll() // added
-                    
-                    NetworkMgt.requestApplyFromFilter(appliedSubFilters: midApplying, selectedSubFilters: self.selectedSubFilters) // added
-                    
-                    //NetworkMgt.requestApplyFromFilter(appliedSubFilters: applied, selectedSubFilters: self.selectedSubFilters)
+                    NetworkMgt.requestApplyFromFilter(appliedSubFilters: midApplying, selectedSubFilters: self.selectedSubFilters)
                 }
             })
             .disposed(by: bag)
@@ -321,15 +295,10 @@ extension CatalogVM : FilterActionDelegate {
         inApplyFromSubFilterEvent
             .subscribe(onNext: {[weak self] filterId in
                 if let `self` = self {
-                    
-                    
-                    //let fullApplying = self.appliedSubFilters.union(self.midAppliedSubFilters) // added
-                    let midApplying = self.midAppliedSubFilters // added
+                    let midApplying = self.midAppliedSubFilters
                     self.unapplying.removeAll()
                     self.showCleanFilterVC()
                     NetworkMgt.requestApplyFromSubFilter(filterId: filterId, appliedSubFilters: midApplying, selectedSubFilters: self.selectedSubFilters)
-                    
-                   // NetworkMgt.requestApplyFromSubFilter(filterId: filterId, appliedSubFilters: self.appliedSubFilters, selectedSubFilters: self.selectedSubFilters)
                 }
             })
             .disposed(by: bag)
@@ -337,13 +306,9 @@ extension CatalogVM : FilterActionDelegate {
         inRemoveFilterEvent
             .subscribe(onNext: {[weak self] filterId in
                 if let `self` = self {
-                    
-                    let midApplying = self.midAppliedSubFilters // added
-                    //let fullApplying = self.appliedSubFilters.union(self.midAppliedSubFilters) // added
-                    
+                    let midApplying = self.midAppliedSubFilters
                     self.unapplying.removeAll()
-                    NetworkMgt.requestRemoveFilter(filterId: filterId, appliedSubFilters: midApplying, selectedSubFilters: self.selectedSubFilters) // added
-                   // NetworkMgt.requestRemoveFilter(filterId: filterId, appliedSubFilters: self.appliedSubFilters, selectedSubFilters: self.selectedSubFilters)
+                    NetworkMgt.requestRemoveFilter(filterId: filterId, appliedSubFilters: midApplying, selectedSubFilters: self.selectedSubFilters)
                 }
             })
             .disposed(by: bag)
@@ -359,7 +324,7 @@ extension CatalogVM : FilterActionDelegate {
             .subscribe(onNext: {[weak self] _ in
                 if let `self` = self {
                     self.cleanupAllFilters()
-                    NetworkMgt.requestApplyFromFilter(appliedSubFilters: Set(), selectedSubFilters: Set()) // added
+                    NetworkMgt.requestApplyFromFilter(appliedSubFilters: Set(), selectedSubFilters: Set())
                     self.unitTestSignalOperationComplete.onNext(self.utMsgId)
                 }
             })
@@ -411,8 +376,7 @@ extension CatalogVM : FilterActionDelegate {
                 guard let `self` = self else { return }
                 let filterIds = res.1
                 self.enableSubFilters(ids: filterIds)
-                self.midAppliedSubFilters = res.2 //added
-                //self.appliedSubFilters = res.2
+                self.midAppliedSubFilters = res.2
                 self.subFiltersFromCache(filterId: res.0)
             })
             .disposed(by: bag)
@@ -440,8 +404,7 @@ extension CatalogVM : FilterActionDelegate {
                 guard let `self` = self else {return}
                 self.enableFilters(ids: _filters.0)
                 self.enableSubFilters(ids: _filters.1)
-                self.midAppliedSubFilters = _filters.2 // added
-                //self.appliedSubFilters = _filters.2
+                self.midAppliedSubFilters = _filters.2
                 self.selectedSubFilters = _filters.3
                 self.outFiltersEvent.onNext(self.getEnabledFilters())
                 

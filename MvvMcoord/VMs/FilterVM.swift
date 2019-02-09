@@ -13,7 +13,6 @@ class FilterVM : BaseVM {
     
     
     // MARK: - Outputs to ViewController or Coord
-   // var outFilters = Variable<[FilterModel?]>([]) // added
     var outShowSubFilters = PublishSubject<Int>()
     var outCloseVC = PublishSubject<Void>()
     
