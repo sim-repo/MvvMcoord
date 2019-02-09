@@ -194,10 +194,12 @@ extension CatalogVM : FilterActionDelegate {
     func requestFilters(categoryId:Int) {
         if (prevState != currState) {
             NetworkMgt.requestFullFilterEntities(categoryId: categoryId)
+            
             prevState = currState
         } else {
             NetworkMgt.requestApplyFromFilter(appliedSubFilters: appliedSubFilters, selectedSubFilters: selectedSubFilters)
         }
+        midAppliedSubFilters = appliedSubFilters // added
     }
     
     func subFiltersEvent() -> BehaviorSubject<[SubfilterModel?]> {
@@ -207,8 +209,9 @@ extension CatalogVM : FilterActionDelegate {
     
     func requestSubFilters(filterId: Int) {
         showCleanSubFilterVC(filterId: filterId)
-        let fullApplying = self.appliedSubFilters.union(self.midAppliedSubFilters) // added
-        NetworkMgt.requestCurrentSubFilterIds(filterId: filterId, appliedSubFilters: fullApplying) // added
+        
+       // let fullApplying = self.appliedSubFilters.union(self.midAppliedSubFilters) // added
+        NetworkMgt.requestCurrentSubFilterIds(filterId: filterId, appliedSubFilters: self.midAppliedSubFilters) // added
         
        // NetworkMgt.requestCurrentSubFilterIds(filterId: filterId, appliedSubFilters: self.appliedSubFilters)
     }
@@ -246,8 +249,8 @@ extension CatalogVM : FilterActionDelegate {
         var res = ""
         
         
-        let fullApplied = appliedSubFilters.union(midAppliedSubFilters) // added
-        
+       // let fullApplied = appliedSubFilters.union(midAppliedSubFilters) // added
+        let fullApplied = midAppliedSubFilters // added
         let arr = fullApplied
             .compactMap({subFilters[$0]})
             .filter({$0.filterId == filterId && $0.enabled == true})
@@ -298,16 +301,17 @@ extension CatalogVM : FilterActionDelegate {
             .subscribe(onNext: {[weak self] _ in
                 if let `self` = self {
                     self.showCleanFilterVC()
-                    let applied = self.appliedSubFilters.subtracting(self.unapplying)
+                   
+                  //  let applied = self.appliedSubFilters.subtracting(self.unapplying)
                     
-                    let applying = self.midAppliedSubFilters.subtracting(self.unapplying) // added
+                    let midApplying = self.midAppliedSubFilters.subtracting(self.unapplying) // added
                     
-                    let fullApplying = applied.union(applying) // added
+                    //let fullApplying = applied.union(applying) // added
                     
                     self.unapplying.removeAll()
-                    self.midAppliedSubFilters.removeAll() // added
+                   // self.midAppliedSubFilters.removeAll() // added
                     
-                    NetworkMgt.requestApplyFromFilter(appliedSubFilters: fullApplying, selectedSubFilters: self.selectedSubFilters) // added
+                    NetworkMgt.requestApplyFromFilter(appliedSubFilters: midApplying, selectedSubFilters: self.selectedSubFilters) // added
                     
                     //NetworkMgt.requestApplyFromFilter(appliedSubFilters: applied, selectedSubFilters: self.selectedSubFilters)
                 }
@@ -319,10 +323,11 @@ extension CatalogVM : FilterActionDelegate {
                 if let `self` = self {
                     
                     
-                    let fullApplying = self.appliedSubFilters.union(self.midAppliedSubFilters) // added
+                    //let fullApplying = self.appliedSubFilters.union(self.midAppliedSubFilters) // added
+                    let midApplying = self.midAppliedSubFilters // added
                     self.unapplying.removeAll()
                     self.showCleanFilterVC()
-                    NetworkMgt.requestApplyFromSubFilter(filterId: filterId, appliedSubFilters: fullApplying, selectedSubFilters: self.selectedSubFilters)
+                    NetworkMgt.requestApplyFromSubFilter(filterId: filterId, appliedSubFilters: midApplying, selectedSubFilters: self.selectedSubFilters)
                     
                    // NetworkMgt.requestApplyFromSubFilter(filterId: filterId, appliedSubFilters: self.appliedSubFilters, selectedSubFilters: self.selectedSubFilters)
                 }
@@ -332,9 +337,12 @@ extension CatalogVM : FilterActionDelegate {
         inRemoveFilterEvent
             .subscribe(onNext: {[weak self] filterId in
                 if let `self` = self {
-                    let fullApplying = self.appliedSubFilters.union(self.midAppliedSubFilters) // added
+                    
+                    let midApplying = self.midAppliedSubFilters // added
+                    //let fullApplying = self.appliedSubFilters.union(self.midAppliedSubFilters) // added
+                    
                     self.unapplying.removeAll()
-                    NetworkMgt.requestRemoveFilter(filterId: filterId, appliedSubFilters: fullApplying, selectedSubFilters: self.selectedSubFilters) // added
+                    NetworkMgt.requestRemoveFilter(filterId: filterId, appliedSubFilters: midApplying, selectedSubFilters: self.selectedSubFilters) // added
                    // NetworkMgt.requestRemoveFilter(filterId: filterId, appliedSubFilters: self.appliedSubFilters, selectedSubFilters: self.selectedSubFilters)
                 }
             })
@@ -350,9 +358,8 @@ extension CatalogVM : FilterActionDelegate {
         inCleanUpFromFilterEvent
             .subscribe(onNext: {[weak self] _ in
                 if let `self` = self {
-                    self.showCleanFilterVC()
                     self.cleanupAllFilters()
-                    self.outFiltersEvent.onNext(self.getEnabledFilters())
+                    NetworkMgt.requestApplyFromFilter(appliedSubFilters: Set(), selectedSubFilters: Set()) // added
                     self.unitTestSignalOperationComplete.onNext(self.utMsgId)
                 }
             })

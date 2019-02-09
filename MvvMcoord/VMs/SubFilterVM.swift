@@ -36,7 +36,8 @@ class SubFilterVM : BaseVM {
             .disposed(by: bag)
         
         inCleanUp
-            .subscribe(onCompleted: {
+            .subscribe(onNext: {[weak self] _ in
+                guard let `self` = self else {return}
                 self.filterActionDelegate?.cleanupFromSubFilterEvent().onNext(self.filterId)
             })
             .disposed(by: bag)

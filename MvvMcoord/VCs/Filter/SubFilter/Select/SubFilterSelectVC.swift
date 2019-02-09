@@ -107,7 +107,7 @@ class SubFilterSelectVC: UIViewController {
         
         applyView.cleanUpButton.rx.tap
             .subscribe{[weak self] _ in
-                self?.viewModel.inApply.onCompleted()
+                self?.viewModel.inCleanUp.onNext(Void())
         }
         .disposed(by: bag)
         
