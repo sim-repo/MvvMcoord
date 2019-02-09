@@ -145,8 +145,7 @@ class FilterVC: UIViewController {
         applyView.applyButton.rx.tap
            // .take(1)
             .subscribe{[weak self] _ in
-                self?.viewModel.inApply.onNext(Void())
-             //   self?.viewModel.inApply.onCompleted()
+                self?.viewModel.inApply.onCompleted()
             }
             .disposed(by: bag)
         

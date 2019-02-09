@@ -62,17 +62,16 @@ class FilterVM : BaseVM {
     private func bindUserActivities(){
         
         inApply
-            .subscribe(onNext: {[weak self] _ in
-                if let `self` = self {
+            .subscribe(onCompleted: {
                     self.filterActionDelegate?.applyFromFilterEvent().onNext(Void())
                     self.outCloseVC.onCompleted()
-                }
             })
             .disposed(by: bag)
         
         inCleanUp
             .subscribe(onCompleted: {
                 self.filterActionDelegate?.cleanupFromFilterEvent().onNext(Void())
+                self.outCloseVC.onCompleted()
             })
             .disposed(by: bag)
         
