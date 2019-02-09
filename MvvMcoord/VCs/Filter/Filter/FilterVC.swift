@@ -143,7 +143,6 @@ class FilterVC: UIViewController {
     private func bindApply(){
         
         applyView.applyButton.rx.tap
-           // .take(1)
             .subscribe{[weak self] _ in
                 self?.viewModel.inApply.onCompleted()
             }
