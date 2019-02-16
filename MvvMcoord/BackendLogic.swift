@@ -168,7 +168,6 @@ class BackendLogic {
         groupApplying(applying: applying)
         
         
-        // network >>>
         let items = getItemsIntersect()
         
         if items.count == 0 {
@@ -420,13 +419,23 @@ class BackendLogic {
             return itemsById.compactMap({$0.value}).sorted(by: {$0.id < $1.id })
         }
         
-        let itemIdsArr = appliedSubFilters
-        .compactMap({itemsBySubfilter[$0]})
-        .flatMap{$0}
         
-        let itemIdsSet = Set(itemIdsArr)
+        groupApplying(applying: appliedSubFilters)
         
-        let res = itemIdsSet
+        
+        let items = getItemsIntersect()
+        
+        
+//
+//        let itemIdsArr = appliedSubFilters
+//        .compactMap({itemsBySubfilter[$0]})
+//        .flatMap{$0}
+//
+//        let itemIdsSet = Set(itemIdsArr)
+        
+        
+        
+        let res = items
             .compactMap({itemsById[$0]})
         
         return res

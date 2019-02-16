@@ -153,6 +153,11 @@ class TestData {
 
             
             
+            
+            
+            
+            
+            
             BackendLogic.shared.subfByItem(item: 3,  subfilters: [f11.id, size38.id, круглогодичный.id, полиамид.id,    дня4.id,    желтый.id])
             BackendLogic.shared.subfByItem(item: 7,  subfilters: [f13.id, size42.id, круглогодичный.id, полиэстер.id,   дня4.id,    оранжевый.id])
             BackendLogic.shared.subfByItem(item: 11, subfilters: [f14.id, size46.id, круглогодичный.id, полиуретан.id,  дня4.id,    фиолетовый.id])
@@ -200,68 +205,82 @@ class TestData {
         return tmp
     }
     
-    
-    
     static func loadCatalogs(categoryId: Int) -> [Int:[CatalogModel]]{
         var tmp: [Int:[CatalogModel]] = [:]
         
         if categoryId == 01010101 {
             let w1 = [
-                CatalogModel(id: 1, categoryId: 01010101, name: "Abby1", thumbnail: "pic", stars: 3, newPrice: 4500, oldPrice: 6500, votes: 145, discount: 30),
-                CatalogModel(id: 2, categoryId: 01010101, name: "ABODIE2", thumbnail: "pic2", stars: 1, newPrice: 4700, oldPrice: 5200, votes: 245, discount: 30),
-                CatalogModel(id: 3, categoryId: 01010101, name: "ABODIE3", thumbnail: "pic5", stars: 4, newPrice: 2200, oldPrice: 3000, votes: 545, discount: 50),
-                CatalogModel(id: 4, categoryId: 01010101, name: "Acasta4", thumbnail: "pic6", stars: 5, newPrice: 5500, oldPrice: 7500, votes: 45, discount: 50),
-                CatalogModel(id: 5, categoryId: 01010101, name: "Acasta5", thumbnail: "pic7", stars: 1, newPrice: 4555, oldPrice: 6400, votes: 45, discount: 50),
-                CatalogModel(id: 6, categoryId: 01010101, name: "Acasta6", thumbnail: "pic", stars: 2, newPrice: 4555, oldPrice: 6350, votes: 45, discount: 40),
-                CatalogModel(id: 7, categoryId: 01010101, name: "Adelante7", thumbnail: "pic2", stars: 2, newPrice: 5800, oldPrice: 8400, votes: 1, discount: 40),
-                CatalogModel(id: 8, categoryId: 01010101, name: "Adele8", thumbnail: "pic5", stars: 3, newPrice: 8540, oldPrice: 10500, votes: 433, discount: 40),
-                CatalogModel(id: 9, categoryId: 01010101, name: "Adele9", thumbnail: "pic6", stars: 4, newPrice: 9000, oldPrice: 11200, votes: 1003, discount: 30),
-                CatalogModel(id: 10, categoryId: 01010101, name: "Adele10", thumbnail: "pic7", stars: 4, newPrice: 3000, oldPrice: 4700, votes: 445, discount: 30),
-                CatalogModel(id: 11, categoryId: 01010101, name: "Adele11", thumbnail: "pic", stars: 4, newPrice: 4555, oldPrice: 6500, votes: 33, discount: 20),
-                CatalogModel(id: 12, categoryId: 01010101, name: "Adelin Fostayn12", thumbnail: "pic2", stars: 5, newPrice: 4555, oldPrice: 6500, votes: 54, discount: 20),
-                CatalogModel(id: 13, categoryId: 01010101, name: "Adelin Fostayn13", thumbnail: "pic5", stars: 5, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30),
-                CatalogModel(id: 14, categoryId: 01010101, name: "Adidas14", thumbnail: "pic6", stars: 4, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 40),
-                CatalogModel(id: 15, categoryId: 01010101, name: "ADZHERO15", thumbnail: "pic7", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 25),
-                CatalogModel(id: 16, categoryId: 01010101, name: "ADZHERO16", thumbnail: "pic", stars: 2, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 35),
-                CatalogModel(id: 17, categoryId: 01010101, name: "ADZHERO17", thumbnail: "pic2", stars: 2, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
-                CatalogModel(id: 18, categoryId: 01010101, name: "Aelite18", thumbnail: "pic5", stars: 2, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
-                CatalogModel(id: 19, categoryId: 01010101, name: "Aelite19", thumbnail: "pic6", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
-                CatalogModel(id: 20, categoryId: 01010101, name: "AFFARI20", thumbnail: "pic7", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 40),
-                CatalogModel(id: 21, categoryId: 01010101, name: "B&Co21", thumbnail: "pic10", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30),
+                CatalogModel(id: 1, categoryId: 01010101, name: "ЗимАнгора1син", thumbnail: "pic", stars: 3, newPrice: 4500, oldPrice: 6500, votes: 145, discount: 30),
+                CatalogModel(id: 2, categoryId: 01010101, name: "ДемВиск3Жел", thumbnail: "pic2", stars: 1, newPrice: 4700, oldPrice: 5200, votes: 245, discount: 30),
+                CatalogModel(id: 3, categoryId: 01010101, name: "КругПолиам4Жел", thumbnail: "pic5", stars: 4, newPrice: 2200, oldPrice: 3000, votes: 545, discount: 50),
+                CatalogModel(id: 4, categoryId: 01010101, name: "Лхлопок1зел", thumbnail: "pic6", stars: 5, newPrice: 5500, oldPrice: 7500, votes: 45, discount: 50),
+                CatalogModel(id: 5, categoryId: 01010101, name: "ДемВиск1кор", thumbnail: "pic7", stars: 1, newPrice: 4555, oldPrice: 6400, votes: 45, discount: 50),
+                CatalogModel(id: 6, categoryId: 01010101, name: "ЗимШерсть4син", thumbnail: "pic", stars: 2, newPrice: 4555, oldPrice: 6350, votes: 45, discount: 40),
+                CatalogModel(id: 7, categoryId: 01010101, name: "КругПолиэс4оран", thumbnail: "pic2", stars: 2, newPrice: 5800, oldPrice: 8400, votes: 1, discount: 40),
+                CatalogModel(id: 8, categoryId: 01010101, name: "ЛетХлопок1роз", thumbnail: "pic5", stars: 3, newPrice: 8540, oldPrice: 10500, votes: 433, discount: 40),
+                CatalogModel(id: 9, categoryId: 01010101, name: "ДемВиск1кор", thumbnail: "pic6", stars: 4, newPrice: 9000, oldPrice: 11200, votes: 1003, discount: 30),
+                CatalogModel(id: 10, categoryId: 01010101, name: "ЗимАнгора4син", thumbnail: "pic7", stars: 4, newPrice: 3000, oldPrice: 4700, votes: 445, discount: 30),
+                CatalogModel(id: 11, categoryId: 01010101, name: "КругПолиурэт4фио", thumbnail: "pic", stars: 4, newPrice: 4555, oldPrice: 6500, votes: 33, discount: 20),
+                CatalogModel(id: 12, categoryId: 01010101, name: "ЛетХлопок1чер", thumbnail: "pic2", stars: 5, newPrice: 4555, oldPrice: 6500, votes: 54, discount: 20),
+                CatalogModel(id: 13, categoryId: 01010101, name: "ЗимШерсть4бел", thumbnail: "pic5", stars: 5, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30),
+                CatalogModel(id: 14, categoryId: 01010101, name: "ДемШерсть3чер", thumbnail: "pic6", stars: 4, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 40),
+                CatalogModel(id: 15, categoryId: 01010101, name: "ДемШерсть3крас", thumbnail: "pic7", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 25),
+                CatalogModel(id: 16, categoryId: 01010101, name: "ЗимШерсть4бел", thumbnail: "pic", stars: 2, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 35),
+                CatalogModel(id: 17, categoryId: 01010101, name: "КругЭласт1кор", thumbnail: "pic2", stars: 2, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+                CatalogModel(id: 18, categoryId: 01010101, name: "ЛетХлопок1чер", thumbnail: "pic5", stars: 2, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+                CatalogModel(id: 19, categoryId: 01010101, name: "ДемШерсть4оран", thumbnail: "pic6", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+                CatalogModel(id: 20, categoryId: 01010101, name: "ЗимШерсть4бел", thumbnail: "pic7", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 40),
+                CatalogModel(id: 21, categoryId: 01010101, name: "ДемВиск1Жел", thumbnail: "pic10", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30),
+                CatalogModel(id: 22, categoryId: 01010101, name: "ЛетШелк1чер", thumbnail: "pic10", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+                CatalogModel(id: 23, categoryId: 01010101, name: "ДемШерсть4фио", thumbnail: "pic12", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+                CatalogModel(id: 24, categoryId: 01010101, name: "ЗимШерсть4син", thumbnail: "pic14", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+                CatalogModel(id: 25, categoryId: 01010101, name: "ЗимАнгора1син", thumbnail: "pic16", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+                CatalogModel(id: 26, categoryId: 01010101, name: "ЛетШелк3бел", thumbnail: "pic18", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+                CatalogModel(id: 27, categoryId: 01010101, name: "ЗимЭластан4бел", thumbnail: "pic10", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+                CatalogModel(id: 28, categoryId: 01010101, name: "ЗимАнгора4син", thumbnail: "pic12", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+                CatalogModel(id: 29, categoryId: 01010101, name: "ЗимАнгора1син", thumbnail: "pic14", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+                CatalogModel(id: 30, categoryId: 01010101, name: "ЛетШелк3беж", thumbnail: "pic18", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+                CatalogModel(id: 31, categoryId: 01010101, name: "ЛетЭдаст3бел", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+                CatalogModel(id: 32, categoryId: 01010101, name: "ЗимШерсть4бел", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+                CatalogModel(id: 33, categoryId: 01010101, name: "ЗимАнгора1син", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+                CatalogModel(id: 34, categoryId: 01010101, name: "ЛетЭласт3бел", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+                CatalogModel(id: 35, categoryId: 01010101, name: "ЛетЭласт3бел", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+                CatalogModel(id: 36, categoryId: 01010101, name: "ЗимЭласт4бел", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+                CatalogModel(id: 37, categoryId: 01010101, name: "ЗимАнгора1син", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50)
                 ]
             tmp[01010101] = w1
         }
         
-        
-        
-        if categoryId == 01010102 {
-            let w2 = [
-                CatalogModel(id: 22, categoryId: 01010102, name: "B&H", thumbnail: "pic10", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
-                CatalogModel(id: 23, categoryId: 01010102, name: "Babylon", thumbnail: "pic12", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
-                CatalogModel(id: 24, categoryId: 01010102, name: "Babylon", thumbnail: "pic14", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
-                CatalogModel(id: 25, categoryId: 01010102, name: "Balasko", thumbnail: "pic16", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
-                CatalogModel(id: 26, categoryId: 01010102, name: "Balasko", thumbnail: "pic18", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
-                CatalogModel(id: 27, categoryId: 01010102, name: "Baon", thumbnail: "pic10", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
-                CatalogModel(id: 28, categoryId: 01010102, name: "Baon", thumbnail: "pic12", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
-                CatalogModel(id: 29, categoryId: 01010102, name: "Barboleta", thumbnail: "pic14", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
-                CatalogModel(id: 30, categoryId: 01010102, name: "Barcelonica", thumbnail: "pic18", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50)
-            ]
-            tmp[01010102] = w2
-        }
-        
-        
-        if categoryId == 01010103 {
-            let w3 = [
-                CatalogModel(id: 31, categoryId: 01010103, name: "Barkhat", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
-                CatalogModel(id: 32, categoryId: 01010103, name: "Barkhat", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
-                CatalogModel(id: 33, categoryId: 01010103, name: "Basia", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
-                CatalogModel(id: 34, categoryId: 01010103, name: "C.H.I.C", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
-                CatalogModel(id: 35, categoryId: 01010103, name: "C.H.I.C", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
-                CatalogModel(id: 36, categoryId: 01010103, name: "Calista", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
-                CatalogModel(id: 37, categoryId: 01010103, name: "Calista", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50)
-            ]
-            tmp[01010103] = w3
-        }
+//
+//
+//        if categoryId == 01010102 {
+//            let w2 = [
+//                CatalogModel(id: 22, categoryId: 01010102, name: "B&H", thumbnail: "pic10", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+//                CatalogModel(id: 23, categoryId: 01010102, name: "Babylon", thumbnail: "pic12", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+//                CatalogModel(id: 24, categoryId: 01010102, name: "Babylon", thumbnail: "pic14", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+//                CatalogModel(id: 25, categoryId: 01010102, name: "Balasko", thumbnail: "pic16", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+//                CatalogModel(id: 26, categoryId: 01010102, name: "Balasko", thumbnail: "pic18", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+//                CatalogModel(id: 27, categoryId: 01010102, name: "Baon", thumbnail: "pic10", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+//                CatalogModel(id: 28, categoryId: 01010102, name: "Baon", thumbnail: "pic12", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+//                CatalogModel(id: 29, categoryId: 01010102, name: "Barboleta", thumbnail: "pic14", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+//                CatalogModel(id: 30, categoryId: 01010102, name: "Barcelonica", thumbnail: "pic18", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50)
+//            ]
+//            tmp[01010102] = w2
+//        }
+//
+//
+//        if categoryId == 01010103 {
+//            let w3 = [
+//                CatalogModel(id: 31, categoryId: 01010103, name: "Barkhat", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+//                CatalogModel(id: 32, categoryId: 01010103, name: "Barkhat", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+//                CatalogModel(id: 33, categoryId: 01010103, name: "Basia", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+//                CatalogModel(id: 34, categoryId: 01010103, name: "C.H.I.C", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+//                CatalogModel(id: 35, categoryId: 01010103, name: "C.H.I.C", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+//                CatalogModel(id: 36, categoryId: 01010103, name: "Calista", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50),
+//                CatalogModel(id: 37, categoryId: 01010103, name: "Calista", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50)
+//            ]
+//            tmp[01010103] = w3
+//        }
         return tmp
     }
     

@@ -49,6 +49,7 @@ class SubfilterModel : ModelProtocol{
     var title: String = ""
     var enabled = true
     var sectionHeader = ""
+    var countItems = 0
     
     init(id: Int, filterId: Int, title: String, sectionHeader: String = "") {
         self.filterId = filterId

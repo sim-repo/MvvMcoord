@@ -3,6 +3,7 @@ import RxSwift
 import Firebase
 
 
+let storage = Storage.storage()
 
 
 @UIApplicationMain
@@ -17,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         FirebaseApp.configure()
         CategoryModel.fillModels()
-
+        
         BackendLogic.shared.setup()
         
         window = UIWindow()

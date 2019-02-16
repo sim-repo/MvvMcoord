@@ -9,7 +9,12 @@ class SubFilterSelectCell : UITableViewCell{
     
     func configCell(model: SubfilterModel, isCheckmark: Bool){
         id = model.id
-        subFilterLabel.text = model.title
+        
+        var cnt = ""
+        if model.countItems > 0 {
+            cnt = " (\(model.countItems))"
+        }
+        subFilterLabel.text = model.title + cnt
         self.accessoryType = isCheckmark ? .checkmark : .none
     }
     
@@ -21,7 +26,6 @@ class SubFilterSelectCell : UITableViewCell{
     
     func selectCell() {
         let checkmarked = self.accessoryType == .checkmark ? false : true
-        checkmarked != checkmarked
         self.accessoryType = checkmarked ? .checkmark : .none
     }
 }

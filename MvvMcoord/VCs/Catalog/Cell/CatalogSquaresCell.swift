@@ -12,7 +12,9 @@ class CatalogSquaresCell : UICollectionViewCell{
     @IBOutlet weak var starsLabel: UILabel!
     
     
-    func configCell(model: CatalogModel){
+    func configCell(model: CatalogModel?){
+        guard let `model` = model else {return}
+        
         imageView.image = UIImage(named: model.thumbnail)
         discountView.label?.text = "    -" + String(model.discount) + "%"
         itemNameLabel.text = model.name

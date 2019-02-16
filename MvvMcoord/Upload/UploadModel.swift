@@ -2,8 +2,11 @@ import Foundation
 import Firebase
 import FirebaseDatabase
 
-var itemsBySubfilter: [Int: [Int]] = [:]
-var subfiltersByFilter: [Int:[Int]] = [:]
+private var itemsBySubfilter: [Int: [Int]] = [:]
+private var subfiltersByFilter: [Int:[Int]] = [:]
+private var subFilters: [Int:SubfilterModel1] = [:]
+private var subfiltersByItem: [Int:[Int]] = [:]
+
 class FilterModel1 {
     
     var id = 0
@@ -48,6 +51,7 @@ class SubfilterModel1 {
         self.title = title
         self.sectionHeader = sectionHeader
         
+        addSubF(id: id, subFilter: self)
         fillSubfiltersByFilter(filterId: filterId, subfilterId: id)
         
         firebaseStore()
@@ -94,6 +98,56 @@ class Item {
 }
 
 
+func addSubF(id: Int, subFilter: SubfilterModel1){
+    subFilters[id] = subFilter
+}
+
+class CatalogModel1{
+    let id: Int
+    let categoryId: Int
+    var name: String
+    let thumbnail: String
+    let stars: Int
+    let newPrice: Int
+    let oldPrice: Int
+    let votes: Int
+    let discount: Int
+    
+    
+    init(id: Int, categoryId: Int, name: String, thumbnail: String, stars: Int, newPrice: Int, oldPrice: Int, votes: Int, discount: Int) {
+        self.id = id
+        self.categoryId = categoryId
+        self.name = name
+        self.thumbnail = thumbnail
+        self.stars = stars
+        self.newPrice = newPrice
+        self.oldPrice = oldPrice
+        self.votes = votes
+        self.discount = discount
+        
+        let subfilters = subfiltersByItem[id]!
+        var newName = "(\(id))"
+        for id in subfilters {
+            let model = subFilters[id]!
+            newName += model.title+","
+        }
+        self.name = newName
+        
+        firebaseStore()
+    }
+    
+    func getDictionary()->[String: Any]  {
+        return ["id": id, "categoryId": categoryId, "name":name, "thumbnail":thumbnail, "stars":stars, "newPrice":newPrice, "oldPrice":oldPrice, "votes":votes, "discount":discount]
+    }
+    
+    func firebaseStore(){
+        let rootRef = Database.database().reference()
+        let childRef = rootRef.child("catalog")
+        let itemsRef = childRef.child("item\(id)")
+        let dict = getDictionary()
+        itemsRef.setValue(dict)
+    }
+}
 
 
 
@@ -119,7 +173,6 @@ func fillItemsBySubfilter(item: Int, subfilters: [Int]){
 }
 
 
-
 func firebaseStore2(){
     let rootRef = Database.database().reference()
     let childRef = rootRef.child("subfiltersByFilter")
@@ -139,6 +192,26 @@ func fillSubfiltersByFilter(filterId:Int, subfilterId: Int){
 
 
 func runUpload(){
+    let rootRef = Database.database().reference()
+    var ref = rootRef.child("catalog");
+    ref.removeValue()
+    
+    ref = rootRef.child("filters");
+    ref.removeValue()
+    
+    ref = rootRef.child("itemsBySubfilter");
+    ref.removeValue()
+    
+    ref = rootRef.child("subfilters");
+    ref.removeValue()
+    
+    ref = rootRef.child("subfiltersByFilter");
+    ref.removeValue()
+    
+    
+    ref = rootRef.child("subfiltersByItem");
+    ref.removeValue()
+    
     let _ = FilterModel1(id:0, title: "Цена", categoryId: 01010101, filterEnum: .range)
     let _ = FilterModel1(id:1, title: "Бренд", categoryId: 01010101, filterEnum: .section)
     let _ = FilterModel1(id:2, title: "Размер", categoryId: 01010101)
@@ -183,6 +256,9 @@ func runUpload(){
     let f34 = SubfilterModel1(id:25, filterId: 1, title: "Can Nong", sectionHeader: "C")
     let f35 = SubfilterModel1(id:26, filterId: 1, title: "Caprice", sectionHeader: "C")
     let f36 = SubfilterModel1(id:27, filterId: 1, title: "Camart", sectionHeader: "C")
+    
+    
+    
     
     let size34 = SubfilterModel1(id:28, filterId: 2, title: "34")
     let size36 = SubfilterModel1(id:29, filterId: 2, title: "36")
@@ -234,53 +310,97 @@ func runUpload(){
     let черный = SubfilterModel1(id:72, filterId: 6, title: "черный")
     
     
-    
-    
-    subfByItem(item: 3,  subfilters: [f11.id, size38.id, круглогодичный.id, полиамид.id,    дня4.id,    желтый.id])
-    subfByItem(item: 7,  subfilters: [f13.id, size42.id, круглогодичный.id, полиэстер.id,   дня4.id,    оранжевый.id])
-    subfByItem(item: 11, subfilters: [f14.id, size46.id, круглогодичный.id, полиуретан.id,  дня4.id,    фиолетовый.id])
-    subfByItem(item: 17, subfilters: [f17.id, size34.id, круглогодичный.id, эластан.id,     день1.id,   коричневый.id])
-    subfByItem(item: 21, subfilters: [f20.id, size34.id, демисезон.id,      вискоза.id,     день1.id,   желтый.id])
-    subfByItem(item: 2,  subfilters: [f11.id, size36.id, демисезон.id,      вискоза.id,     дня3.id,    желтый.id])
-    subfByItem(item: 5,  subfilters: [f12.id, size40.id, демисезон.id,      вискоза.id,     день1.id,   коричневый.id])
-    subfByItem(item: 9,  subfilters: [f14.id, size44.id, демисезон.id,      вискоза.id,     день1.id,   коричневый.id])
-    subfByItem(item: 14, subfilters: [f16.id, size36.id, демисезон.id,      шерсть.id,      дня3.id,    черный.id])
-    subfByItem(item: 15, subfilters: [f17.id, size36.id, демисезон.id,      шерсть.id,      дня3.id,    красный.id])
-    subfByItem(item: 23, subfilters: [f22.id, size34.id, демисезон.id,      шерсть.id,      дня4.id,    фиолетовый.id])
-    subfByItem(item: 19, subfilters: [f18.id, size34.id, демисезон.id,      шерсть.id,      дня4.id,    оранжевый.id])
-    subfByItem(item: 25, subfilters: [f23.id, size34.id, зима.id,           ангора.id,      день1.id,   синий.id])
-    subfByItem(item: 29, subfilters: [f25.id, size34.id, зима.id,           ангора.id,      день1.id,   синий.id])
-    subfByItem(item: 33, subfilters: [f28.id, size34.id, зима.id,           ангора.id,      день1.id,   синий.id])
-    subfByItem(item: 37, subfilters: [f30.id, size34.id, зима.id,           ангора.id,      день1.id,   синий.id])
-    subfByItem(item: 1,  subfilters: [f10.id, size34.id, зима.id,           ангора.id,      день1.id,   синий.id])
-    subfByItem(item: 10, subfilters: [f14.id, size36.id, зима.id,           ангора.id,      дня4.id,    синий.id])
-    subfByItem(item: 28, subfilters: [f24.id, size34.id, зима.id,           ангора.id,      дня4.id,    синий.id])
-    subfByItem(item: 6,  subfilters: [f12.id, size36.id, зима.id,           шерсть.id,      дня4.id,    синий.id])
-    subfByItem(item: 24, subfilters: [f22.id, size36.id, зима.id,           шерсть.id,      дня4.id,    синий.id])
-    subfByItem(item: 13, subfilters: [f15.id, size34.id, зима.id,           шерсть.id,      дня4.id,    белый.id])
-    subfByItem(item: 32, subfilters: [f27.id, size34.id, зима.id,           шерсть.id,      дня4.id,    белый.id])
-    subfByItem(item: 16, subfilters: [f17.id, size34.id, зима.id,           шерсть.id,      дня4.id,    белый.id])
-    subfByItem(item: 20, subfilters: [f19.id, size34.id, зима.id,           шерсть.id,      дня4.id,    белый.id])
-    subfByItem(item: 27, subfilters: [f24.id, size34.id, зима.id,           эластан.id,     дня4.id,    белый.id])
-    subfByItem(item: 36, subfilters: [f30.id, size34.id, зима.id,           эластан.id,     дня4.id,    белый.id])
-    subfByItem(item: 4,  subfilters: [f12.id, size39.id, лето.id,           хлопок.id,      день1.id,   зеленый.id])
-    subfByItem(item: 8,  subfilters: [f14.id, size42.id, лето.id,           хлопок.id,      день1.id,   розовый.id])
-    subfByItem(item: 12, subfilters: [f15.id, size36.id, лето.id,           хлопок.id,      день1.id,   черный.id])
-    subfByItem(item: 18, subfilters: [f18.id, size36.id, лето.id,           хлопок.id,      день1.id,   черный.id])
-    subfByItem(item: 22, subfilters: [f21.id, size36.id, лето.id,           шелк.id,        день1.id,   черный.id])
-    subfByItem(item: 26, subfilters: [f23.id, size34.id, лето.id,           шелк.id,        дня3.id,    белый.id])
-    subfByItem(item: 30, subfilters: [f26.id, size45.id, лето.id,           шелк.id,        дня3.id,    бежевый.id])
-    subfByItem(item: 31, subfilters: [f27.id, size34.id, лето.id,           эластан.id,     дня3.id,    белый.id])
-    subfByItem(item: 34, subfilters: [f29.id, size34.id, лето.id,           эластан.id,     дня3.id,    белый.id])
-    subfByItem(item: 35, subfilters: [f31.id, size34.id, лето.id,           эластан.id,     дня3.id,    белый.id])
-    
+
+    //stride(from: 0, to: 30038, by: 38)
+    for i in stride(from: 0, to: 138, by: 38) {
+        subfByItem(item: i+1,  subfilters: [f10.id, size34.id, зима.id,           ангора.id,      день1.id,   синий.id])
+        subfByItem(item: i+2,  subfilters: [f11.id, size36.id, демисезон.id,      вискоза.id,     дня3.id,    желтый.id])
+        subfByItem(item: i+3,  subfilters: [f11.id, size38.id, круглогодичный.id, полиамид.id,    дня4.id,    желтый.id])
+        subfByItem(item: i+4,  subfilters: [f12.id, size39.id, лето.id,           хлопок.id,      день1.id,   зеленый.id])
+        subfByItem(item: i+5,  subfilters: [f12.id, size40.id, демисезон.id,      вискоза.id,     день1.id,   коричневый.id])
+        subfByItem(item: i+6,  subfilters: [f12.id, size36.id, зима.id,           шерсть.id,      дня4.id,    синий.id])
+        subfByItem(item: i+7,  subfilters: [f13.id, size42.id, круглогодичный.id, полиэстер.id,   дня4.id,    оранжевый.id])
+        subfByItem(item: i+8,  subfilters: [f14.id, size42.id, лето.id,           хлопок.id,      день1.id,   розовый.id])
+        subfByItem(item: i+9,  subfilters: [f14.id, size44.id, демисезон.id,      вискоза.id,     день1.id,   коричневый.id])
+        subfByItem(item: i+10, subfilters: [f14.id, size36.id, зима.id,           ангора.id,      дня4.id,    синий.id])
+        subfByItem(item: i+11, subfilters: [f14.id, size46.id, круглогодичный.id, полиуретан.id,  дня4.id,    фиолетовый.id])
+        subfByItem(item: i+12, subfilters: [f15.id, size36.id, лето.id,           хлопок.id,      день1.id,   черный.id])
+        subfByItem(item: i+13, subfilters: [f15.id, size34.id, зима.id,           шерсть.id,      дня4.id,    белый.id])
+        subfByItem(item: i+14, subfilters: [f16.id, size36.id, демисезон.id,      шерсть.id,      дня3.id,    черный.id])
+        subfByItem(item: i+15, subfilters: [f17.id, size36.id, демисезон.id,      шерсть.id,      дня3.id,    красный.id])
+        subfByItem(item: i+16, subfilters: [f17.id, size34.id, зима.id,           шерсть.id,      дня4.id,    белый.id])
+        subfByItem(item: i+17, subfilters: [f17.id, size34.id, круглогодичный.id, эластан.id,     день1.id,   коричневый.id])
+        subfByItem(item: i+18, subfilters: [f18.id, size36.id, лето.id,           хлопок.id,      день1.id,   черный.id])
+        subfByItem(item: i+19, subfilters: [f18.id, size34.id, демисезон.id,      шерсть.id,      дня4.id,    оранжевый.id])
+        subfByItem(item: i+20, subfilters: [f19.id, size34.id, зима.id,           шерсть.id,      дня4.id,    белый.id])
+        subfByItem(item: i+21, subfilters: [f20.id, size34.id, демисезон.id,      вискоза.id,     день1.id,   желтый.id])
+        subfByItem(item: i+22, subfilters: [f21.id, size36.id, лето.id,           шелк.id,        день1.id,   черный.id])
+        subfByItem(item: i+23, subfilters: [f22.id, size34.id, демисезон.id,      шерсть.id,      дня4.id,    фиолетовый.id])
+        subfByItem(item: i+24, subfilters: [f22.id, size36.id, зима.id,           шерсть.id,      дня4.id,    синий.id])
+        subfByItem(item: i+25, subfilters: [f23.id, size34.id, зима.id,           ангора.id,      день1.id,   синий.id])
+        subfByItem(item: i+26, subfilters: [f23.id, size34.id, лето.id,           шелк.id,        дня3.id,    белый.id])
+        subfByItem(item: i+27, subfilters: [f24.id, size34.id, зима.id,           эластан.id,     дня4.id,    белый.id])
+        subfByItem(item: i+28, subfilters: [f24.id, size34.id, зима.id,           ангора.id,      дня4.id,    синий.id])
+        subfByItem(item: i+29, subfilters: [f25.id, size34.id, зима.id,           ангора.id,      день1.id,   синий.id])
+        subfByItem(item: i+30, subfilters: [f26.id, size45.id, лето.id,           шелк.id,        дня3.id,    бежевый.id])
+        subfByItem(item: i+31, subfilters: [f27.id, size34.id, лето.id,           эластан.id,     дня3.id,    белый.id])
+        subfByItem(item: i+32, subfilters: [f27.id, size34.id, зима.id,           шерсть.id,      дня4.id,    белый.id])
+        subfByItem(item: i+33, subfilters: [f28.id, size34.id, зима.id,           ангора.id,      день1.id,   синий.id])
+        subfByItem(item: i+34, subfilters: [f29.id, size34.id, лето.id,           эластан.id,     дня3.id,    белый.id])
+        subfByItem(item: i+35, subfilters: [f31.id, size34.id, лето.id,           эластан.id,     дня3.id,    белый.id])
+        subfByItem(item: i+36, subfilters: [f30.id, size34.id, зима.id,           эластан.id,     дня4.id,    белый.id])
+        subfByItem(item: i+37, subfilters: [f30.id, size34.id, зима.id,           ангора.id,      день1.id,   синий.id])
+        
+    }
     
     firebaseStore()
     
     firebaseStore2()
+    //stride(from: 0, to: 30038, by: 38)
+    for i in stride(from: 0, to: 138, by: 38) {
+        let _ = CatalogModel1(id: i+1, categoryId: 01010101, name: "", thumbnail: "pic", stars: 3, newPrice: 4500, oldPrice: 6500, votes: 145, discount: 30)
+        let _ = CatalogModel1(id: i+2, categoryId: 01010101, name: "", thumbnail: "pic2", stars: 1, newPrice: 4700, oldPrice: 5200, votes: 245, discount: 30)
+        let _ = CatalogModel1(id: i+3, categoryId: 01010101, name: "", thumbnail: "pic5", stars: 4, newPrice: 2200, oldPrice: 3000, votes: 545, discount: 50)
+        let _ = CatalogModel1(id: i+4, categoryId: 01010101, name: "", thumbnail: "pic6", stars: 5, newPrice: 5500, oldPrice: 7500, votes: 45, discount: 50)
+        let _ = CatalogModel1(id: i+5, categoryId: 01010101, name: "", thumbnail: "pic7", stars: 1, newPrice: 4555, oldPrice: 6400, votes: 45, discount: 50)
+        let _ = CatalogModel1(id: i+6, categoryId: 01010101, name: "", thumbnail: "pic", stars: 2, newPrice: 4555, oldPrice: 6350, votes: 45, discount: 40)
+        let _ = CatalogModel1(id: i+7, categoryId: 01010101, name: "", thumbnail: "pic2", stars: 2, newPrice: 5800, oldPrice: 8400, votes: 1, discount: 40)
+        let _ = CatalogModel1(id: i+8, categoryId: 01010101, name: "", thumbnail: "pic5", stars: 3, newPrice: 8540, oldPrice: 10500, votes: 433, discount: 40)
+        let _ = CatalogModel1(id: i+9, categoryId: 01010101, name: "", thumbnail: "pic6", stars: 4, newPrice: 9000, oldPrice: 11200, votes: 1003, discount: 30)
+        let _ = CatalogModel1(id: i+10, categoryId: 01010101, name: "", thumbnail: "pic7", stars: 4, newPrice: 3000, oldPrice: 4700, votes: 445, discount: 30)
+        let _ = CatalogModel1(id: i+11, categoryId: 01010101, name: "", thumbnail: "pic", stars: 4, newPrice: 4555, oldPrice: 6500, votes: 33, discount: 20)
+        let _ = CatalogModel1(id: i+12, categoryId: 01010101, name: "", thumbnail: "pic2", stars: 5, newPrice: 4555, oldPrice: 6500, votes: 54, discount: 20)
+        let _ = CatalogModel1(id: i+13, categoryId: 01010101, name: "", thumbnail: "pic5", stars: 5, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+14, categoryId: 01010101, name: "", thumbnail: "pic6", stars: 4, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 40)
+        let _ = CatalogModel1(id: i+15, categoryId: 01010101, name: "", thumbnail: "pic7", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 25)
+        let _ = CatalogModel1(id: i+16, categoryId: 01010101, name: "", thumbnail: "pic", stars: 2, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 35)
+        let _ = CatalogModel1(id: i+17, categoryId: 01010101, name: "", thumbnail: "pic2", stars: 2, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50)
+        let _ = CatalogModel1(id: i+18, categoryId: 01010101, name: "", thumbnail: "pic5", stars: 2, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50)
+        let _ = CatalogModel1(id: i+19, categoryId: 01010101, name: "", thumbnail: "pic6", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50)
+        let _ = CatalogModel1(id: i+20, categoryId: 01010101, name: "", thumbnail: "pic7", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 40)
+        let _ = CatalogModel1(id: i+21, categoryId: 01010101, name: "", thumbnail: "pic10", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+22, categoryId: 01010101, name: "", thumbnail: "pic2", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+23, categoryId: 01010101, name: "", thumbnail: "pic10", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+24, categoryId: 01010101, name: "", thumbnail: "pic7", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+25, categoryId: 01010101, name: "", thumbnail: "pic10", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+26, categoryId: 01010101, name: "", thumbnail: "pic7", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+27, categoryId: 01010101, name: "", thumbnail: "pic2", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+28, categoryId: 01010101, name: "", thumbnail: "pic5", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+29, categoryId: 01010101, name: "", thumbnail: "pic7", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+30, categoryId: 01010101, name: "", thumbnail: "pic2", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+31, categoryId: 01010101, name: "", thumbnail: "pic10", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+32, categoryId: 01010101, name: "", thumbnail: "pic7", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+33, categoryId: 01010101, name: "", thumbnail: "pic2", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+34, categoryId: 01010101, name: "", thumbnail: "pic7", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+35, categoryId: 01010101, name: "", thumbnail: "pic10", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+36, categoryId: 01010101, name: "", thumbnail: "pic7", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+37, categoryId: 01010101, name: "", thumbnail: "pic", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+    }
+
 }
 
 
 func subfByItem(item: Int, subfilters: [Int]){
     Item(id: item, subfilters: subfilters)
+    subfiltersByItem[item] = subfilters
 }

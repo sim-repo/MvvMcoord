@@ -24,29 +24,30 @@ class NetworkMgt{
     
     static let baseURL = "https://api.vk.com/method/"
 
-    public static let outFullFilterEntities = BehaviorSubject<([FilterModel], [SubfilterModel])>(value: ([],[]))
-    public static var outCurrentSubFilterIds = PublishSubject<(Int, [Int?], Set<Int>)>()
+    public static let outFilterEntitiesResponse = BehaviorSubject<([FilterModel], [SubfilterModel])>(value: ([],[]))
+    public static var outEnterSubFilterResponse = PublishSubject<(Int, [Int?], Set<Int>, [Int:Int])>()
     public static var outCatalogModel = PublishSubject<[CatalogModel?]>()
+    public static var outCatalogTotal = BehaviorSubject<([Int], Int)>(value: ([],20))
     
     static let backend: ApiBackendLogic = BackendLogic.shared
     
-    static var outApplyItemsResponse = PublishSubject<([Int?], [Int?], Set<Int>, Set<Int>)>()
+    static var outApplyItemsResponse = PublishSubject<([Int?], [Int?], Set<Int>, Set<Int>, [Int])>()
     static var outApplyFiltersResponse = PublishSubject<([Int?], [Int?], Set<Int>, Set<Int>)>()
     
     static let delay = 0
     
     
     // MARK: - next functions
-    private static func nextCurrentSubFilterIds(filterId: Int, subFiltersIds: [Int?], appliedSubFilters: Set<Int>) {
-        outCurrentSubFilterIds.onNext((filterId, subFiltersIds, appliedSubFilters))
+    private static func nextEnterSubFilter(filterId: Int, subFiltersIds: [Int?], appliedSubFilters: Set<Int>, cntBySubfilterId: [Int:Int]) {
+        outEnterSubFilterResponse.onNext((filterId, subFiltersIds, appliedSubFilters, cntBySubfilterId))
     }
     
     private static func nextFullFilterEntities(filterModels: [FilterModel], subFilterModels: [SubfilterModel]) {
-        outFullFilterEntities.onNext((filterModels, subFilterModels))
+        outFilterEntitiesResponse.onNext((filterModels, subFilterModels))
     }
     
-    private static func nextApplyForItems(filterIds: [Int?], subFiltersIds: [Int?], appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>) {
-        outApplyItemsResponse.onNext((filterIds, subFiltersIds, appliedSubFilters, selectedSubFilters))
+    private static func nextApplyForItems(filterIds: [Int?], subFiltersIds: [Int?], appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>, itemIds: [Int]) {
+        outApplyItemsResponse.onNext((filterIds, subFiltersIds, appliedSubFilters, selectedSubFilters, itemIds))
     }
     
     private static func nextApplyForFilters(filterIds: [Int?], subFiltersIds: [Int?], appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>) {
@@ -57,43 +58,59 @@ class NetworkMgt{
         outCatalogModel.onNext(catalogModel)
     }
     
-    private static func parseJSON<T: ModelProtocol>(result: HTTPSCallableResult?, key:String)->[T]{
+    private static func nextCatalogTotal(itemIds: [Int], fetchLimit: Int) {
+        outCatalogTotal.onNext((itemIds, fetchLimit))
+    }
+    
+    
+    
+    private static func parseJsonObjArr<T: ModelProtocol>(result: HTTPSCallableResult?, key:String)->[T]{
         var res: [T] = []
-        if let text = (result?.data as? [String: Any])?[key] as? String {
-            if let data = text.data(using: .utf8) {
-                if let json = try? JSON(data: data) {
-                    for j in json["items"].arrayValue {
-                        let t: T = T(json: j)
-                        res.append(t)
-                    }
+        if let text = (result?.data as? [String: Any])?[key] as? String,
+           let data = text.data(using: .utf8),
+           let json = try? JSON(data: data) {
+                for j in json["items"].arrayValue {
+                    let t: T = T(json: j)
+                    res.append(t)
                 }
             }
-        }
         return res
     }
     
-    private static func parseJSON2(result: HTTPSCallableResult?, key:String)->[Int]{
+    private static func parseJsonArr(result: HTTPSCallableResult?, key:String)->[Int]{
         var res: [Int] = []
-        if let text = (result?.data as? [String: Any])?[key] as? String {
-            if let data = text.data(using: .utf8) {
-                if let json = try? JSON(data: data) {
-                    for j in json["items"].arrayValue {
-                        res.append(j.intValue)
-                    }
+        if let text = (result?.data as? [String: Any])?[key] as? String,
+           let data = text.data(using: .utf8),
+           let json = try? JSON(data: data) {
+                for j in json["items"].arrayValue {
+                    res.append(j.intValue)
                 }
-            }
         }
         return res
     }
     
-    private static func parseJSON3(result: HTTPSCallableResult?, key:String)->Int{
-        var res: Int = 0
-        if let text = (result?.data as? [String: Any])?["filterId"] as? String {
-            if let data = text.data(using: .utf8) {
-                if let json = try? JSON(data: data) {
-                    res = json["filterId"].intValue
-                }
-            }
+    
+    private static func parseJsonDict(result: HTTPSCallableResult?, key:String)->[Int:Int]{
+        var res: [Int:Int] = [:]
+        if let text = (result?.data as? [String: Any])?[key] as? String,
+            let data = text.data(using: .utf8),
+            let json = try? JSON(data: data) {
+                    for j in json["items"].arrayValue {
+                        let dict = j.dictionaryObject as! [String:Int]
+                        for(key,val) in dict {
+                            res[Int(key)!] = val
+                        }
+                    }
+        }
+        return res
+    }
+    
+    private static func parseJsonVal(result: HTTPSCallableResult?, key:String)->String{
+        var res: String = ""
+        if let text = (result?.data as? [String: Any])?[key] as? String,
+            let data = text.data(using: .utf8),
+            let json = try? JSON(data: data) {
+                res = json[key].stringValue
         }
         return res
     }
@@ -109,172 +126,143 @@ class NetworkMgt{
     }
     
     
+    public static func requestCatalogTotal(categoryId: Int, appliedSubFilters: Set<Int>) {
+        functions.httpsCallable("catalogTotal").call(["useCache":true,
+                                                      "categoryId":categoryId,
+                                                     ]) {(result, error) in
+            if let error = error as NSError? {
+                firebaseHandleErr(error: error)
+            }
+            let sFetchLimit = parseJsonVal(result: result, key: "fetchLimit")
+            guard let fetchLimit = Int(sFetchLimit) else {return}
+            let itemIds:[Int] = parseJsonArr(result: result, key: "itemIds")
+                                                       
+            nextCatalogTotal(itemIds: itemIds, fetchLimit: fetchLimit)
+        }
+    }
     
     
-    public static func requestCatalogModel(categoryId: Int, appliedSubFilters: Set<Int>, offset: Int) {
+    public static func requestCatalogModel(categoryId: Int, itemIds: [Int]) {
         print("requestCatalogModel")
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
-                backend.apiCatalogModel(categoryId: categoryId, appliedSubFilters: appliedSubFilters, offset: offset)
-                    .asObservable()
-                    .subscribe(onNext: {res in
-                        nextCatalogModel(catalogModel: res)
-                    })
-                    .disposed(by: bag)
-            })
+        
+        functions.httpsCallable("catalogEntities").call(["useCache": true,
+                                                         "categoryId": categoryId,
+                                                         "itemsIds": itemIds
+                                                        ]) {(result, error) in
+            if let error = error as NSError? {
+                firebaseHandleErr(error: error)
+            }
+            let arr:[CatalogModel] = parseJsonObjArr(result: result, key: "items")
+            nextCatalogModel(catalogModel: arr)
+        }
     }
     
     
     // MARK: - request functions
     public static func requestFullFilterEntities(categoryId: Int){
-        //   fbCallFullFilterEntities()
-        //   let params: Parameters = [:]
-        //AlamofireNetworkManager.request(clazz: FilterModel.self, urlPath: "", params: params, observer: reqFilter)
-        //        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
-        //            backend.apiLoadFilters()
-        //                .asObservable()
-        //                .subscribe(onNext: {res in
-        //                    nextFullFilterEntities(filterModels: res.0, subFilterModels: res.1)
-        //                })
-        //                .disposed(by: bag)
-        //        })
-       
-        functions.httpsCallable("fullFilterEntities").call(["useCache":true]) {(result, error) in
-            if let error = error as NSError? {
-                firebaseHandleErr(error: error)
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
+            functions.httpsCallable("fullFilterEntities").call(["useCache":true]) {(result, error) in
+                if let error = error as NSError? {
+                    firebaseHandleErr(error: error)
+                }
+                let arr:[FilterModel] = parseJsonObjArr(result: result, key: "filters")
+                let arr2:[SubfilterModel] = parseJsonObjArr(result: result, key: "subFilters")
+                nextFullFilterEntities(filterModels: arr, subFilterModels: arr2)
             }
-            let arr:[FilterModel] = parseJSON(result: result, key: "filters")
-            let arr2:[SubfilterModel] = parseJSON(result: result, key: "subFilters")
-            nextFullFilterEntities(filterModels: arr, subFilterModels: arr2)
-        }
+        })
     }
     
     
     
-    
-    
-    public static func requestCurrentSubFilterIds(filterId: Int, appliedSubFilters: Set<Int>){
-        // let params: Parameters = [:]
-        //AlamofireNetworkManager.request(clazz: SubFilterModel.self, urlPath: "", params: params, observer: reqFilter)
-//        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
-//            backend.apiLoadSubFilters(filterId: filterId, appliedSubFilters: appliedSubFilters)
-//                .asObservable()
-//                .subscribe(onNext: {res in
-//                    nextCurrentSubFilterIds(filterId: res.0, subFiltersIds: res.1, appliedSubFilters: res.2)
-//                })
-//                .disposed(by: bag)
-//        })
-
-        functions.httpsCallable("currSubFilterIds").call(["useCache":true, "filterId":filterId, "appliedSubFilters":Array(appliedSubFilters)]) {(result, error) in
-            if let error = error as NSError? {
-                firebaseHandleErr(error: error)
+    public static func requestEnterSubFilter(filterId: Int, appliedSubFilters: Set<Int>){
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
+            functions.httpsCallable("currSubFilterIds").call(["useCache":true, "filterId":filterId, "appliedSubFilters":Array(appliedSubFilters)]) {(result, error) in
+                if let error = error as NSError? {
+                    firebaseHandleErr(error: error)
+                }
+                let sfilterId = parseJsonVal(result: result, key: "filterId")
+                guard let filterId = Int(sfilterId) else {return}
+                let arr:[Int] = parseJsonArr(result: result, key: "subFiltersIds")
+                let arr2:[Int] = parseJsonArr(result: result, key: "appliedSubFiltersIds")
+                let dict:[Int:Int] = parseJsonDict(result: result, key: "countItemsBySubfilter")
+                nextEnterSubFilter(filterId: filterId, subFiltersIds: arr, appliedSubFilters: Set(arr2), cntBySubfilterId: dict)
             }
-            
-            
-            let filterId = parseJSON3(result: result, key: "filterId")
-            let arr:[Int] = parseJSON2(result: result, key: "subFiltersIds")
-            let arr2:[Int] = parseJSON2(result: result, key: "appliedSubFiltersIds")
-            
-            nextCurrentSubFilterIds(filterId: filterId, subFiltersIds: arr, appliedSubFilters: Set(arr2))
-        }
+        })
     }
     
     
     
-    public static func requestApplyFromFilter(appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>){
-//        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
-//            backend.apiApplyFromFilter(appliedSubFilters: appliedSubFilters, selectedSubFilters: selectedSubFilters)
-//                .asObservable()
-//                .share()
-//                .subscribe(onNext: { res in
-//                    nextAfterApplyingIds(filterIds: res.0, subFiltersIds: res.1, appliedSubFilters: res.2, selectedSubFilters: res.3)
-//                })
-//                .disposed(by: bag)
-//        })
-//
-        functions.httpsCallable("applyFromFilterNow").call(["useCache":true,
-                                                            "selectedSubFilters":Array(selectedSubFilters),
-                                                            "appliedSubFilters":Array(appliedSubFilters)]) {(result, error) in
-            if let error = error as NSError? {
-                firebaseHandleErr(error: error)
+    public static func requestApplyFromFilter(categoryId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>){
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
+            functions.httpsCallable("applyFromFilterNow").call(["useCache":true,
+                                                                "selectedSubFilters":Array(selectedSubFilters),
+                                                                "appliedSubFilters":Array(appliedSubFilters)]) {(result, error) in
+                if let error = error as NSError? {
+                    firebaseHandleErr(error: error)
+                }
+                
+                let arr:[Int] = parseJsonArr(result: result, key: "filtersIds")
+                let arr2:[Int] = parseJsonArr(result: result, key: "subFiltersIds")
+                let arr3:[Int] = parseJsonArr(result: result, key: "appliedSubFiltersIds")
+                let arr4:[Int] = parseJsonArr(result: result, key: "selectedSubFiltersIds")
+                let arr5:[Int] = parseJsonArr(result: result, key: "itemIds")
+                                                                    
+                nextApplyForItems(filterIds: arr, subFiltersIds: arr2, appliedSubFilters: Set(arr3), selectedSubFilters: Set(arr4), itemIds: arr5)
             }
-            
-            let arr:[Int] = parseJSON2(result: result, key: "filtersIds")
-            let arr2:[Int] = parseJSON2(result: result, key: "subFiltersIds")
-            let arr3:[Int] = parseJSON2(result: result, key: "appliedSubFiltersIds")
-            let arr4:[Int] = parseJSON2(result: result, key: "selectedSubFiltersIds")
-            
-            nextApplyForItems(filterIds: arr, subFiltersIds: arr2, appliedSubFilters: Set(arr3), selectedSubFilters: Set(arr4))
-        }
+        })
     }
     
     public static func requestApplyFromSubFilter(filterId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>){
-//        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
-//            backend.apiApplyFromSubFilters(filterId: filterId, appliedSubFilters: appliedSubFilters, selectedSubFilters: selectedSubFilters)
-//                .asObservable()
-//                .share()
-//                .subscribe(onNext: { res in
-//                    nextAfterApplyingIds(filterIds: res.0, subFiltersIds: res.1, appliedSubFilters: res.2, selectedSubFilters: res.3)
-//                })
-//                .disposed(by: bag)
-//        })
-        
-        functions.httpsCallable("applyFromSubFilterNow").call([ "useCache":true,
-                                                                "filterId":filterId,
-                                                                "selectedSubFilters":Array(selectedSubFilters),
-                                                                "appliedSubFilters":Array(appliedSubFilters)]) {(result, error) in
-            if let error = error as NSError? {
-                firebaseHandleErr(error: error)
-            }
-                                                                
-            let arr:[Int] = parseJSON2(result: result, key: "filtersIds")
-            let arr2:[Int] = parseJSON2(result: result, key: "subFiltersIds")
-            let arr3:[Int] = parseJSON2(result: result, key: "appliedSubFiltersIds")
-            let arr4:[Int] = parseJSON2(result: result, key: "selectedSubFiltersIds")
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
             
-            nextApplyForFilters(filterIds: arr, subFiltersIds: arr2, appliedSubFilters: Set(arr3), selectedSubFilters: Set(arr4))
-        }
+            functions.httpsCallable("applyFromSubFilterNow").call([ "useCache":true,
+                                                                    "filterId":filterId,
+                                                                    "selectedSubFilters":Array(selectedSubFilters),
+                                                                    "appliedSubFilters":Array(appliedSubFilters)]) {(result, error) in
+                if let error = error as NSError? {
+                    firebaseHandleErr(error: error)
+                }
+                                                                    
+                let arr:[Int] = parseJsonArr(result: result, key: "filtersIds")
+                let arr2:[Int] = parseJsonArr(result: result, key: "subFiltersIds")
+                let arr3:[Int] = parseJsonArr(result: result, key: "appliedSubFiltersIds")
+                let arr4:[Int] = parseJsonArr(result: result, key: "selectedSubFiltersIds")
+                
+                nextApplyForFilters(filterIds: arr, subFiltersIds: arr2, appliedSubFilters: Set(arr3), selectedSubFilters: Set(arr4))
+            }
+        })
     }
     
     
     public static func requestRemoveFilter(filterId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>){
-//        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
-//            backend.apiRemoveFilter(filterId: filterId, appliedSubFilters: appliedSubFilters, selectedSubFilters: selectedSubFilters)
-//                .asObservable()
-//                .share()
-//                .subscribe(onNext: { res in
-//                    nextAfterApplyingIds(filterIds: res.0, subFiltersIds: res.1, appliedSubFilters: res.2, selectedSubFilters: res.3)
-//                })
-//                .disposed(by: bag)
-//        })
         
-        functions.httpsCallable("apiRemoveFilter").call([   "useCache":true,
-                                                            "filterId":filterId,
-                                                            "selectedSubFilters":Array(selectedSubFilters),
-                                                            "appliedSubFilters":Array(appliedSubFilters)]) {(result, error) in
-                                                                if let error = error as NSError? {
-                                                                    firebaseHandleErr(error: error)
-                                                                }
-                                                                
-            let arr:[Int] = parseJSON2(result: result, key: "filtersIds")
-            let arr2:[Int] = parseJSON2(result: result, key: "subFiltersIds")
-            let arr3:[Int] = parseJSON2(result: result, key: "appliedSubFiltersIds")
-            let arr4:[Int] = parseJSON2(result: result, key: "selectedSubFiltersIds")
-            
-            nextApplyForFilters(filterIds: arr, subFiltersIds: arr2, appliedSubFilters: Set(arr3), selectedSubFilters: Set(arr4))
-        }
+                functions.httpsCallable("apiRemoveFilter").call([   "useCache":true,
+                                                                    "filterId":filterId,
+                                                                    "selectedSubFilters":Array(selectedSubFilters),
+                                                                    "appliedSubFilters":Array(appliedSubFilters)]) {(result, error) in
+                                                                        if let error = error as NSError? {
+                                                                            firebaseHandleErr(error: error)
+                                                                        }
+                                                                        
+                    let arr:[Int] = parseJsonArr(result: result, key: "filtersIds")
+                    let arr2:[Int] = parseJsonArr(result: result, key: "subFiltersIds")
+                    let arr3:[Int] = parseJsonArr(result: result, key: "appliedSubFiltersIds")
+                    let arr4:[Int] = parseJsonArr(result: result, key: "selectedSubFiltersIds")
+                    
+                    nextApplyForFilters(filterIds: arr, subFiltersIds: arr2, appliedSubFilters: Set(arr3), selectedSubFilters: Set(arr4))
+                }
     }
     
     
     public static func requestCleanupFromSubFilter(filterId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>){
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
-            backend.apiRemoveFilter(filterId: filterId, appliedSubFilters: appliedSubFilters, selectedSubFilters: selectedSubFilters)
-                .asObservable()
-                .share()
-                .subscribe(onNext: { res in
-                    nextApplyForItems(filterIds: res.0, subFiltersIds: res.1, appliedSubFilters: res.2, selectedSubFilters: res.3)
-                })
-                .disposed(by: bag)
-        })
+        backend.apiRemoveFilter(filterId: filterId, appliedSubFilters: appliedSubFilters, selectedSubFilters: selectedSubFilters)
+            .asObservable()
+            .share()
+            .subscribe(onNext: { res in
+                nextApplyForFilters(filterIds: res.0, subFiltersIds: res.1, appliedSubFilters: res.2, selectedSubFilters: res.3)
+            })
+            .disposed(by: bag)
+     
     }
     
     

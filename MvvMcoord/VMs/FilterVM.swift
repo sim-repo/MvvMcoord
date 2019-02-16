@@ -6,15 +6,18 @@ import RxCocoa
 class FilterVM : BaseVM {
     
     // MARK: - during user activies. Input from ViewController
-    var inSelectFilter = PublishSubject<Int>()
-    var inApply = PublishSubject<Void>()
-    var inCleanUp = PublishSubject<Void>()
-    var inRemoveFilter = PublishSubject<Int>()
+    public var inSelectFilter = PublishSubject<Int>()
+    public var inApply = PublishSubject<Void>()
+    public var inCleanUp = PublishSubject<Void>()
+    public var inRemoveFilter = PublishSubject<Int>()
     
     
     // MARK: - Outputs to ViewController or Coord
-    var outShowSubFilters = PublishSubject<Int>()
-    var outCloseVC = PublishSubject<Void>()
+    public var outShowSubFilters = PublishSubject<Int>()
+    public var outCloseVC = PublishSubject<Void>()
+   
+    
+    
     
     var categoryId : Int
     var filters: [Int:FilterModel] = [:] 

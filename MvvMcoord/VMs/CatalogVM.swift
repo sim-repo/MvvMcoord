@@ -34,13 +34,16 @@ protocol FilterActionDelegate : class {
     func requestComplete() -> PublishSubject<Int>
     func showApplyingViewEvent() -> BehaviorSubject<Bool>
     func refreshedCellSelectionsEvent()->PublishSubject<Set<Int>>
+    func wait() -> BehaviorSubject<(FilterActionEnum, Bool)>
 }
 
 
 class CatalogVM : BaseVM {
     
-    private var currCellLayout: CellLayoutEnum = .list
+    private var currCellLayout: CellLayoutEnum = .squares
     private var categoryId: Int
+    
+    
     
     // MARK: - Inputs from ViewController
     var inPressLayout:Variable<Void> = Variable<Void>(Void())
@@ -48,11 +51,15 @@ class CatalogVM : BaseVM {
     
     
     // MARK: - Outputs to ViewController or Coord
-    var outCatalog = PublishSubject<[CatalogModel?]>()
+    //var outCatalog = PublishSubject<[CatalogModel?]>()
     var outTitle = Variable<String>("")
     var outLayout = Variable<CellLayout?>(nil)
     var outShowFilters = PublishSubject<Int>()
     var outCloseVC = PublishSubject<Void>()
+    var outReloadVC = PublishSubject<Void>()
+    var outFetchComplete = PublishSubject<[IndexPath]?>()
+    
+    private let activityIndicatorView = UIActivityIndicatorView(style: .whiteLarge)
     
     // MARK: - Filters
     private var filters: [Int:FilterModel] = [:]
@@ -65,6 +72,7 @@ class CatalogVM : BaseVM {
     private var appliedSubFilters: Set<Int> = Set()
     private var midAppliedSubFilters: Set<Int> = Set()
     private var selectedSubFilters: Set<Int> = Set()
+  
     private var unapplying: Set<Int> = Set()
     
     
@@ -73,8 +81,19 @@ class CatalogVM : BaseVM {
     
     
     // MARK:
-    private var inNextItemsEvent = PublishSubject<[CatalogModel?]>()
-    private var offset = 0
+    private var fullItemIds: [Int] = []
+    
+    
+    
+    private var inPrefetchEvent = PublishSubject<[CatalogModel?]>()
+    private var fetchLimit = 0
+    public var currentPage = 1
+    public var total = 0
+    private var isFetchInProgress = false
+    public var catalog: [CatalogModel?] = []
+    private var itemIds: [Int] = []
+    public var totalPages = 0
+    
     
     
     // MARK: FilterActionDelegate vars
@@ -90,6 +109,7 @@ class CatalogVM : BaseVM {
     private var inCleanUpFromSubFilterEvent = PublishSubject<Int>()
     private var outShowApplyingViewEvent = BehaviorSubject<Bool>(value: false)
     private var outRefreshedCellSelectionsEvent = PublishSubject<Set<Int>>()
+    private var outWaitEvent = BehaviorSubject<(FilterActionEnum, Bool)>(value: (.applyFilter, false))
     
     public var unitTestSignalOperationComplete = BehaviorSubject<Int>(value: 0)
     public var utMsgId = 0
@@ -101,8 +121,12 @@ class CatalogVM : BaseVM {
         self.categoryId = categoryId
         super.init()
         
-        //network request
-        bindData()
+
+        emitTotalEvent()
+        handleTotalEvent()
+        
+        handlePrefetchEvent()
+        
         bindUserActivities()
         bindDelegate()
         
@@ -111,15 +135,83 @@ class CatalogVM : BaseVM {
             .disposed(by: bag)
     }
     
-   
-    public func bindData(){
     
-        NetworkMgt.requestCatalogModel(categoryId: categoryId, appliedSubFilters: appliedSubFilters, offset: 0) // true
+    private func setupFetch(itemsIds: [Int], fetchLimit: Int = 0){
         
-        inNextItemsEvent
-        .asObservable()
-        .bind(to: outCatalog)
+        self.itemIds = itemsIds
+        self.total = itemIds.count
+        if fetchLimit != 0 {
+            self.fetchLimit = fetchLimit
+        }
+        self.currentPage = 1
+        if fetchLimit != 0 {
+            self.totalPages = self.total/fetchLimit
+        }
+        catalog = []
+    }
+    
+    public func emitTotalEvent(){
+        NetworkMgt.requestCatalogTotal(categoryId: categoryId, appliedSubFilters: appliedSubFilters)
+    }
+   
+    private func handleTotalEvent(){
+        NetworkMgt
+            .outCatalogTotal
+            .skip(1)
+            .subscribe(onNext: { [weak self] res in
+                self?.fullItemIds = res.0
+                self?.setupFetch(itemsIds: res.0, fetchLimit: res.1)
+                self?.outReloadVC.onNext(Void())
+                self?.emitPrefetchEvent()
+            })
+            .disposed(by: bag)
+    }
+    
+    
+    public func currItemsCount() -> Int {
+        return catalog.count
+    }
+    
+    public func emitPrefetchEvent(){
+        guard isFetchInProgress == false else {return}
+        
+        isFetchInProgress = true
+        let maxi = itemIds.count-1 < 0 ? 0 : itemIds.count-1
+        let from =  (currentPage-1) * fetchLimit
+        let to = min(currentPage * fetchLimit - 1, maxi)
+        
+        if itemIds.count >= from {
+            let nextItemIds = itemIds[from...to]
+            NetworkMgt.requestCatalogModel(categoryId: categoryId, itemIds: Array(nextItemIds))
+        }
+    }
+    
+    public func handlePrefetchEvent(){
+        
+        inPrefetchEvent
+        .subscribe(onNext: {[weak self] res in
+            print("handlePrefetchEvent")
+            switch self?.currentPage {
+                case 1: self?.catalog = res
+                default: self?.catalog.append(contentsOf: res)
+            }
+            let indexPathsToReload = self?.calcIndexPathsToReload(from: res)
+            self?.outFetchComplete.onNext(indexPathsToReload)
+            self?.currentPage += 1
+            self?.isFetchInProgress = false
+        })
         .disposed(by: bag)
+    }
+    
+    public func catalog(at index: Int) -> CatalogModel? {
+        return catalog[index]
+    }
+    
+    
+    private func calcIndexPathsToReload(from newCatalog: [CatalogModel?]) -> [IndexPath] {
+        let startIndex = catalog.count - newCatalog.count
+        let endIndex = startIndex + newCatalog.count
+        return (startIndex..<endIndex).map { IndexPath(row: $0, section: 0) }
     }
     
     private func bindUserActivities(){
@@ -154,7 +246,7 @@ class CatalogVM : BaseVM {
             return Observable.of(CellLayout(cellLayoutType: .squares, cellScale: CGSize(width: 0.5, height: 0.5), cellSpace: 2, lineSpace: 2, layoutImageName: "squares"))
         case .squares:
             currCellLayout = .list
-            return Observable.of(CellLayout(cellLayoutType: .list, cellScale: CGSize(width: 0.95, height: 0.25), cellSpace: 0, lineSpace: 8, layoutImageName: "list"))
+            return Observable.of(CellLayout(cellLayoutType: .list, cellScale: CGSize(width: 0.90, height: 0.25), cellSpace: 0, lineSpace: 8, layoutImageName: "list"))
         }
     }
     
@@ -165,7 +257,7 @@ class CatalogVM : BaseVM {
     }
     
     public func utEnterSubFilter(filterId: Int){
-        NetworkMgt.requestCurrentSubFilterIds(filterId: filterId, appliedSubFilters: self.midAppliedSubFilters)
+        NetworkMgt.requestEnterSubFilter(filterId: filterId, appliedSubFilters: self.midAppliedSubFilters)
     }
     
 }
@@ -190,14 +282,17 @@ extension CatalogVM : FilterActionDelegate {
     }
     
     func requestFilters(categoryId:Int) {
+        
         if (prevState != currState) {
+            wait().onNext((.enterFilter, true))
             NetworkMgt.requestFullFilterEntities(categoryId: categoryId)
-            
             prevState = currState
         } else {
-            NetworkMgt.requestApplyFromFilter(appliedSubFilters: appliedSubFilters, selectedSubFilters: selectedSubFilters)
+            
+        //    NetworkMgt.requestApplyFromFilter(appliedSubFilters: appliedSubFilters, selectedSubFilters: selectedSubFilters)
         }
-        midAppliedSubFilters = appliedSubFilters // added
+        midAppliedSubFilters = appliedSubFilters // crytical! зависит работа applySubfilter
+        selectedSubFilters = appliedSubFilters // crytical! зависит работа applySubfilter
     }
     
     func subFiltersEvent() -> BehaviorSubject<[SubfilterModel?]> {
@@ -206,8 +301,9 @@ extension CatalogVM : FilterActionDelegate {
     
     
     func requestSubFilters(filterId: Int) {
+        wait().onNext((.enterSubFilter, true))
         showCleanSubFilterVC(filterId: filterId)
-        NetworkMgt.requestCurrentSubFilterIds(filterId: filterId, appliedSubFilters: self.midAppliedSubFilters)
+        NetworkMgt.requestEnterSubFilter(filterId: filterId, appliedSubFilters: self.midAppliedSubFilters)
     }
     
     
@@ -239,10 +335,15 @@ extension CatalogVM : FilterActionDelegate {
         return outRefreshedCellSelectionsEvent
     }
     
+    func wait() -> BehaviorSubject<(FilterActionEnum, Bool)> {
+        return outWaitEvent
+    }
+    
+    
+    
     func appliedTitle(filterId: Int) -> String {
         var res = ""
-        let fullApplied = midAppliedSubFilters // added
-        let arr = fullApplied
+        let arr = midAppliedSubFilters
             .compactMap({subFilters[$0]})
             .filter({$0.filterId == filterId && $0.enabled == true})
         
@@ -257,7 +358,7 @@ extension CatalogVM : FilterActionDelegate {
     
     func isSelectedSubFilter(subFilterId: Int) -> Bool {
         var res = false
-        res = selectedSubFilters.contains(subFilterId)
+        res = selectedSubFilters.contains(subFilterId) || appliedSubFilters.contains(subFilterId)
         return res
     }
     
@@ -284,10 +385,22 @@ extension CatalogVM : FilterActionDelegate {
         inApplyFromFilterEvent
             .subscribe(onNext: {[weak self] _ in
                 if let `self` = self {
-                    self.showCleanFilterVC()
+                
+                    
                     let midApplying = self.midAppliedSubFilters.subtracting(self.unapplying)
+                    
+                    if midApplying.count == 0 {
+                        self.cleanupAllFilters()
+                        self.itemIds = self.fullItemIds
+                        self.setupFetch(itemsIds: self.fullItemIds)
+                        self.outReloadVC.onNext(Void())
+                        self.emitPrefetchEvent()
+                        return
+                    }
+                    self.showCleanFilterVC()
                     self.unapplying.removeAll()
-                    NetworkMgt.requestApplyFromFilter(appliedSubFilters: midApplying, selectedSubFilters: self.selectedSubFilters)
+                    self.wait().onNext((.applyFilter, true))
+                    NetworkMgt.requestApplyFromFilter(categoryId: self.categoryId, appliedSubFilters: midApplying, selectedSubFilters: self.selectedSubFilters)
                 }
             })
             .disposed(by: bag)
@@ -296,6 +409,7 @@ extension CatalogVM : FilterActionDelegate {
             .subscribe(onNext: {[weak self] filterId in
                 if let `self` = self {
                     let midApplying = self.midAppliedSubFilters
+                    self.wait().onNext((.applySubFilter, true))
                     self.unapplying.removeAll()
                     self.showCleanFilterVC()
                     NetworkMgt.requestApplyFromSubFilter(filterId: filterId, appliedSubFilters: midApplying, selectedSubFilters: self.selectedSubFilters)
@@ -306,6 +420,7 @@ extension CatalogVM : FilterActionDelegate {
         inRemoveFilterEvent
             .subscribe(onNext: {[weak self] filterId in
                 if let `self` = self {
+                    self.wait().onNext((.removeFilter, true))
                     let midApplying = self.midAppliedSubFilters
                     self.unapplying.removeAll()
                     NetworkMgt.requestRemoveFilter(filterId: filterId, appliedSubFilters: midApplying, selectedSubFilters: self.selectedSubFilters)
@@ -324,7 +439,8 @@ extension CatalogVM : FilterActionDelegate {
             .subscribe(onNext: {[weak self] _ in
                 if let `self` = self {
                     self.cleanupAllFilters()
-                    NetworkMgt.requestApplyFromFilter(appliedSubFilters: Set(), selectedSubFilters: Set())
+                    self.itemIds = self.fullItemIds
+                   // NetworkMgt.requestApplyFromFilter(categoryId: self.categoryId, appliedSubFilters: Set(), selectedSubFilters: Set())
                     self.unitTestSignalOperationComplete.onNext(self.utMsgId)
                 }
             })
@@ -348,7 +464,7 @@ extension CatalogVM : FilterActionDelegate {
             .disposed(by: bag)
         
         
-        NetworkMgt.outFullFilterEntities
+        NetworkMgt.outFilterEntitiesResponse
             .skip(1)
             .subscribe(onNext: { [weak self] res in
                 guard let `self` = self else {return}
@@ -367,23 +483,27 @@ extension CatalogVM : FilterActionDelegate {
                 self.fillSectionSubFilters()
                 
                 self.outFiltersEvent.onNext(self.getEnabledFilters())
+                self.wait().onNext((.enterFilter, false))
             })
             .disposed(by: bag)
         
         
-        NetworkMgt.outCurrentSubFilterIds
+        NetworkMgt.outEnterSubFilterResponse
             .subscribe(onNext: {[weak self] res in
                 guard let `self` = self else { return }
                 let filterIds = res.1
-                self.enableSubFilters(ids: filterIds)
+                let countBySubfilterId = res.3
+                self.enableSubFilters(ids: filterIds, countBySubfilterId: countBySubfilterId)
                 self.midAppliedSubFilters = res.2
                 self.subFiltersFromCache(filterId: res.0)
+                self.wait().onNext((.enterSubFilter, false))
             })
             .disposed(by: bag)
 
         
         NetworkMgt.outApplyItemsResponse
             .subscribe(onNext: {[weak self] _filters in
+                print("NetworkMgt.outApplyItemsResponse")
                 guard let `self` = self else {return}
                 self.enableFilters(ids: _filters.0)
                 self.enableSubFilters(ids: _filters.1)
@@ -391,8 +511,10 @@ extension CatalogVM : FilterActionDelegate {
                 self.appliedSubFilters = _filters.2
                 self.selectedSubFilters = _filters.3
                 self.outFiltersEvent.onNext(self.getEnabledFilters())
-             
-                NetworkMgt.requestCatalogModel(categoryId: self.categoryId, appliedSubFilters: self.appliedSubFilters, offset: 0)
+                self.setupFetch(itemsIds: _filters.4)
+                self.outReloadVC.onNext(Void())
+                self.emitPrefetchEvent()
+                self.wait().onNext((.applyFilter, false))
                 
                 self.unitTestSignalOperationComplete.onNext(self.utMsgId)
             })
@@ -407,6 +529,7 @@ extension CatalogVM : FilterActionDelegate {
                 self.midAppliedSubFilters = _filters.2
                 self.selectedSubFilters = _filters.3
                 self.outFiltersEvent.onNext(self.getEnabledFilters())
+                self.wait().onNext((.applySubFilter, false))
                 
                 self.unitTestSignalOperationComplete.onNext(self.utMsgId)
             })
@@ -416,10 +539,13 @@ extension CatalogVM : FilterActionDelegate {
         NetworkMgt.outCatalogModel
             .subscribe(onNext: {[weak self] res in
                 guard let `self` = self else { return }
-                self.inNextItemsEvent.onNext(res)
+                self.inPrefetchEvent.onNext(res)
             })
             .disposed(by: bag)
     }
+    
+    
+   
 }
 
 
@@ -532,7 +658,7 @@ extension CatalogVM {
         return res
     }
     
-    private func enableSubFilters(ids: [Int?]) {
+    private func enableSubFilters(ids: [Int?], countBySubfilterId: [Int: Int] = [:]) {
         
         for subf in subFilters {
             subf.value.enabled = false
@@ -541,6 +667,9 @@ extension CatalogVM {
         for id in ids {
             if let i = id,
             let subf = subFilters[i] {
+                if let cnt = countBySubfilterId[i] {
+                    subf.countItems = cnt
+                }
                 subf.enabled = true
             }
         }

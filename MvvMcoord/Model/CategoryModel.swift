@@ -185,8 +185,10 @@ class CategoryModel{
         models2[w115.baseId + w115.id] = w115
     }
     
+    
     static func getModelsA(baseId: Int)->Observable<[CategoryModel]?> {
         return Observable.just(models[baseId])
+
     }
     
     static func getTitle(baseId: Int)->Observable<String> {

@@ -11,6 +11,8 @@ class FilterVC: UIViewController {
     public var viewModel: FilterVM!
     private var bag = DisposeBag()
     private var indexPaths: Set<IndexPath> = []
+    private let waitContainer: UIView = UIView()
+    private let waitActivityView = UIActivityIndicatorView(style: .whiteLarge)
     var removeFilterEvent = PublishSubject<Int>()
     
     
@@ -23,6 +25,7 @@ class FilterVC: UIViewController {
         super.viewDidLoad()
         bindCell()
         bindApply()
+        bindWaitEvent()
         bindSelection()
         bindRemoveFilter()
         setTitle()
@@ -36,6 +39,7 @@ class FilterVC: UIViewController {
         uitCurrMemVCs -= 1  // uitest
     }
     
+
     
     private func setTitle(){
         navigationController?.navigationBar.tintColor = UIColor.white
@@ -81,7 +85,7 @@ class FilterVC: UIViewController {
             }.disposed(by: bag)
     }
     
-    
+   
     
     
     private func bindSelection(){
@@ -189,11 +193,42 @@ class FilterVC: UIViewController {
         indexPaths.remove(indexPath)
     }
     
-    
+    private func bindWaitEvent(){
+        waitContainer.frame = CGRect(x: view.center.x, y: view.center.y, width: 80, height: 80)
+        waitContainer.backgroundColor = .lightGray
+        waitContainer.center = self.view.center
+        waitActivityView.frame = CGRect(x: 0, y: 0, width: 80, height: 80)
+        waitContainer.isHidden = true
+        waitContainer.addSubview(waitActivityView)
+        view.addSubview(waitContainer)
+        
+        viewModel.filterActionDelegate?.wait()
+            .filter({[.enterFilter, .applySubFilter, .removeFilter].contains($0.0)})
+            .subscribe(onNext: {[weak self] res in
+                guard let `self` = self else {return}
+                let runWait = res.1
+                if runWait {
+                    self.startWait()
+                } else {
+                    self.stopWait()
+                }
+            })
+            .disposed(by: bag)
+    }
 
     
-
+    private func startWait() {
+        print("wait in Filter")
+        tableView.isHidden = true
+        waitContainer.isHidden = false
+        waitActivityView.startAnimating()
+    }
     
+    private func stopWait(){
+        tableView.isHidden = false
+        waitContainer.isHidden = true
+        waitActivityView.stopAnimating()
+    }
 }
 
 

@@ -17,11 +17,13 @@ class CatalogCoord : BaseCoord<CoordRetEnum>{
         print("reload catalog")
         guard let vm = viewModel as? CatalogVM
             else { fatalError("view model") }
-        vm.bindData()
+      //  vm.emitTotalEvent()
     }
     
     override func start() -> Observable<CoordRetEnum> {
         viewModel = CatalogVM(categoryId: categoryId)
+        
+        
         viewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "CatalogVC") as? CatalogVC
         
         guard let vm = viewModel as? CatalogVM

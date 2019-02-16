@@ -109,6 +109,9 @@
                                                         <color key="value" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     </userDefinedRuntimeAttribute>
                                                 </userDefinedRuntimeAttributes>
+                                                <connections>
+                                                    <action selector="pressSort:" destination="fyT-Ef-8qW" eventType="touchUpInside" id="FO4-Sr-c2U"/>
+                                                </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ipo-v1-fpK" colorLabel="IBBuiltInLabel-Purple">
                                                 <rect key="frame" x="157" y="0.0" width="207" height="40"/>
@@ -334,7 +337,7 @@
                                                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="1" translatesAutoresizingMaskIntoConstraints="NO" id="VtU-JI-Ccm">
                                                             <rect key="frame" x="132" y="0.0" width="239.66666666666663" height="114"/>
                                                             <subviews>
-                                                                <label opaque="NO" userInteractionEnabled="NO" tag="2000" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="252" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="O8u-ag-PPi">
+                                                                <label opaque="NO" userInteractionEnabled="NO" tag="2000" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="252" text="Label" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="O8u-ag-PPi">
                                                                     <rect key="frame" x="0.0" y="0.0" width="239.66666666666666" height="15"/>
                                                                     <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="13"/>
                                                                     <color key="textColor" red="0.2095332791" green="0.22123986409999999" blue="0.239900421" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
@@ -598,24 +601,44 @@
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
+                                <connections>
+                                    <outlet property="dataSource" destination="fyT-Ef-8qW" id="pGK-d5-WES"/>
+                                    <outlet property="delegate" destination="fyT-Ef-8qW" id="XKq-SY-hLB"/>
+                                </connections>
                             </collectionView>
+                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.75" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rSr-E0-Kd0">
+                                <rect key="frame" x="16" y="825.66666666666663" width="40" height="40"/>
+                                <color key="backgroundColor" red="0.60956825979999996" green="0.23763618140000001" blue="0.67434423580000002" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.95237613340000005" green="0.95237613340000005" blue="0.95237613340000005" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="8SK-GJ-8az">
+                                <rect key="frame" x="197" y="438" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" red="0.92687419039999996" green="0.92687419039999996" blue="0.92687419039999996" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                         <constraints>
+                            <constraint firstItem="8SK-GJ-8az" firstAttribute="centerY" secondItem="fgY-au-Lqn" secondAttribute="centerY" id="2Kl-ba-m2a"/>
                             <constraint firstItem="QVM-nl-5El" firstAttribute="top" secondItem="gb8-SL-lLT" secondAttribute="bottom" id="3Se-xe-wR4"/>
                             <constraint firstItem="QVM-nl-5El" firstAttribute="bottom" secondItem="fgY-au-Lqn" secondAttribute="bottom" id="8h3-rD-YD7"/>
                             <constraint firstItem="zfL-sk-DJe" firstAttribute="trailing" secondItem="gb8-SL-lLT" secondAttribute="trailing" id="A7R-OV-2KM"/>
                             <constraint firstItem="gb8-SL-lLT" firstAttribute="top" secondItem="zfL-sk-DJe" secondAttribute="top" id="Of8-5m-U5s"/>
                             <constraint firstItem="QVM-nl-5El" firstAttribute="top" secondItem="gb8-SL-lLT" secondAttribute="bottom" id="RqJ-hO-ZrB"/>
                             <constraint firstItem="QVM-nl-5El" firstAttribute="centerX" secondItem="fgY-au-Lqn" secondAttribute="centerX" id="SqS-Te-1aY"/>
+                            <constraint firstItem="rSr-E0-Kd0" firstAttribute="leading" secondItem="zfL-sk-DJe" secondAttribute="leading" constant="16" id="Tuv-d8-NYh"/>
                             <constraint firstItem="gb8-SL-lLT" firstAttribute="leading" secondItem="fgY-au-Lqn" secondAttribute="leading" id="cTC-ek-aPg"/>
                             <constraint firstItem="QVM-nl-5El" firstAttribute="width" secondItem="fgY-au-Lqn" secondAttribute="width" multiplier="0.98" id="cZc-OO-fre"/>
+                            <constraint firstItem="zfL-sk-DJe" firstAttribute="bottom" secondItem="rSr-E0-Kd0" secondAttribute="bottom" constant="16" id="eed-4Q-udH"/>
+                            <constraint firstItem="8SK-GJ-8az" firstAttribute="centerX" secondItem="fgY-au-Lqn" secondAttribute="centerX" id="g8O-Sr-WgS"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="zfL-sk-DJe"/>
                     </view>
                     <connections>
                         <outlet property="collectionView" destination="QVM-nl-5El" id="508-WF-4MP"/>
+                        <outlet property="currPage" destination="rSr-E0-Kd0" id="IKa-oj-LBW"/>
                         <outlet property="filterButton" destination="Ipo-v1-fpK" id="vtg-nH-mYT"/>
+                        <outlet property="indicatorView" destination="8SK-GJ-8az" id="7Gi-LA-RYw"/>
                         <outlet property="planButton" destination="ysB-98-Jbu" id="fmq-cW-lMp"/>
                     </connections>
                 </viewController>

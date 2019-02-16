@@ -10,6 +10,8 @@ class SubFilterVM : BaseVM {
     // MARK: - when init. Output to ViewController
     var filterEnum: FilterEnum = .select
     var outCloseVC = PublishSubject<Void>()
+    var outStartWait = PublishSubject<Void>()
+    
     
     // MARK: - during user activies. Input from ViewController
     var inApply = PublishSubject<Void>()
@@ -26,6 +28,7 @@ class SubFilterVM : BaseVM {
         bindUserActivities()
     }
     
+   
     private func bindUserActivities(){
         
         inApply

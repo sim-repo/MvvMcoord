@@ -11,6 +11,8 @@ class SubFilterSelectVC: UIViewController {
     @IBOutlet weak var applyView: ApplyButton!
     @IBOutlet weak var applyViewBottomCon: NSLayoutConstraint!
 
+    private let waitContainer: UIView = UIView()
+    private let waitActivityView = UIActivityIndicatorView(style: .whiteLarge)
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -24,6 +26,7 @@ class SubFilterSelectVC: UIViewController {
         bindCell()
         bindSelection()
         bindApply()
+        bindWaitEvent()
     }
     
     deinit {
@@ -44,7 +47,6 @@ class SubFilterSelectVC: UIViewController {
     
     
     private func registerTableView(){
-        
         tableView.rx.setDelegate(self)
             .disposed(by: bag)
     }
@@ -125,6 +127,44 @@ class SubFilterSelectVC: UIViewController {
                 self.view.layoutIfNeeded()
             })
             .disposed(by: bag)
+    }
+    
+    
+    private func bindWaitEvent(){
+        waitContainer.frame = CGRect(x: view.center.x, y: view.center.y, width: 80, height: 80)
+        waitContainer.backgroundColor = .lightGray
+        waitContainer.center = self.view.center
+        waitActivityView.frame = CGRect(x: 0, y: 0, width: 80, height: 80)
+        waitContainer.isHidden = true
+        waitContainer.addSubview(waitActivityView)
+        view.addSubview(waitContainer)
+        
+        viewModel.filterActionDelegate?.wait()
+            .filter({[.enterSubFilter].contains($0.0)})
+            .takeWhile({$0.1 == true})
+            .subscribe(onNext: {[weak self] res in
+                guard let `self` = self else {return}
+                print("start wait")
+                self.startWait()
+            },
+           onCompleted: {
+                self.stopWait()
+            })
+            .disposed(by: bag)
+    }
+    
+    
+    private func startWait() {
+        print("wait in SubFilter")
+        tableView.isHidden = true
+        waitContainer.isHidden = false
+        waitActivityView.startAnimating()
+    }
+    
+    private func stopWait(){
+        tableView.isHidden = false
+        waitContainer.isHidden = true
+        waitActivityView.stopAnimating()
     }
 }
 
