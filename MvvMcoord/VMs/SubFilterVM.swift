@@ -32,7 +32,8 @@ class SubFilterVM : BaseVM {
     private func bindUserActivities(){
         
         inApply
-            .subscribe(onCompleted: {
+            .subscribe(onNext: {[weak self] _ in // onNext need for unit-tests
+                guard let `self` = self else {return}
                 self.filterActionDelegate?.applyFromSubFilterEvent().onNext(self.filterId)
                 self.outCloseVC.onCompleted()
             })

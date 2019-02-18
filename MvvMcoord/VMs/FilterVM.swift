@@ -16,11 +16,8 @@ class FilterVM : BaseVM {
     public var outShowSubFilters = PublishSubject<Int>()
     public var outCloseVC = PublishSubject<Void>()
    
-    
-    
-    
     var categoryId : Int
-    var filters: [Int:FilterModel] = [:] 
+   // var filters: [Int:FilterModel] = [:]
     
     public weak var filterActionDelegate: FilterActionDelegate?
     
@@ -33,12 +30,12 @@ class FilterVM : BaseVM {
         bindUserActivities()
     }
 
-    private func getEnabled()->[FilterModel] {
-        return filters
-            .compactMap({$0.value})
-            .filter({$0.enabled == true})
-            .sorted(by: {$0.id < $1.id })
-    }
+//    private func getEnabled()->[FilterModel] {
+//        return filters
+//            .compactMap({$0.value})
+//            .filter({$0.enabled == true})
+//            .sorted(by: {$0.id < $1.id })
+//    }
     
     public func appliedTitles(filterId: Int)->String {
         return self.filterActionDelegate?.appliedTitle(filterId: filterId) ?? ""
@@ -64,9 +61,9 @@ class FilterVM : BaseVM {
     private func bindUserActivities(){
         
         inApply
-            .subscribe(onCompleted: {
-                    self.filterActionDelegate?.applyFromFilterEvent().onNext(Void())
-                    self.outCloseVC.onCompleted()
+            .subscribe(onNext: {[weak self] _ in   // onNext need for unit-tests
+                    self?.filterActionDelegate?.applyFromFilterEvent().onNext(Void())
+                    self?.outCloseVC.onCompleted()
             })
             .disposed(by: bag)
         

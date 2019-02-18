@@ -58,7 +58,7 @@ class useTestCase4: XCTestCase {
     
     override func setUp() {
         CategoryModel.fillModels()
-        CatalogModel.fillModels()
+        
         catalogVM = CatalogVM(categoryId: categoryId)
         catalogVM.requestFilters(categoryId: categoryId)
         
@@ -73,6 +73,7 @@ class useTestCase4: XCTestCase {
     func capsule(msgId: Int, completion: @escaping ()->(Void)) {
         catalogVM.unitTestSignalOperationComplete
             .filter({$0 == msgId})
+            .debug()
             .take(1)
             .observeOn(MainScheduler.asyncInstance)
             .subscribe(onNext: {_ in
@@ -110,9 +111,11 @@ class useTestCase4: XCTestCase {
     
     
     func selectSubFilters(vm: SubFilterVM, selectIds: [Int], select: Bool, newMsgId: Int){
+        print("selectSubFilters")
         for subFilterId in selectIds {
             vm.filterActionDelegate?.selectSubFilterEvent().onNext((subFilterId, select))
         }
+        
         catalogVM.unitTestSignalOperationComplete.onNext(newMsgId)
     }
     
@@ -196,6 +199,7 @@ class useTestCase4: XCTestCase {
     
     func applyFromFilter(msgId: Int, newMsgId: Int) {
         let completion: (() -> Void) = {[weak self]  in
+            print("applyFromFilter")
             self?.catalogVM.utMsgId = newMsgId
             self?.filterVM.inApply.onNext(Void())
         }
@@ -263,6 +267,7 @@ class useTestCase4: XCTestCase {
             vm.filterActionDelegate?.subFiltersEvent()
                 .take(1)
                 .subscribe(onNext: {[weak self] sf in
+                    print("takeFinish")
                     for element in sf {
                         self?.result += (element!.title + " \(vm.isCheckmark(subFilterId: element!.id)) ")
                     }
@@ -294,7 +299,7 @@ class useTestCase4: XCTestCase {
         // 1 apply pink
         selectApply(vm: subFilterVM2, selectIds: [pink], msgId: 1)
         
-        refreshSubFilters(filterId: deliveryFilterId, msgId: 1, newMsgId: 2)
+        enterSubFilter(filterId: deliveryFilterId, msgId: 1, newMsgId: 2)
         
         // 2 take available subfilters from Delivery Filter
         takeFromVM(operationId:2, vm: subFilterVM4, msgId: 2, newMsgId: 3)
@@ -304,7 +309,7 @@ class useTestCase4: XCTestCase {
         // 3 apply 5days
         selectApply(vm: subFilterVM4, selectIds: [day1], msgId: 3, newMsgId: 4)
         
-        refreshSubFilters(filterId: materialFilterId, msgId: 4, newMsgId: 5)
+        enterSubFilter(filterId: materialFilterId, msgId: 4, newMsgId: 5)
         
         // 4 take available subfilters from Material Filter
         takeFromVM(operationId:3, vm: subFilterVM1, msgId: 5, newMsgId: 6)
@@ -314,7 +319,7 @@ class useTestCase4: XCTestCase {
         // 5 apply cotton
         selectApply(vm: subFilterVM1, selectIds: [cotton], msgId: 6, newMsgId: 7)
         
-        refreshSubFilters(filterId: seasonFilterId, msgId: 7, newMsgId: 8)
+        enterSubFilter(filterId: seasonFilterId, msgId: 7, newMsgId: 8)
         
         // 6 take available subfilters from Season Filter
         takeFromVM(operationId:4, vm: subFilterVM3, msgId: 8, newMsgId: 9)
@@ -324,8 +329,8 @@ class useTestCase4: XCTestCase {
         // 7 apply winter
         selectApply(vm: subFilterVM3, selectIds: [summer], msgId: 9, newMsgId: 10)
         
-        refreshSubFilters(filterId: sizeFilterId, msgId: 10, newMsgId: 11)
-        //
+        enterSubFilter(filterId: sizeFilterId, msgId: 10, newMsgId: 11)
+        
         // 8 take available subfilters from Size Filter
         takeFinish(vm: subFilterVM5, msgId: 11, expect: expect )
         
@@ -335,6 +340,7 @@ class useTestCase4: XCTestCase {
                 XCTFail(error!.localizedDescription)
                 return
             }
+            // день false 3 дня false 4 дня false 5 дней false \\\\\\3: хлопок false \\\\\\4: лето false \\\\\\42 false "
             XCTAssertEqual("2: 1 день false \\\\\\3: хлопок false \\\\\\4: лето false \\\\\\42 false ", self?.result)
         }
         clearTestCase()
@@ -355,7 +361,7 @@ class useTestCase4: XCTestCase {
         
         
         selectApply(vm: subFilterVM1, selectIds: [violet], msgId: 1)
-        refreshSubFilters(filterId: seasonFilterId, msgId: 1, newMsgId: 2)
+        enterSubFilter(filterId: seasonFilterId, msgId: 1, newMsgId: 2)
         takeFromVM(operationId:1, vm: subFilterVM2, msgId: 2, newMsgId: 3)
         
         
@@ -419,9 +425,10 @@ class useTestCase4: XCTestCase {
         let expect = expectation(description: #function)
         initTestCase4(filterId1: colorFilterId, filterId2: materialFilterId)
         
-
         selectApply(vm: subFilterVM1, selectIds: [blue], msgId: 1)
         
+        
+        sleep(10)
         takeFromFilter(operationId: 1, msgId: 1, newMsgId: 2)
         
         enterSubFilter(filterId: colorFilterId, msgId: 2, newMsgId: 3)
@@ -487,6 +494,8 @@ class useTestCase4: XCTestCase {
         selectSubFilters(vm: subFilterVM1, selectIds: [yellow, green], select: true, newMsgId: 2)
         
         applyFromFilter(msgId: 2, newMsgId: 3)
+        
+        sleep(10)
         
         takeFromFilter(operationId: 1, msgId: 3, newMsgId: 4)
         

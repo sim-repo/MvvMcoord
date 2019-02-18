@@ -126,7 +126,7 @@ class NetworkMgt{
     }
     
     
-    public static func requestCatalogTotal(categoryId: Int, appliedSubFilters: Set<Int>) {
+    public static func requestCatalogStart(categoryId: Int, appliedSubFilters: Set<Int>) {
         functions.httpsCallable("catalogTotal").call(["useCache":true,
                                                       "categoryId":categoryId,
                                                      ]) {(result, error) in
