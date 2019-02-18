@@ -2,7 +2,7 @@
 //  MvvMcoordUITests.swift
 //  MvvMcoordUITests
 //
-//  Created by Igor Ivanov on 17/02/2019.
+//  Created by MAC on 18.02.2019.
 //  Copyright © 2019 Igor Ivanov. All rights reserved.
 //
 
@@ -26,8 +26,7 @@ class MvvMcoordUITests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testStackVCs() {
-        
+    func testExample() {
         let app = XCUIApplication()
         let my1StaticText = app.navigationBars["Каталог"]/*@START_MENU_TOKEN@*/.staticTexts["My1"]/*[[".staticTexts[\"Каталог\"]",".staticTexts[\"My1\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/
         my1StaticText.tap()
@@ -92,8 +91,5 @@ class MvvMcoordUITests: XCTestCase {
         sleep(1)
         my1StaticText.tap()
     }
-    
-    
-    
 
 }

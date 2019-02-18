@@ -69,7 +69,7 @@ class CatalogVM : BaseVM {
     public var totalItems: Int
     
     // MARK: --------------unit test properties--------------
-    public var unitTestSignalOperationComplete = BehaviorSubject<Int>(value: 0)
+    public var unitTestSignalOperationComplete = BehaviorSubject<Int>(value: -1)
     public var utMsgId = 0
     
     // MARK: --------------FilterActionDelegate properties--------------
@@ -261,6 +261,8 @@ class CatalogVM : BaseVM {
         default:
             print("todo")
         }
+        
+        print("ut send5: \(self.utMsgId)")
         unitTestSignalOperationComplete.onNext(utMsgId)
     }
     
@@ -271,6 +273,7 @@ class CatalogVM : BaseVM {
         outReloadVC.onNext(Void())
         emitPrefetchEvent()
         
+        print("ut send6: \(self.utMsgId)")
         unitTestSignalOperationComplete.onNext(utMsgId)
     }
     

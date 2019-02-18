@@ -1,5 +1,4 @@
 import Foundation
-import Alamofire
 import SwiftyJSON
 import RxSwift
 import Firebase
@@ -13,14 +12,6 @@ var functions = Functions.functions()
 class NetworkMgt{
     
     private init(){}
-    public static let sharedManager: SessionManager = {
-        let config = URLSessionConfiguration.default
-        config.httpAdditionalHeaders = SessionManager.defaultHTTPHeaders
-        config.timeoutIntervalForRequest = 40
-        config.timeoutIntervalForResource = 40
-        let manager = Alamofire.SessionManager(configuration: config)
-        return manager
-    }()
     
     static let baseURL = "https://api.vk.com/method/"
 
@@ -266,21 +257,21 @@ class NetworkMgt{
     }
     
     
-    public static func request<T: ModelProtocol>(clazz: T.Type , urlPath: String, params: Parameters, observer: BehaviorSubject<[T]>){
-        NetworkMgt.sharedManager.request(baseURL + urlPath, method: .get, parameters: params)
-            .responseJSON{ response in
-                switch response.result {
-                case .success(let val):
-                    let arr:[T]? = parseJSON(val)
-                    if let arr = arr {
-                        observer.onNext(arr)
-                    }
-                case .failure(let err):
-                    observer.onError(err)
-                }
-        }
-    }
-    
+//    public static func request<T: ModelProtocol>(clazz: T.Type , urlPath: String, params: Parameters, observer: BehaviorSubject<[T]>){
+//        NetworkMgt.sharedManager.request(baseURL + urlPath, method: .get, parameters: params)
+//            .responseJSON{ response in
+//                switch response.result {
+//                case .success(let val):
+//                    let arr:[T]? = parseJSON(val)
+//                    if let arr = arr {
+//                        observer.onNext(arr)
+//                    }
+//                case .failure(let err):
+//                    observer.onError(err)
+//                }
+//        }
+//    }
+//
     private static func parseJSON<T: ModelProtocol>(_ val: Any)->[T]?{
         let json = JSON(val)
         var res: [T] = []

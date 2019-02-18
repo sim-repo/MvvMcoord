@@ -59,7 +59,9 @@ class useTestCase4: XCTestCase {
     override func setUp() {
         CategoryModel.fillModels()
         
+        
         catalogVM = CatalogVM(categoryId: categoryId)
+        catalogVM.utMsgId = 0
         catalogVM.requestFilters(categoryId: categoryId)
         
         filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
@@ -73,8 +75,8 @@ class useTestCase4: XCTestCase {
     func capsule(msgId: Int, completion: @escaping ()->(Void)) {
         catalogVM.unitTestSignalOperationComplete
             .filter({$0 == msgId})
-            .debug()
             .take(1)
+            .debug()
             .observeOn(MainScheduler.asyncInstance)
             .subscribe(onNext: {_ in
                 completion()
@@ -425,24 +427,22 @@ class useTestCase4: XCTestCase {
         let expect = expectation(description: #function)
         initTestCase4(filterId1: colorFilterId, filterId2: materialFilterId)
         
-        selectApply(vm: subFilterVM1, selectIds: [blue], msgId: 1)
-        
-        
-        sleep(10)
+        selectApply(vm: subFilterVM1, selectIds: [blue], msgId: 0, newMsgId: 1)
+
         takeFromFilter(operationId: 1, msgId: 1, newMsgId: 2)
-        
+
         enterSubFilter(filterId: colorFilterId, msgId: 2, newMsgId: 3)
         takeFromVM(operationId:2, vm: subFilterVM1, msgId: 3, newMsgId: 4)
-        
-        
+
+
         selectApply(vm: subFilterVM1, selectIds: [yellow], msgId: 4, newMsgId: 5)
-        
+
         takeFromFilter(operationId: 3, msgId: 5, newMsgId: 6)
-        
-        
+
+
         enterSubFilter(filterId: materialFilterId, msgId: 6, newMsgId: 7)
         takeFromVM(operationId:4, vm: subFilterVM2, msgId: 7, newMsgId: 8)
-        
+
         selectApply(vm: subFilterVM2, selectIds: [viscose], msgId: 8, newMsgId: 9)
 
         enterSubFilter(filterId: colorFilterId, msgId: 9, newMsgId: 10)
@@ -491,11 +491,11 @@ class useTestCase4: XCTestCase {
         let expect = expectation(description: #function)
         initTestCase4(filterId1: colorFilterId, filterId2: materialFilterId)
         
-        selectSubFilters(vm: subFilterVM1, selectIds: [yellow, green], select: true, newMsgId: 2)
+        
+        
+        selectSubFilters(vm: subFilterVM1, selectIds: [yellow, green], select: true, msgId: 0, newMsgId: 2)
         
         applyFromFilter(msgId: 2, newMsgId: 3)
-        
-        sleep(10)
         
         takeFromFilter(operationId: 1, msgId: 3, newMsgId: 4)
         
@@ -521,6 +521,8 @@ class useTestCase4: XCTestCase {
                 return
             }
             XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: бежевый false белый false голубой false желтый true зеленый true коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный false \\\\\\3: вискоза false полиамид false хлопок false \\\\\\вискоза false полиамид false ", self?.result)
+            
+                         
         }
     }
     
