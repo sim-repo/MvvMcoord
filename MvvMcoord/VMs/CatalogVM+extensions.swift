@@ -199,8 +199,6 @@ extension CatalogVM : FilterActionDelegate {
             .subscribe(onNext: {[weak self] _ in
                 if let `self` = self {
                     self.resetFilters()
-                    
-                    print("ut send7: \(self.utMsgId)")
                     self.unitTestSignalOperationComplete.onNext(self.utMsgId)
                 }
             })
@@ -219,7 +217,6 @@ extension CatalogVM : FilterActionDelegate {
                 for id in ids {
                     self.selectSubFilter(subFilterId: id, selected: false)
                 }
-                print("ut send8: \(self.utMsgId)")
                 self.unitTestSignalOperationComplete.onNext(self.utMsgId)
             })
             .disposed(by: bag)
@@ -229,8 +226,6 @@ extension CatalogVM : FilterActionDelegate {
             .skip(1)
             .subscribe(onNext: { [weak self] res in
                 guard let `self` = self else {return}
-                
-                print("CATCH")
                 
                 let filters = res.0
                 let subFilters = res.1
@@ -249,7 +244,6 @@ extension CatalogVM : FilterActionDelegate {
                 self.outFiltersEvent.onNext(self.getEnabledFilters())
                 self.wait().onNext((.enterFilter, false))
                 
-                print("ut send1: \(self.utMsgId)")
                 self.unitTestSignalOperationComplete.onNext(self.utMsgId)
             })
             .disposed(by: bag)
@@ -265,7 +259,6 @@ extension CatalogVM : FilterActionDelegate {
                 self.subFiltersFromCache(filterId: res.0)
                 self.wait().onNext((.enterSubFilter, false))
                 
-                print("ut send2: \(self.utMsgId)")
                 self.unitTestSignalOperationComplete.onNext(self.utMsgId)
             })
             .disposed(by: bag)
@@ -273,7 +266,6 @@ extension CatalogVM : FilterActionDelegate {
         
         NetworkMgt.outApplyItemsResponse
             .subscribe(onNext: {[weak self] _filters in
-                print("NetworkMgt.outApplyItemsResponse")
                 guard let `self` = self else {return}
                 self.enableFilters(ids: _filters.0)
                 self.enableSubFilters(ids: _filters.1)
@@ -286,7 +278,6 @@ extension CatalogVM : FilterActionDelegate {
                 self.emitPrefetchEvent()
                 self.wait().onNext((.applyFilter, false))
                 
-                print("ut send3: \(self.utMsgId)")
                 self.unitTestSignalOperationComplete.onNext(self.utMsgId)
             })
             .disposed(by: bag)
@@ -303,7 +294,6 @@ extension CatalogVM : FilterActionDelegate {
                 self.outFiltersEvent.onNext(filters)
                 self.wait().onNext((.applySubFilter, false))
                 
-                print("ut send4: \(self.utMsgId)")
                 self.unitTestSignalOperationComplete.onNext(self.utMsgId)
             })
             .disposed(by: bag)

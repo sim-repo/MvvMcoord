@@ -362,7 +362,7 @@ class useTestCase4: XCTestCase {
         initTestCase1(filterId1: colorFilterId, filterId2: seasonFilterId)
         
         
-        selectApply(vm: subFilterVM1, selectIds: [violet], msgId: 1)
+        selectApply(vm: subFilterVM1, selectIds: [violet], msgId: 0, newMsgId: 1)
         enterSubFilter(filterId: seasonFilterId, msgId: 1, newMsgId: 2)
         takeFromVM(operationId:1, vm: subFilterVM2, msgId: 2, newMsgId: 3)
         
@@ -394,7 +394,7 @@ class useTestCase4: XCTestCase {
         initTestCase1(filterId1: colorFilterId, filterId2: seasonFilterId)
         
         // 1 apply violet
-        selectApply(vm: subFilterVM1, selectIds: [violet], msgId: 1)
+        selectApply(vm: subFilterVM1, selectIds: [violet], msgId: 0, newMsgId: 1)
         
         // 2 select
         selectApply(vm: subFilterVM2, selectIds: [demiseason], msgId: 1, newMsgId: 2)
@@ -491,8 +491,6 @@ class useTestCase4: XCTestCase {
         let expect = expectation(description: #function)
         initTestCase4(filterId1: colorFilterId, filterId2: materialFilterId)
         
-        
-        
         selectSubFilters(vm: subFilterVM1, selectIds: [yellow, green], select: true, msgId: 0, newMsgId: 2)
         
         applyFromFilter(msgId: 2, newMsgId: 3)
@@ -520,9 +518,7 @@ class useTestCase4: XCTestCase {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: бежевый false белый false голубой false желтый true зеленый true коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный false \\\\\\3: вискоза false полиамид false хлопок false \\\\\\вискоза false полиамид false ", self?.result)
-            
-                         
+            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: бежевый false белый false голубой false желтый true зеленый true коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный false \\\\\\3: ангора false вискоза false полиамид false полиуретан false полиэстер false хлопок false шелк false шерсть false эластан false \\\\\\ангора false вискоза false полиамид false полиуретан false полиэстер false хлопок false шелк false шерсть false эластан false ", self?.result)
         }
     }
     
@@ -537,7 +533,7 @@ class useTestCase4: XCTestCase {
         
         initTestCase7(filterId1: colorFilterId)
         
-        selectSubFilters(vm: subFilterVM1, selectIds: [yellow, green], select: true, newMsgId: 2)
+        selectSubFilters(vm: subFilterVM1, selectIds: [yellow, green], select: true, msgId: 0, newMsgId: 2)
         
         applyFromFilter(msgId: 2, newMsgId: 3)
         
@@ -552,7 +548,7 @@ class useTestCase4: XCTestCase {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава ", self?.result)
+            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава Цена2 ", self?.result)
         }
     }
     
@@ -562,7 +558,7 @@ class useTestCase4: XCTestCase {
         
         initTestCase4(filterId1: colorFilterId, filterId2: materialFilterId)
         
-        selectApply(vm: subFilterVM1, selectIds: [yellow, green], msgId: 1)
+        selectApply(vm: subFilterVM1, selectIds: [yellow, green], msgId: 0, newMsgId: 1)
         
         takeFromFilter(operationId: 1, msgId: 1, newMsgId: 2)
         
@@ -580,7 +576,7 @@ class useTestCase4: XCTestCase {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава ", self?.result)
+            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава Цена2 ", self?.result)
         }
     }
     
@@ -591,7 +587,7 @@ class useTestCase4: XCTestCase {
         
         initTestCase7(filterId1: colorFilterId)
         
-        selectApply(vm: subFilterVM1, selectIds: [black, yellow, green], msgId: 1)
+        selectApply(vm: subFilterVM1, selectIds: [black, yellow, green], msgId: 0, newMsgId: 1)
         
         takeFromFilter(operationId: 1, msgId: 1, newMsgId: 2)
         
@@ -613,7 +609,7 @@ class useTestCase4: XCTestCase {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: бежевый false белый false голубой false желтый true зеленый true коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный true \\\\\\Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава ", self?.result)
+            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: бежевый false белый false голубой false желтый true зеленый true коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный true \\\\\\Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава Цена2 ", self?.result)
         }
     }
     
@@ -623,7 +619,7 @@ class useTestCase4: XCTestCase {
         
         initTestCase7(filterId1: colorFilterId)
         
-        selectApply(vm: subFilterVM1, selectIds: [black, yellow, green], msgId: 1)
+        selectApply(vm: subFilterVM1, selectIds: [black, yellow, green], msgId: 0, newMsgId: 1)
         
         takeFromFilter(operationId: 1, msgId: 1, newMsgId: 2)
         
@@ -648,7 +644,7 @@ class useTestCase4: XCTestCase {
         
         initTestCase4(filterId1: colorFilterId, filterId2: materialFilterId)
         
-        selectSubFilters(vm: subFilterVM1, selectIds: [green, yellow, brown], select: true, newMsgId: 1)
+        selectSubFilters(vm: subFilterVM1, selectIds: [green, yellow, brown], select: true, msgId: 0, newMsgId: 1)
         
         selectSubFilters(vm: subFilterVM2, selectIds: [cotton], select: true, msgId: 1, newMsgId: 2)
         
@@ -673,6 +669,7 @@ class useTestCase4: XCTestCase {
         }
     }
     
+
     
     // check mutual exclusion
     func testExample12(){

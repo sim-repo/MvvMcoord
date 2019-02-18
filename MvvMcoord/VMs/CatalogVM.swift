@@ -262,7 +262,6 @@ class CatalogVM : BaseVM {
             print("todo")
         }
         
-        print("ut send5: \(self.utMsgId)")
         unitTestSignalOperationComplete.onNext(utMsgId)
     }
     
@@ -272,8 +271,7 @@ class CatalogVM : BaseVM {
         setupFetch(itemsIds: fullCatalogItemIds)
         outReloadVC.onNext(Void())
         emitPrefetchEvent()
-        
-        print("ut send6: \(self.utMsgId)")
+        outFiltersEvent.onNext(self.getEnabledFilters())
         unitTestSignalOperationComplete.onNext(utMsgId)
     }
     
