@@ -148,7 +148,6 @@ class CatalogVM : BaseVM {
         guard isPrefetchInProgress == false else {return}
         guard itemIds.count > 0 else {return}
         
-        
         isPrefetchInProgress = true
         let maxi = itemIds.count-1 < 0 ? 0 : itemIds.count-1
         let maxi2 = currentPage * fetchLimit - 1 < 0 ? 0 : currentPage * fetchLimit - 1
@@ -233,13 +232,11 @@ class CatalogVM : BaseVM {
     
     // MARK: -------------- unit-test functions --------------
     public func utRefreshSubFilters(filterId: Int){
-       subFiltersFromCache(filterId: filterId)
+        subFiltersFromCache(filterId: filterId)
     }
     
     public func utEnterSubFilter(filterId: Int){
-        
         requestSubFilters(filterId: filterId)
-      //  NetworkMgt.requestEnterSubFilter(filterId: filterId, appliedSubFilters: self.midAppliedSubFilters)
     }
 
     

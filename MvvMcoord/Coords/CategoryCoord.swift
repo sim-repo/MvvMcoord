@@ -24,7 +24,6 @@ class CategoryCoord: BaseCoord<CoordRetEnum> {
         
         viewController.viewModel = vm
         
-        runUpload()
         
         vm.outShowSubcategory
             .flatMap{[weak self] baseId -> Observable<CoordRetEnum> in
@@ -33,8 +32,7 @@ class CategoryCoord: BaseCoord<CoordRetEnum> {
             }
             .subscribe()
             .disposed(by: self.disposeBag)
-        
-     
+
         vm.outShowCatalog
             .flatMap{[weak self] baseId -> Observable<CoordRetEnum> in
                 guard let `self` = self else { return .empty() }

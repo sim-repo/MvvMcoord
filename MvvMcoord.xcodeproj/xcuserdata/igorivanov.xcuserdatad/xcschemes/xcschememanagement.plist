@@ -9,22 +9,27 @@
 			<key>isShown</key>
 			<true/>
 			<key>orderHint</key>
-			<integer>22</integer>
+			<integer>0</integer>
 		</dict>
 		<key>MvvMcoordTests.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>12</integer>
+			<integer>21</integer>
 		</dict>
 		<key>MvvMcoordUITests.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>21</integer>
+			<integer>22</integer>
 		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
 		<key>0403162E221AB5A100F5E350</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>1609DB7E221C3FF300D7891C</key>
 		<dict>
 			<key>primary</key>
 			<true/>

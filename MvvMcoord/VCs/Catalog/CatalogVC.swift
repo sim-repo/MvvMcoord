@@ -127,7 +127,7 @@ class CatalogVC: UIViewController {
                 self.cellWidth = layout.cellScale.width *  self.collectionView.frame.width - layout.cellSpace
                 self.planButton.setImage(UIImage(named: layout.layoutImageName), for: .normal)
                 self.cellLayout = layout.cellLayoutType
-                
+                self.collectionView.reloadData()
             })
             .disposed(by: bag)
     }
@@ -194,33 +194,40 @@ extension CatalogVC: UICollectionViewDataSource {
         switch cellLayout {
             case .list:
                 let cell1 = collectionView.dequeueReusableCell(withReuseIdentifier: "CatalogCellList", for: indexPath) as! CatalogListCell
+                cell1.tag = indexPath.row
                 if isLoadingCell(for: indexPath) {
-                    cell1.configCell(model: nil)
+                    cell1.configCell(model: nil, indexPath: indexPath)
                 } else {
                     if let model = viewModel.catalog(at: indexPath.row) {
-                        cell1.configCell(model: model)
+                        cell1.configCell(model: model, indexPath: indexPath)
                     } else {
-                        cell1.configCell(model: nil)
+                        cell1.configCell(model: nil, indexPath: indexPath)
                     }
                 }
                 cell = cell1
             case .square:
                 let cell1 = collectionView.dequeueReusableCell(withReuseIdentifier: "CatalogCellSquare", for: indexPath) as! CatalogSquareCell
+                cell1.tag = indexPath.row
                 if isLoadingCell(for: indexPath) {
-                    cell1.configCell(model: nil)
+                    cell1.configCell(model: nil, indexPath: indexPath)
                 } else {
                     if let model = viewModel.catalog(at: indexPath.row) {
-                        cell1.configCell(model: model)
+                        cell1.configCell(model: model, indexPath: indexPath)
+                    } else {
+                        cell1.configCell(model: nil, indexPath: indexPath)
                     }
                 }
                 cell = cell1
             case .squares:
                 let cell1 = collectionView.dequeueReusableCell(withReuseIdentifier: "CatalogCellSquares", for: indexPath) as! CatalogSquaresCell
+                cell1.tag = indexPath.row
                 if isLoadingCell(for: indexPath) {
-                    cell1.configCell(model: nil)
+                    cell1.configCell(model: nil, indexPath: indexPath)
                 } else {
                     if let model = viewModel.catalog(at: indexPath.row) {
-                        cell1.configCell(model: model)
+                        cell1.configCell(model: model, indexPath: indexPath)
+                    } else {
+                        cell1.configCell(model: nil, indexPath: indexPath)
                     }
                 }
                 cell = cell1
@@ -236,6 +243,7 @@ extension CatalogVC: UICollectionViewDelegate, UICollectionViewDelegateFlowLayou
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: cellWidth, height: cellHeight)
     }
+    
     
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {

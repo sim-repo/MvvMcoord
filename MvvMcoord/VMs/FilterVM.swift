@@ -17,7 +17,6 @@ class FilterVM : BaseVM {
     public var outCloseVC = PublishSubject<Void>()
    
     var categoryId : Int
-   // var filters: [Int:FilterModel] = [:]
     
     public weak var filterActionDelegate: FilterActionDelegate?
     
@@ -30,12 +29,6 @@ class FilterVM : BaseVM {
         bindUserActivities()
     }
 
-//    private func getEnabled()->[FilterModel] {
-//        return filters
-//            .compactMap({$0.value})
-//            .filter({$0.enabled == true})
-//            .sorted(by: {$0.id < $1.id })
-//    }
     
     public func appliedTitles(filterId: Int)->String {
         return self.filterActionDelegate?.appliedTitle(filterId: filterId) ?? ""

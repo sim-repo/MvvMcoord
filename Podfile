@@ -12,7 +12,6 @@ target 'MvvMcoord' do
     pod 'RxBlocking'
     pod 'RxDataSources'
     pod 'SwiftyJSON'
-    pod 'Alamofire'
     pod 'Firebase'
     pod 'Firebase/Core'
     pod 'Firebase/Auth'

@@ -2,7 +2,7 @@
 //  MvvMcoordUITests.swift
 //  MvvMcoordUITests
 //
-//  Created by MAC on 18.02.2019.
+//  Created by Igor Ivanov on 19/02/2019.
 //  Copyright © 2019 Igor Ivanov. All rights reserved.
 //
 

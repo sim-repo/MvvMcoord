@@ -8,7 +8,6 @@ import FirebaseFunctions
 
 var functions = Functions.functions()
 
-
 class NetworkMgt{
     
     private init(){}
@@ -118,9 +117,8 @@ class NetworkMgt{
                     networkFunc?()
                 })
             }
-        
-            print("error:\(code) : \(message) : \(details)")
             
+            print("error:\(code) : \(message) : \(details)")
         }
     }
     
@@ -130,7 +128,6 @@ class NetworkMgt{
     private static func runRequest(networkFunction: (()->Void)? = nil){
         networkFunction?()
     }
-    
     
     
     public static func requestCatalogStart(categoryId: Int, appliedSubFilters: Set<Int>) {
@@ -145,7 +142,9 @@ class NetworkMgt{
                 let sFetchLimit = parseJsonVal(result: result, key: "fetchLimit")
                 guard let fetchLimit = Int(sFetchLimit) else {return}
                 let itemIds:[Int] = parseJsonArr(result: result, key: "itemIds")
+                                                
                                                         
+                
                 nextCatalogTotal(itemIds: itemIds, fetchLimit: fetchLimit)
             }
         }
@@ -154,7 +153,6 @@ class NetworkMgt{
     
     
     public static func requestCatalogModel(categoryId: Int, itemIds: [Int]) {
-       
        networkFunc = {
             functions.httpsCallable("catalogEntities").call(["useCache": true,
                                                              "categoryId": categoryId,
@@ -172,28 +170,24 @@ class NetworkMgt{
     }
     
     
-    // MARK: - request functions
     public static func requestFullFilterEntities(categoryId: Int){
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
-            networkFunc = {
-                    functions.httpsCallable("fullFilterEntities").call(["useCache":true]) {(result, error) in
-                        if let error = error as NSError? {
-                            firebaseHandleErr(error: error)
-                            return
-                        }
-                        let arr:[FilterModel] = parseJsonObjArr(result: result, key: "filters")
-                        let arr2:[SubfilterModel] = parseJsonObjArr(result: result, key: "subFilters")
-                        nextFullFilterEntities(filterModels: arr, subFilterModels: arr2)
+        networkFunc = {
+                functions.httpsCallable("fullFilterEntities").call(["useCache":true]) {(result, error) in
+                    if let error = error as NSError? {
+                        firebaseHandleErr(error: error)
+                        return
                     }
-            }
-            NetworkMgt.runRequest(networkFunction: networkFunc)
-        })
+                    let arr:[FilterModel] = parseJsonObjArr(result: result, key: "filters")
+                    let arr2:[SubfilterModel] = parseJsonObjArr(result: result, key: "subFilters")
+                    nextFullFilterEntities(filterModels: arr, subFilterModels: arr2)
+                }
+        }
+        NetworkMgt.runRequest(networkFunction: networkFunc)
     }
     
     
     
     public static func requestEnterSubFilter(filterId: Int, appliedSubFilters: Set<Int>){
-        
         networkFunc = {
             functions.httpsCallable("currSubFilterIds").call(["useCache":true, "filterId":filterId, "appliedSubFilters":Array(appliedSubFilters)]) {(result, error) in
                 if let error = error as NSError? {
@@ -237,7 +231,6 @@ class NetworkMgt{
     
     public static func requestApplyFromSubFilter(filterId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>){
         networkFunc = {
-            
             functions.httpsCallable("applyFromSubFilterNow").call([ "useCache":true,
                                                                     "filterId":filterId,
                                                                     "selectedSubFilters":Array(selectedSubFilters),
@@ -260,7 +253,7 @@ class NetworkMgt{
     
     
     public static func requestRemoveFilter(filterId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>){
-        
+            networkFunc = {
                 functions.httpsCallable("apiRemoveFilter").call([   "useCache":true,
                                                                     "filterId":filterId,
                                                                     "selectedSubFilters":Array(selectedSubFilters),
@@ -276,45 +269,21 @@ class NetworkMgt{
                     
                     nextApplyForFilters(filterIds: arr, subFiltersIds: arr2, appliedSubFilters: Set(arr3), selectedSubFilters: Set(arr4))
                 }
+        }
+        NetworkMgt.runRequest(networkFunction: networkFunc)
     }
     
     
     public static func requestCleanupFromSubFilter(filterId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>){
-        backend.apiRemoveFilter(filterId: filterId, appliedSubFilters: appliedSubFilters, selectedSubFilters: selectedSubFilters)
-            .asObservable()
-            .share()
-            .subscribe(onNext: { res in
-                nextApplyForFilters(filterIds: res.0, subFiltersIds: res.1, appliedSubFilters: res.2, selectedSubFilters: res.3)
-            })
-            .disposed(by: bag)
-     
-    }
-    
-    
-//    public static func request<T: ModelProtocol>(clazz: T.Type , urlPath: String, params: Parameters, observer: BehaviorSubject<[T]>){
-//        NetworkMgt.sharedManager.request(baseURL + urlPath, method: .get, parameters: params)
-//            .responseJSON{ response in
-//                switch response.result {
-//                case .success(let val):
-//                    let arr:[T]? = parseJSON(val)
-//                    if let arr = arr {
-//                        observer.onNext(arr)
-//                    }
-//                case .failure(let err):
-//                    observer.onError(err)
-//                }
-//        }
-//    }
-//
-    private static func parseJSON<T: ModelProtocol>(_ val: Any)->[T]?{
-        let json = JSON(val)
-        var res: [T] = []
-        let arr = json["response"]["items"].arrayValue
-        for j in arr {
-            let t: T = T(json: j)
-            res.append(t)
+        networkFunc = {
+            backend.apiRemoveFilter(filterId: filterId, appliedSubFilters: appliedSubFilters, selectedSubFilters: selectedSubFilters)
+                .asObservable()
+                .share()
+                .subscribe(onNext: { res in
+                    nextApplyForFilters(filterIds: res.0, subFiltersIds: res.1, appliedSubFilters: res.2, selectedSubFilters: res.3)
+                })
+                .disposed(by: bag)
         }
-        return res
+        NetworkMgt.runRequest(networkFunction: networkFunc)
     }
-    
 }

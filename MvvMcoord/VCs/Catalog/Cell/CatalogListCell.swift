@@ -12,17 +12,19 @@ class CatalogListCell : UICollectionViewCell{
     @IBOutlet weak var starsLabel: UILabel!
     
     
-    func configCell(model: CatalogModel?){
+    func configCell(model: CatalogModel?, indexPath: IndexPath){
     
         if let `model` = model {
             
             let gsReference = storage.reference(forURL: "gs://mvvmcoord.appspot.com/\(model.thumbnail).jpg")
-            
+            imageView.image = UIImage(named: "no-images")
             gsReference.getData(maxSize: 1 * 320 * 240) {[weak self] data, error in
                 if let error = error {
                     print("Storage: \(error.localizedDescription)")
                 } else {
-                    self?.imageView.image = UIImage(data: data!)
+                    if self?.tag == indexPath.row {
+                        self?.imageView.image = UIImage(data: data!)
+                    }
                 }
             }
             discountView.label?.text = "    -" + String(model.discount) + "%"
