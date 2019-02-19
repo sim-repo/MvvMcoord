@@ -5,6 +5,10 @@ import RxTest
 
 @testable import MvvMcoord
 
+class MyResults {
+    public var res: String = ""
+}
+
 class useTestCase4: XCTestCase {
 
     var subFilterVM1: SubFilterVM!
@@ -14,8 +18,8 @@ class useTestCase4: XCTestCase {
     var subFilterVM5: SubFilterVM!
     
     var categoryVM: CategoryVM!
-    var catalogVM: CatalogVM!
-    var filterVM: FilterVM!
+    //var catalogVM: CatalogVM!
+    //var filterVM: FilterVM!
     var bag = DisposeBag()
     
     let categoryId = 01010101
@@ -48,7 +52,7 @@ class useTestCase4: XCTestCase {
     
     let demiseason = 43
     
-    var result = ""
+
     
     var categoryVM1: CategoryVM!
     var categoryVM2: CategoryVM!
@@ -56,15 +60,18 @@ class useTestCase4: XCTestCase {
     var categoryVM4: CategoryVM!
     var categoryVM5: CategoryVM!
     
+    
+    let timeout: Double = 200
+    
     override func setUp() {
         CategoryModel.fillModels()
         
         
-        catalogVM = CatalogVM(categoryId: categoryId)
-        catalogVM.utMsgId = 0
-        catalogVM.requestFilters(categoryId: categoryId)
-        
-        filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
+//        catalogVM = CatalogVM(categoryId: categoryId)
+//        catalogVM.utMsgId = 0
+//        catalogVM.requestFilters(categoryId: categoryId)
+//
+//        filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
     }
     
     override func tearDown() {
@@ -72,11 +79,10 @@ class useTestCase4: XCTestCase {
     }
     
     
-    func capsule(msgId: Int, completion: @escaping ()->(Void)) {
+    func capsule(_ catalogVM: CatalogVM, msgId: Int, completion: @escaping ()->(Void)) {
         catalogVM.unitTestSignalOperationComplete
             .filter({$0 == msgId})
             .take(1)
-            .debug()
             .observeOn(MainScheduler.asyncInstance)
             .subscribe(onNext: {_ in
                 completion()
@@ -85,23 +91,21 @@ class useTestCase4: XCTestCase {
     
     
     
-    func refreshSubFilters(filterId: Int, msgId: Int, newMsgId: Int) {
-        let completion: (() -> Void) = {[weak self]  in
-            print("refresh")
-            self?.catalogVM.utMsgId = newMsgId
-            self?.catalogVM.utRefreshSubFilters(filterId: filterId)
+    func refreshSubFilters(_ catalogVM: CatalogVM, filterId: Int, msgId: Int, newMsgId: Int) {
+        let completion: (() -> Void) = {
+            catalogVM.utMsgId = newMsgId
+            catalogVM.utRefreshSubFilters(filterId: filterId)
         }
-        capsule(msgId: msgId, completion: completion)
+        capsule(catalogVM, msgId: msgId, completion: completion)
     }
     
     
-    func enterSubFilter(filterId: Int, msgId: Int, newMsgId: Int) {
-        let completion: (() -> Void) = {[weak self]  in
-            print("enter")
-            self?.catalogVM.utMsgId = newMsgId
-            self?.catalogVM.utEnterSubFilter(filterId: filterId)
+    func enterSubFilter(_ catalogVM: CatalogVM, filterId: Int, msgId: Int, newMsgId: Int) {
+        let completion: (() -> Void) = {
+            catalogVM.utMsgId = newMsgId
+            catalogVM.utEnterSubFilter(filterId: filterId)
         }
-        capsule(msgId: msgId, completion: completion)
+        capsule(catalogVM, msgId: msgId, completion: completion)
     }
     
     
@@ -112,25 +116,23 @@ class useTestCase4: XCTestCase {
     }
     
     
-    func selectSubFilters(vm: SubFilterVM, selectIds: [Int], select: Bool, newMsgId: Int){
-        print("selectSubFilters")
+    func selectSubFilters(_ catalogVM: CatalogVM, vm: SubFilterVM, selectIds: [Int], select: Bool, newMsgId: Int){
         for subFilterId in selectIds {
             vm.filterActionDelegate?.selectSubFilterEvent().onNext((subFilterId, select))
         }
-        
         catalogVM.unitTestSignalOperationComplete.onNext(newMsgId)
     }
     
     
-    func selectSubFilters(vm: SubFilterVM, selectIds: [Int], select: Bool, msgId: Int, newMsgId: Int){
-        let completion: (() -> Void) = {[weak self]  in
-            self?.catalogVM.utMsgId = msgId
+    func selectSubFilters(_ catalogVM: CatalogVM, vm: SubFilterVM, selectIds: [Int], select: Bool, msgId: Int, newMsgId: Int){
+        let completion: (() -> Void) = {
+            catalogVM.utMsgId = msgId
             for subFilterId in selectIds {
                 vm.filterActionDelegate?.selectSubFilterEvent().onNext((subFilterId, select))
             }
-            self?.catalogVM.unitTestSignalOperationComplete.onNext(newMsgId)
+            catalogVM.unitTestSignalOperationComplete.onNext(newMsgId)
         }
-        capsule(msgId: msgId, completion: completion)
+        capsule(catalogVM, msgId: msgId, completion: completion)
     }
     
     
@@ -139,53 +141,53 @@ class useTestCase4: XCTestCase {
     }
     
     
-    func apply(vm: SubFilterVM, msgId: Int, newMsgId: Int){
+    func apply(_ catalogVM: CatalogVM, vm: SubFilterVM, msgId: Int, newMsgId: Int){
         let completion: (() -> Void) = {[weak self]  in
-            self?.catalogVM.utMsgId = newMsgId
+            catalogVM.utMsgId = newMsgId
             self?.applySubFilter(vm: vm)
         }
-        capsule(msgId: msgId, completion: completion)
+        capsule(catalogVM, msgId: msgId, completion: completion)
     }
     
-    func selectApply(vm: SubFilterVM, selectIds: [Int], msgId: Int){
+    func selectApply(_ catalogVM: CatalogVM, vm: SubFilterVM, selectIds: [Int], msgId: Int){
         catalogVM.utMsgId = msgId
         selectSubFilters(vm: vm, selectIds: selectIds, select: true)
         applySubFilter(vm: vm)
     }
     
     
-    func selectApply(vm: SubFilterVM, selectIds: [Int], msgId: Int, newMsgId: Int) {
+    func selectApply(_ catalogVM: CatalogVM, vm: SubFilterVM, selectIds: [Int], msgId: Int, newMsgId: Int) {
         let completion: (() -> Void) = {[weak self]  in
-            self?.catalogVM.utMsgId = newMsgId
+            catalogVM.utMsgId = newMsgId
             self?.selectSubFilters(vm: vm, selectIds: selectIds, select: true)
             self?.applySubFilter(vm: vm)
         }
-        capsule(msgId: msgId, completion: completion)
+        capsule(catalogVM, msgId: msgId, completion: completion)
     }
     
     
-    func removeAppliedFilter(filterId: Int, msgId: Int, newMsgId: Int){
-        let completion: (() -> Void) = {[weak self]  in
-            self?.catalogVM.utMsgId = newMsgId
-            self?.filterVM.inRemoveFilter.onNext(filterId)
+    func removeAppliedFilter(_ catalogVM: CatalogVM, filterVM: FilterVM, filterId: Int, msgId: Int, newMsgId: Int){
+        let completion: (() -> Void) = {
+            catalogVM.utMsgId = newMsgId
+            filterVM.inRemoveFilter.onNext(filterId)
         }
-        capsule(msgId: msgId, completion: completion)
+        capsule(catalogVM, msgId: msgId, completion: completion)
     }
     
-    func cleanupFromFilter(msgId: Int, newMsgId: Int){
-        let completion: (() -> Void) = {[weak self]  in
-            self?.catalogVM.utMsgId = newMsgId
-            self?.filterVM.filterActionDelegate?.cleanupFromFilterEvent().onNext(Void())
+    func cleanupFromFilter(_ catalogVM: CatalogVM, filterVM: FilterVM, msgId: Int, newMsgId: Int){
+        let completion: (() -> Void) = {
+            catalogVM.utMsgId = newMsgId
+            filterVM.filterActionDelegate?.cleanupFromFilterEvent().onNext(Void())
         }
-        capsule(msgId: msgId, completion: completion)
+        capsule(catalogVM, msgId: msgId, completion: completion)
     }
     
-    func cleanupFromSubFilter(filterId: Int, msgId: Int, newMsgId: Int){
-        let completion: (() -> Void) = {[weak self]  in
-            self?.catalogVM.utMsgId = newMsgId
-            self?.filterVM.filterActionDelegate?.cleanupFromSubFilterEvent().onNext(filterId)
+    func cleanupFromSubFilter(_ catalogVM: CatalogVM, filterVM: FilterVM, filterId: Int, msgId: Int, newMsgId: Int){
+        let completion: (() -> Void) = {
+            catalogVM.utMsgId = newMsgId
+            filterVM.filterActionDelegate?.cleanupFromSubFilterEvent().onNext(filterId)
         }
-        capsule(msgId: msgId, completion: completion)
+        capsule(catalogVM, msgId: msgId, completion: completion)
     }
     
     
@@ -199,188 +201,202 @@ class useTestCase4: XCTestCase {
     
     
     
-    func applyFromFilter(msgId: Int, newMsgId: Int) {
-        let completion: (() -> Void) = {[weak self]  in
-            print("applyFromFilter")
-            self?.catalogVM.utMsgId = newMsgId
-            self?.filterVM.inApply.onNext(Void())
+    func applyFromFilter(_ catalogVM: CatalogVM, filterVM: FilterVM, msgId: Int, newMsgId: Int) {
+        let completion: (() -> Void) = {
+            catalogVM.utMsgId = newMsgId
+            filterVM.inApply.onNext(Void())
         }
-       capsule(msgId: msgId, completion: completion)
+       capsule(catalogVM, msgId: msgId, completion: completion)
     }
     
     
-    func takeFromFilter(operationId: Int, msgId: Int, newMsgId: Int){
-        let completion: (() -> Void) = {[weak self]  in
-            self?.catalogVM.filtersEvent()
+    func  takeFromFilter(_ catalogVM: CatalogVM, result: MyResults, operationId: Int, msgId: Int, newMsgId: Int){
+        let completion: (() -> Void) = {[weak self] in
+            catalogVM.filtersEvent()
                 .take(1)
-                .subscribe(onNext: {[weak self] sf in
-                    self?.result += ("\(operationId): ")
+                .subscribe(onNext: {sf in
+                    result.res += ("\(operationId): ")
                     for element in sf {
-                        self?.result += (element!.title + " ")
+                        result.res += (element!.title + " ")
                     }
-                    self?.result += "\\\\\\"
-                    print("take: \(self!.result)")
-                    self?.catalogVM.unitTestSignalOperationComplete.onNext(newMsgId)
+                    result.res += "\\\\\\"
+                    print("take: \(result.res)")
+                    catalogVM.unitTestSignalOperationComplete.onNext(newMsgId)
                 })
                 .disposed(by: self!.bag)
         }
-        capsule(msgId: msgId, completion: completion)
+        capsule(catalogVM, msgId: msgId, completion: completion)
     }
     
     
-    func takeFromVM(operationId: Int, vm: SubFilterVM, msgId: Int, newMsgId: Int){
+    func takeFromVM(_ catalogVM: CatalogVM, result: MyResults, operationId: Int, vm: SubFilterVM, msgId: Int, newMsgId: Int){
         let completion: (() -> Void) = {[weak self]  in
             vm.filterActionDelegate?.subFiltersEvent()
                 .take(1)
-                .subscribe(onNext: {[weak self] sf in
+                .subscribe(onNext: {sf in
                     
-                    self?.result += ("\(operationId): ")
+                    result.res += ("\(operationId): ")
                     for element in sf {
-                        self?.result += (element!.title + " \(vm.isCheckmark(subFilterId: element!.id)) ")
+                        result.res += (element!.title + " \(vm.isCheckmark(subFilterId: element!.id)) ")
                     }
-                    self?.result += "\\\\\\"
-                    self?.catalogVM.unitTestSignalOperationComplete.onNext(newMsgId)
-                    print("take: \(self!.result)")
+                    result.res += "\\\\\\"
+                    catalogVM.unitTestSignalOperationComplete.onNext(newMsgId)
+                    print("take: \(result.res)")
                 })
                 .disposed(by: self!.bag)
         }
-        capsule(msgId: msgId, completion: completion)
+        capsule(catalogVM, msgId: msgId, completion: completion)
     }
     
     
-    func takeFilterFinish(msgId: Int, expect: XCTestExpectation){
+    func takeFilterFinish(_ catalogVM: CatalogVM, result: MyResults, filterVM: FilterVM, msgId: Int, expect: XCTestExpectation){
         let completion: (() -> Void) = {[weak self]  in
-            self?.filterVM.filterActionDelegate?.filtersEvent()
+            filterVM.filterActionDelegate?.filtersEvent()
                 .take(1)
-                .subscribe(onNext: {[weak self] sf in
+                .subscribe(onNext: {sf in
                     for element in sf {
-                        self?.result += (element!.title + " ")
+                        result.res += (element!.title + " ")
                     }
                     expect.fulfill()
                 })
                 .disposed(by: self!.bag)
         }
-        capsule(msgId: msgId, completion: completion)
+        capsule(catalogVM, msgId: msgId, completion: completion)
     }
     
     
-    func takeFinish(vm: SubFilterVM, msgId: Int, expect: XCTestExpectation){
+    func takeFinish(_ catalogVM: CatalogVM, result: MyResults, vm: SubFilterVM, msgId: Int, expect: XCTestExpectation){
         let completion: (() -> Void) = {[weak self]  in
             vm.filterActionDelegate?.subFiltersEvent()
                 .take(1)
-                .subscribe(onNext: {[weak self] sf in
+                .subscribe(onNext: {sf in
                     print("takeFinish")
                     for element in sf {
-                        self?.result += (element!.title + " \(vm.isCheckmark(subFilterId: element!.id)) ")
+                        result.res += (element!.title + " \(vm.isCheckmark(subFilterId: element!.id)) ")
                     }
                     expect.fulfill()
                 })
                 .disposed(by: self!.bag)
         }
-        capsule(msgId: msgId, completion: completion)
+        capsule(catalogVM, msgId: msgId, completion: completion)
     }
     
     
-    func initTestCase0(filterId1: Int, filterId2: Int, filterId3: Int, filterId4: Int, filterId5: Int){
+    
+    
+    func initTestCase0(_ catalogVM: CatalogVM, filterId1: Int, filterId2: Int, filterId3: Int, filterId4: Int, filterId5: Int){
+        
+        catalogVM.utMsgId = 0
+        catalogVM.requestFilters(categoryId: categoryId)
+        
+        let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
+        
         subFilterVM1 = SubFilterVM(filterId: filterId1, filterActionDelegate: filterVM.filterActionDelegate)
         subFilterVM2 = SubFilterVM(filterId: filterId2, filterActionDelegate: filterVM.filterActionDelegate)
         subFilterVM3 = SubFilterVM(filterId: filterId3, filterActionDelegate: filterVM.filterActionDelegate)
         subFilterVM4 = SubFilterVM(filterId: filterId4, filterActionDelegate: filterVM.filterActionDelegate)
         subFilterVM5 = SubFilterVM(filterId: filterId5, filterActionDelegate: filterVM.filterActionDelegate)
-        
-        result = ""
     }
     
     
     // check accuracy of filter
     func testExample() {
         let expect = expectation(description: #function)
-        initTestCase0(filterId1: materialFilterId, filterId2: colorFilterId, filterId3: seasonFilterId, filterId4: deliveryFilterId, filterId5: sizeFilterId)
+        let catalogVM = CatalogVM(categoryId: categoryId)
+        let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
+        let myResult = MyResults()
+        initTestCase0(catalogVM, filterId1: materialFilterId, filterId2: colorFilterId, filterId3: seasonFilterId, filterId4: deliveryFilterId, filterId5: sizeFilterId)
         
         
         // 1 apply pink
-        selectApply(vm: subFilterVM2, selectIds: [pink], msgId: 1)
+        selectApply(catalogVM, vm: subFilterVM2, selectIds: [pink], msgId: 0, newMsgId: 1)
         
-        enterSubFilter(filterId: deliveryFilterId, msgId: 1, newMsgId: 2)
+        enterSubFilter(catalogVM, filterId: deliveryFilterId, msgId: 1, newMsgId: 2)
         
         // 2 take available subfilters from Delivery Filter
-        takeFromVM(operationId:2, vm: subFilterVM4, msgId: 2, newMsgId: 3)
+        takeFromVM(catalogVM, result: myResult, operationId:2, vm: subFilterVM4, msgId: 2, newMsgId: 3)
         
         
         
         // 3 apply 5days
-        selectApply(vm: subFilterVM4, selectIds: [day1], msgId: 3, newMsgId: 4)
+        selectApply(catalogVM, vm: subFilterVM4, selectIds: [day1], msgId: 3, newMsgId: 4)
         
-        enterSubFilter(filterId: materialFilterId, msgId: 4, newMsgId: 5)
+        enterSubFilter(catalogVM, filterId: materialFilterId, msgId: 4, newMsgId: 5)
         
         // 4 take available subfilters from Material Filter
-        takeFromVM(operationId:3, vm: subFilterVM1, msgId: 5, newMsgId: 6)
+        takeFromVM(catalogVM, result: myResult, operationId:3, vm: subFilterVM1, msgId: 5, newMsgId: 6)
         
         
         
         // 5 apply cotton
-        selectApply(vm: subFilterVM1, selectIds: [cotton], msgId: 6, newMsgId: 7)
+        selectApply(catalogVM, vm: subFilterVM1, selectIds: [cotton], msgId: 6, newMsgId: 7)
         
-        enterSubFilter(filterId: seasonFilterId, msgId: 7, newMsgId: 8)
+        enterSubFilter(catalogVM, filterId: seasonFilterId, msgId: 7, newMsgId: 8)
         
         // 6 take available subfilters from Season Filter
-        takeFromVM(operationId:4, vm: subFilterVM3, msgId: 8, newMsgId: 9)
+        takeFromVM(catalogVM, result: myResult, operationId:4, vm: subFilterVM3, msgId: 8, newMsgId: 9)
         
         
         
         // 7 apply winter
-        selectApply(vm: subFilterVM3, selectIds: [summer], msgId: 9, newMsgId: 10)
+        selectApply(catalogVM, vm: subFilterVM3, selectIds: [summer], msgId: 9, newMsgId: 10)
         
-        enterSubFilter(filterId: sizeFilterId, msgId: 10, newMsgId: 11)
+        enterSubFilter(catalogVM, filterId: sizeFilterId, msgId: 10, newMsgId: 11)
         
         // 8 take available subfilters from Size Filter
-        takeFinish(vm: subFilterVM5, msgId: 11, expect: expect )
+        takeFinish(catalogVM, result: myResult, vm: subFilterVM5, msgId: 11, expect: expect )
         
         
-        waitForExpectations(timeout: 20.0) { [weak self] error in
+        waitForExpectations(timeout: timeout) { [weak self] error in
             guard error == nil else {
                 XCTFail(error!.localizedDescription)
                 return
             }
             // день false 3 дня false 4 дня false 5 дней false \\\\\\3: хлопок false \\\\\\4: лето false \\\\\\42 false "
-            XCTAssertEqual("2: 1 день false \\\\\\3: хлопок false \\\\\\4: лето false \\\\\\42 false ", self?.result)
+            XCTAssertEqual("2: 1 день false \\\\\\3: хлопок false \\\\\\4: лето false \\\\\\42 false ", myResult.res)
         }
         clearTestCase()
     }
     
-    func initTestCase1(filterId1: Int, filterId2: Int){
+    func initTestCase1(_ catalogVM: CatalogVM, filterId1: Int, filterId2: Int){
+        
+        catalogVM.utMsgId = 0
+        catalogVM.requestFilters(categoryId: categoryId)
+        let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
+        
         subFilterVM1 = SubFilterVM(filterId: filterId1, filterActionDelegate: filterVM.filterActionDelegate)
         subFilterVM2 = SubFilterVM(filterId: filterId2, filterActionDelegate: filterVM.filterActionDelegate)
-        result = ""
     }
     
     
     // check relative applying
     func testExample2() {
         
+        let catalogVM = CatalogVM(categoryId: categoryId)
+        let myResult = MyResults()
         let expect = expectation(description: #function)
-        initTestCase1(filterId1: colorFilterId, filterId2: seasonFilterId)
+        initTestCase1(catalogVM, filterId1: colorFilterId, filterId2: seasonFilterId)
         
         
-        selectApply(vm: subFilterVM1, selectIds: [violet], msgId: 0, newMsgId: 1)
-        enterSubFilter(filterId: seasonFilterId, msgId: 1, newMsgId: 2)
-        takeFromVM(operationId:1, vm: subFilterVM2, msgId: 2, newMsgId: 3)
+        selectApply(catalogVM, vm: subFilterVM1, selectIds: [violet], msgId: 0, newMsgId: 1)
+        enterSubFilter(catalogVM, filterId: seasonFilterId, msgId: 1, newMsgId: 2)
+        takeFromVM(catalogVM, result: myResult, operationId:1, vm: subFilterVM2, msgId: 2, newMsgId: 3)
         
         
-        selectApply(vm: subFilterVM2, selectIds: [demiseason], msgId: 3, newMsgId: 4)
-        enterSubFilter(filterId: colorFilterId, msgId: 4, newMsgId: 5)
-        takeFromVM(operationId:2, vm: subFilterVM1, msgId: 5, newMsgId: 6)
+        selectApply(catalogVM, vm: subFilterVM2, selectIds: [demiseason], msgId: 3, newMsgId: 4)
+        enterSubFilter(catalogVM, filterId: colorFilterId, msgId: 4, newMsgId: 5)
+        takeFromVM(catalogVM, result: myResult, operationId:2, vm: subFilterVM1, msgId: 5, newMsgId: 6)
         
         
-        enterSubFilter(filterId: seasonFilterId, msgId: 6, newMsgId: 7)
-        takeFinish(vm: subFilterVM2, msgId: 7, expect: expect )
+        enterSubFilter(catalogVM, filterId: seasonFilterId, msgId: 6, newMsgId: 7)
+        takeFinish(catalogVM, result: myResult, vm: subFilterVM2, msgId: 7, expect: expect )
         
-        waitForExpectations(timeout: 60.0) { [weak self] error in
+        waitForExpectations(timeout: timeout) { [weak self] error in
             guard error == nil else {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: демисезон false круглогодичный false \\\\\\2: желтый false коричневый false красный false оранжевый false фиолетовый true черный false \\\\\\демисезон true круглогодичный false ", self?.result)
+            XCTAssertEqual("1: демисезон false круглогодичный false \\\\\\2: желтый false коричневый false красный false оранжевый false фиолетовый true черный false \\\\\\демисезон true круглогодичный false ",  myResult.res)
         }
         clearTestCase()
         
@@ -390,73 +406,81 @@ class useTestCase4: XCTestCase {
     // check relative applying
     func testExample3() {
         
+        let catalogVM = CatalogVM(categoryId: categoryId)
+        let myResult = MyResults()
         let expect = expectation(description: #function)
-        initTestCase1(filterId1: colorFilterId, filterId2: seasonFilterId)
+        initTestCase1(catalogVM, filterId1: colorFilterId, filterId2: seasonFilterId)
         
         // 1 apply violet
-        selectApply(vm: subFilterVM1, selectIds: [violet], msgId: 0, newMsgId: 1)
+        selectApply(catalogVM, vm: subFilterVM1, selectIds: [violet], msgId: 0, newMsgId: 1)
         
         // 2 select
-        selectApply(vm: subFilterVM2, selectIds: [demiseason], msgId: 1, newMsgId: 2)
+        selectApply(catalogVM, vm: subFilterVM2, selectIds: [demiseason], msgId: 1, newMsgId: 2)
         
         // 3 take available subfilters from Color Filter
-        enterSubFilter(filterId: colorFilterId, msgId: 2, newMsgId: 3)
-        takeFinish(vm: subFilterVM1, msgId: 3, expect: expect )
+        enterSubFilter(catalogVM, filterId: colorFilterId, msgId: 2, newMsgId: 3)
+        takeFinish(catalogVM, result: myResult, vm: subFilterVM1, msgId: 3, expect: expect )
         
-        waitForExpectations(timeout: 20.0) { [weak self] error in
+        waitForExpectations(timeout: timeout) { [weak self] error in
             guard error == nil else {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("желтый false коричневый false красный false оранжевый false фиолетовый true черный false ", self?.result)
+            XCTAssertEqual("желтый false коричневый false красный false оранжевый false фиолетовый true черный false ",  myResult.res)
         }
         clearTestCase()
     }
     
     
     
-    func initTestCase4(filterId1: Int, filterId2: Int){
+    func initTestCase4(_ catalogVM: CatalogVM, filterId1: Int, filterId2: Int){
+        
+        catalogVM.utMsgId = 0
+        catalogVM.requestFilters(categoryId: categoryId)
+        let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
+        
         subFilterVM1 = SubFilterVM(filterId: filterId1, filterActionDelegate: filterVM.filterActionDelegate)
         subFilterVM2 = SubFilterVM(filterId: filterId2, filterActionDelegate: filterVM.filterActionDelegate)
-        result = ""
     }
     
     // check entering to subfilter after applying
     func testExample4() {
         
+        let catalogVM = CatalogVM(categoryId: categoryId)
+        let myResult = MyResults()
         let expect = expectation(description: #function)
-        initTestCase4(filterId1: colorFilterId, filterId2: materialFilterId)
+        initTestCase4(catalogVM, filterId1: colorFilterId, filterId2: materialFilterId)
         
-        selectApply(vm: subFilterVM1, selectIds: [blue], msgId: 0, newMsgId: 1)
+        selectApply(catalogVM, vm: subFilterVM1, selectIds: [blue], msgId: 0, newMsgId: 1)
 
-        takeFromFilter(operationId: 1, msgId: 1, newMsgId: 2)
+        takeFromFilter(catalogVM, result: myResult, operationId: 1, msgId: 1, newMsgId: 2)
 
-        enterSubFilter(filterId: colorFilterId, msgId: 2, newMsgId: 3)
-        takeFromVM(operationId:2, vm: subFilterVM1, msgId: 3, newMsgId: 4)
-
-
-        selectApply(vm: subFilterVM1, selectIds: [yellow], msgId: 4, newMsgId: 5)
-
-        takeFromFilter(operationId: 3, msgId: 5, newMsgId: 6)
+        enterSubFilter(catalogVM, filterId: colorFilterId, msgId: 2, newMsgId: 3)
+        takeFromVM(catalogVM, result: myResult, operationId:2, vm: subFilterVM1, msgId: 3, newMsgId: 4)
 
 
-        enterSubFilter(filterId: materialFilterId, msgId: 6, newMsgId: 7)
-        takeFromVM(operationId:4, vm: subFilterVM2, msgId: 7, newMsgId: 8)
+        selectApply(catalogVM, vm: subFilterVM1, selectIds: [yellow], msgId: 4, newMsgId: 5)
 
-        selectApply(vm: subFilterVM2, selectIds: [viscose], msgId: 8, newMsgId: 9)
+        takeFromFilter(catalogVM, result: myResult, operationId: 3, msgId: 5, newMsgId: 6)
 
-        enterSubFilter(filterId: colorFilterId, msgId: 9, newMsgId: 10)
-        takeFromVM(operationId:5, vm: subFilterVM1, msgId: 10, newMsgId: 11)
+
+        enterSubFilter(catalogVM, filterId: materialFilterId, msgId: 6, newMsgId: 7)
+        takeFromVM(catalogVM, result: myResult, operationId:4, vm: subFilterVM2, msgId: 7, newMsgId: 8)
+
+        selectApply(catalogVM, vm: subFilterVM2, selectIds: [viscose], msgId: 8, newMsgId: 9)
+
+        enterSubFilter(catalogVM, filterId: colorFilterId, msgId: 9, newMsgId: 10)
+        takeFromVM(catalogVM, result: myResult, operationId:5, vm: subFilterVM1, msgId: 10, newMsgId: 11)
         
-        takeFinish(vm: subFilterVM2, msgId: 11, expect: expect )
+        takeFinish(catalogVM, result: myResult, vm: subFilterVM2, msgId: 11, expect: expect )
         
         
-        waitForExpectations(timeout: 20.0) { [weak self] error in
+        waitForExpectations(timeout: timeout) { [weak self] error in
             guard error == nil else {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: Цвет \\\\\\2: бежевый false белый false голубой true желтый false зеленый false коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный false \\\\\\3: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\4: вискоза false полиамид false \\\\\\5: желтый true коричневый false \\\\\\желтый true коричневый false ", self?.result)
+            XCTAssertEqual("1: Цвет \\\\\\2: бежевый false белый false голубой true желтый false зеленый false коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный false \\\\\\3: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\4: вискоза false полиамид false \\\\\\5: желтый true коричневый false \\\\\\желтый true коричневый false ",  myResult.res)
         }
         clearTestCase()
     }
@@ -465,207 +489,242 @@ class useTestCase4: XCTestCase {
     // select null-subf and apply from filter
     func testExample5(){
         
+        let catalogVM = CatalogVM(categoryId: categoryId)
+        let myResult = MyResults()
+        let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
         let expect = expectation(description: #function)
-        initTestCase4(filterId1: colorFilterId, filterId2: materialFilterId)
+        initTestCase4(catalogVM, filterId1: colorFilterId, filterId2: materialFilterId)
         
-        selectSubFilters(vm: subFilterVM1, selectIds: [blue], select: true, newMsgId: 2)
+        selectSubFilters(catalogVM, vm: subFilterVM1, selectIds: [blue], select: true, msgId: 0, newMsgId: 1)
         
-        applyFromFilter(msgId: 2, newMsgId: 3)
+        applyFromFilter(catalogVM, filterVM:filterVM, msgId: 1, newMsgId: 2)
         
-        takeFromFilter(operationId: 1, msgId: 3, newMsgId: 4)
+        takeFromFilter(catalogVM, result: myResult, operationId: 1, msgId: 2, newMsgId: 3)
         
-        takeFinish(vm: subFilterVM1, msgId: 4, expect: expect )
+        takeFinish(catalogVM, result: myResult, vm: subFilterVM1, msgId: 3, expect: expect )
         
-        waitForExpectations(timeout: 20.0) { [weak self] error in
+        waitForExpectations(timeout: timeout) { [weak self] error in
             guard error == nil else {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: \\\\\\", self?.result)
+            XCTAssertEqual("1: \\\\\\",  myResult.res)
         }
     }
     
     // select from subfilter and apply from filter, deselect from subfilter and apply from filter again
     func testExample6(){
         
+        let catalogVM = CatalogVM(categoryId: categoryId)
+        let myResult = MyResults()
+        let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
         let expect = expectation(description: #function)
-        initTestCase4(filterId1: colorFilterId, filterId2: materialFilterId)
+        initTestCase4(catalogVM, filterId1: colorFilterId, filterId2: materialFilterId)
         
-        selectSubFilters(vm: subFilterVM1, selectIds: [yellow, green], select: true, msgId: 0, newMsgId: 2)
+        selectSubFilters(catalogVM, vm: subFilterVM1, selectIds: [yellow, green], select: true, msgId: 0, newMsgId: 2)
         
-        applyFromFilter(msgId: 2, newMsgId: 3)
+        applyFromFilter(catalogVM, filterVM:filterVM, msgId: 2, newMsgId: 3)
         
-        takeFromFilter(operationId: 1, msgId: 3, newMsgId: 4)
+        takeFromFilter(catalogVM, result: myResult, operationId: 1, msgId: 3, newMsgId: 4)
         
-        enterSubFilter(filterId: colorFilterId, msgId: 4, newMsgId: 5)
+        enterSubFilter(catalogVM, filterId: colorFilterId, msgId: 4, newMsgId: 5)
         
-        takeFromVM(operationId:2, vm: subFilterVM1, msgId: 5, newMsgId: 6)
+        takeFromVM(catalogVM, result: myResult, operationId:2, vm: subFilterVM1, msgId: 5, newMsgId: 6)
         
-        enterSubFilter(filterId: materialFilterId, msgId: 6, newMsgId: 7)
+        enterSubFilter(catalogVM, filterId: materialFilterId, msgId: 6, newMsgId: 7)
         
-        takeFromVM(operationId:3, vm: subFilterVM2, msgId: 7, newMsgId: 8)
+        takeFromVM(catalogVM, result: myResult, operationId:3, vm: subFilterVM2, msgId: 7, newMsgId: 8)
         
-        selectSubFilters(vm: subFilterVM1, selectIds: [green], select: false, msgId: 8, newMsgId: 9)
+        selectSubFilters(catalogVM, vm: subFilterVM1, selectIds: [green], select: false, msgId: 8, newMsgId: 9)
         
-        applyFromFilter(msgId: 9, newMsgId: 10)
+        applyFromFilter(catalogVM, filterVM:filterVM, msgId: 9, newMsgId: 10)
         
-        enterSubFilter(filterId: materialFilterId, msgId: 10, newMsgId: 11)
+        enterSubFilter(catalogVM, filterId: materialFilterId, msgId: 10, newMsgId: 11)
         
-        takeFinish(vm: subFilterVM2, msgId: 11, expect: expect )
+        takeFinish(catalogVM, result: myResult, vm: subFilterVM2, msgId: 11, expect: expect )
         
-        waitForExpectations(timeout: 20.0) { [weak self] error in
+        waitForExpectations(timeout: timeout) { [weak self] error in
             guard error == nil else {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: бежевый false белый false голубой false желтый true зеленый true коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный false \\\\\\3: ангора false вискоза false полиамид false полиуретан false полиэстер false хлопок false шелк false шерсть false эластан false \\\\\\ангора false вискоза false полиамид false полиуретан false полиэстер false хлопок false шелк false шерсть false эластан false ", self?.result)
+            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: бежевый false белый false голубой false желтый true зеленый true коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный false \\\\\\3: вискоза false полиамид false хлопок false \\\\\\вискоза false полиамид false ",  myResult.res)
+
         }
     }
     
-    func initTestCase7(filterId1: Int){
+    func initTestCase7(_ catalogVM: CatalogVM, filterId1: Int){
+        
+        catalogVM.utMsgId = 0
+        catalogVM.requestFilters(categoryId: categoryId)
+        let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
+        
+        
         subFilterVM1 = SubFilterVM(filterId: filterId1, filterActionDelegate: filterVM.filterActionDelegate)
-        result = ""
     }
     
     // remove subf from filter
     func testExample7(){
+        
+        let catalogVM = CatalogVM(categoryId: categoryId)
+        let myResult = MyResults()
+        let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
         let expect = expectation(description: #function)
         
-        initTestCase7(filterId1: colorFilterId)
+        initTestCase7(catalogVM, filterId1: colorFilterId)
         
-        selectSubFilters(vm: subFilterVM1, selectIds: [yellow, green], select: true, msgId: 0, newMsgId: 2)
+        selectSubFilters(catalogVM, vm: subFilterVM1, selectIds: [yellow, green], select: true, msgId: 0, newMsgId: 2)
         
-        applyFromFilter(msgId: 2, newMsgId: 3)
+        applyFromFilter(catalogVM, filterVM:filterVM, msgId: 2, newMsgId: 3)
         
-        takeFromFilter(operationId: 1, msgId: 3, newMsgId: 4)
+        takeFromFilter(catalogVM, result: myResult, operationId: 1, msgId: 3, newMsgId: 4)
         
-        removeAppliedFilter(filterId: colorFilterId, msgId: 4, newMsgId: 5)
+        removeAppliedFilter(catalogVM, filterVM:filterVM, filterId: colorFilterId, msgId: 4, newMsgId: 5)
         
-        takeFilterFinish(msgId: 5, expect: expect )
+        takeFilterFinish(catalogVM, result: myResult, filterVM:filterVM, msgId: 5, expect: expect )
         
-        waitForExpectations(timeout: 20.0) { [weak self] error in
+        waitForExpectations(timeout: timeout) { [weak self] error in
             guard error == nil else {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава Цена2 ", self?.result)
+            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава Цена2 ",  myResult.res)
         }
     }
     
     // cleanup from filter
     func testExample8(){
+        
+        let catalogVM = CatalogVM(categoryId: categoryId)
+        let myResult = MyResults()
+        let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
         let expect = expectation(description: #function)
         
-        initTestCase4(filterId1: colorFilterId, filterId2: materialFilterId)
+        initTestCase4(catalogVM, filterId1: colorFilterId, filterId2: materialFilterId)
         
-        selectApply(vm: subFilterVM1, selectIds: [yellow, green], msgId: 0, newMsgId: 1)
+        selectApply(catalogVM, vm: subFilterVM1, selectIds: [yellow, green], msgId: 0, newMsgId: 1)
         
-        takeFromFilter(operationId: 1, msgId: 1, newMsgId: 2)
+        takeFromFilter(catalogVM, result: myResult, operationId: 1, msgId: 1, newMsgId: 2)
         
-        selectApply(vm: subFilterVM2, selectIds: [viscose, cotton], msgId: 2, newMsgId: 3)
+        selectApply(catalogVM, vm: subFilterVM2, selectIds: [viscose, cotton], msgId: 2, newMsgId: 3)
         
-        takeFromFilter(operationId: 1, msgId: 3, newMsgId: 4)
+        takeFromFilter(catalogVM, result: myResult, operationId: 1, msgId: 3, newMsgId: 4)
         
-        cleanupFromFilter(msgId: 4, newMsgId: 5)
+        cleanupFromFilter(catalogVM, filterVM:filterVM, msgId: 4, newMsgId: 5)
         
-        takeFilterFinish(msgId: 5, expect: expect )
+        takeFilterFinish(catalogVM, result: myResult, filterVM:filterVM, msgId: 5, expect: expect )
         
 
-        waitForExpectations(timeout: 20.0) { [weak self] error in
+        waitForExpectations(timeout: timeout) { [weak self] error in
             guard error == nil else {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава Цена2 ", self?.result)
+            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава Цена2 ", myResult.res)
         }
     }
     
     
     // cleanup from subfilter
     func testExample9(){
+        
+        let catalogVM = CatalogVM(categoryId: categoryId)
+        let myResult = MyResults()
+        let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
         let expect = expectation(description: #function)
         
-        initTestCase7(filterId1: colorFilterId)
+        initTestCase7(catalogVM, filterId1: colorFilterId)
         
-        selectApply(vm: subFilterVM1, selectIds: [black, yellow, green], msgId: 0, newMsgId: 1)
+        selectApply(catalogVM, vm: subFilterVM1, selectIds: [black, yellow, green], msgId: 0, newMsgId: 1)
         
-        takeFromFilter(operationId: 1, msgId: 1, newMsgId: 2)
+        takeFromFilter(catalogVM, result: myResult, operationId: 1, msgId: 1, newMsgId: 2)
         
-        enterSubFilter(filterId: colorFilterId, msgId: 2, newMsgId: 3)
+        enterSubFilter(catalogVM, filterId: colorFilterId, msgId: 2, newMsgId: 3)
         
-        takeFromVM(operationId: 2, vm: subFilterVM1, msgId: 3, newMsgId: 4)
+        takeFromVM(catalogVM, result: myResult, operationId: 2, vm: subFilterVM1, msgId: 3, newMsgId: 4)
         
-        selectSubFilters(vm: subFilterVM1, selectIds: [blue, violet], select: true, msgId: 4, newMsgId: 5)
+        selectSubFilters(catalogVM, vm: subFilterVM1, selectIds: [blue, violet], select: true, msgId: 4, newMsgId: 5)
         
-        cleanupFromSubFilter(filterId: colorFilterId, msgId: 5, newMsgId: 6)
+        cleanupFromSubFilter(catalogVM, filterVM:filterVM, filterId: colorFilterId, msgId: 5, newMsgId: 6)
         
-        apply(vm: subFilterVM1, msgId: 6, newMsgId: 7)
+        apply(catalogVM, vm: subFilterVM1, msgId: 6, newMsgId: 7)
         
-        takeFilterFinish(msgId: 7, expect: expect )
+        takeFilterFinish(catalogVM, result: myResult, filterVM:filterVM, msgId: 7, expect: expect )
         
         
-        waitForExpectations(timeout: 20.0) { [weak self] error in
+        waitForExpectations(timeout: timeout) { [weak self] error in
             guard error == nil else {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: бежевый false белый false голубой false желтый true зеленый true коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный true \\\\\\Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава Цена2 ", self?.result)
+            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: бежевый false белый false голубой false желтый true зеленый true коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный true \\\\\\Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава Цена2 ",  myResult.res)
         }
     }
     
     // check repeated applying
     func testExample10(){
+        
+        let catalogVM = CatalogVM(categoryId: categoryId)
+        let myResult = MyResults()
+        let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
         let expect = expectation(description: #function)
         
-        initTestCase7(filterId1: colorFilterId)
+        initTestCase7(catalogVM, filterId1: colorFilterId)
         
-        selectApply(vm: subFilterVM1, selectIds: [black, yellow, green], msgId: 0, newMsgId: 1)
+        selectApply(catalogVM, vm: subFilterVM1, selectIds: [black, yellow, green], msgId: 0, newMsgId: 1)
         
-        takeFromFilter(operationId: 1, msgId: 1, newMsgId: 2)
+        takeFromFilter(catalogVM, result: myResult, operationId: 1, msgId: 1, newMsgId: 2)
         
-        apply(vm: subFilterVM1, msgId: 2, newMsgId: 3)
+        apply(catalogVM, vm: subFilterVM1, msgId: 2, newMsgId: 3)
         
-        takeFilterFinish(msgId: 3, expect: expect )
+        takeFilterFinish(catalogVM, result: myResult, filterVM:filterVM, msgId: 3, expect: expect )
         
         
-        waitForExpectations(timeout: 20.0) { [weak self] error in
+        waitForExpectations(timeout: timeout) { [weak self] error in
             guard error == nil else {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\Бренд Размер Сезон Состав Срок доставки Цвет ", self?.result)
+            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\Бренд Размер Сезон Состав Срок доставки Цвет ",  myResult.res)
         }
     }
     
     
     // check relative applying
     func testExample11(){
+        
+        let catalogVM = CatalogVM(categoryId: categoryId)
+        let myResult = MyResults()
+        let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
         let expect = expectation(description: #function)
         
-        initTestCase4(filterId1: colorFilterId, filterId2: materialFilterId)
+        initTestCase4(catalogVM, filterId1: colorFilterId, filterId2: materialFilterId)
         
-        selectSubFilters(vm: subFilterVM1, selectIds: [green, yellow, brown], select: true, msgId: 0, newMsgId: 1)
+        selectSubFilters(catalogVM, vm: subFilterVM1, selectIds: [green, yellow, brown], select: true, msgId: 0, newMsgId: 1)
         
-        selectSubFilters(vm: subFilterVM2, selectIds: [cotton], select: true, msgId: 1, newMsgId: 2)
+        selectSubFilters(catalogVM, vm: subFilterVM2, selectIds: [cotton], select: true, msgId: 1, newMsgId: 2)
         
-        applyFromFilter(msgId: 2, newMsgId: 3)
+        applyFromFilter(catalogVM, filterVM:filterVM, msgId: 2, newMsgId: 3)
         
-        takeFromFilter(operationId: 1, msgId: 3, newMsgId: 4)
+        takeFromFilter(catalogVM, result: myResult, operationId: 1, msgId: 3, newMsgId: 4)
         
-        enterSubFilter(filterId: colorFilterId, msgId: 4, newMsgId: 5)
         
-        takeFromVM(operationId: 2, vm: subFilterVM1, msgId: 5, newMsgId: 6)
         
-        enterSubFilter(filterId: materialFilterId, msgId: 6, newMsgId: 7)
         
-        takeFinish(vm: subFilterVM2, msgId: 7, expect: expect)
+        enterSubFilter(catalogVM, filterId: colorFilterId, msgId: 4, newMsgId: 5)
         
-        waitForExpectations(timeout: 20.0) { [weak self] error in
+        takeFromVM(catalogVM, result: myResult, operationId: 2, vm: subFilterVM1, msgId: 5, newMsgId: 6)
+        
+        enterSubFilter(catalogVM, filterId: materialFilterId, msgId: 6, newMsgId: 7)
+        
+        takeFinish(catalogVM, result: myResult, vm: subFilterVM2, msgId: 7, expect: expect)
+        
+        waitForExpectations(timeout: timeout) { [weak self] error in
             guard error == nil else {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: зеленый true розовый false черный false \\\\\\вискоза false полиамид false хлопок true эластан false ", self?.result)
+            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: зеленый true розовый false черный false \\\\\\вискоза false полиамид false хлопок true эластан false ",  myResult.res)
         }
     }
     
@@ -673,82 +732,94 @@ class useTestCase4: XCTestCase {
     
     // check mutual exclusion
     func testExample12(){
+        
+        let catalogVM = CatalogVM(categoryId: categoryId)
+        let myResult = MyResults()
+        let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
         let expect = expectation(description: #function)
         
-        initTestCase4(filterId1: colorFilterId, filterId2: materialFilterId)
+        initTestCase4(catalogVM, filterId1: colorFilterId, filterId2: materialFilterId)
         
-        selectSubFilters(vm: subFilterVM1, selectIds: [green, yellow, brown], select: true, newMsgId: 1)
+        selectSubFilters(catalogVM, vm: subFilterVM1, selectIds: [green, yellow, brown], select: true, msgId: 0, newMsgId: 1)
         
-        selectSubFilters(vm: subFilterVM2, selectIds: [angora], select: true, msgId: 1, newMsgId: 2)
+        selectSubFilters(catalogVM, vm: subFilterVM2, selectIds: [angora], select: true, msgId: 1, newMsgId: 2)
         
-        applyFromFilter(msgId: 2, newMsgId: 3)
+        applyFromFilter(catalogVM, filterVM:filterVM, msgId: 2, newMsgId: 3)
         
-        takeFilterFinish(msgId: 3, expect: expect )
+        takeFilterFinish(catalogVM, result: myResult, filterVM:filterVM, msgId: 3, expect: expect )
         
-        waitForExpectations(timeout: 20.0) { [weak self] error in
+        waitForExpectations(timeout: timeout) { [weak self] error in
             guard error == nil else {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("", self?.result)
+            XCTAssertEqual("",  myResult.res)
         }
     }
     
     
     // cleanup mutual exclusion
     func testExample13(){
+        
+        let catalogVM = CatalogVM(categoryId: categoryId)
+        let myResult = MyResults()
+        let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
         let expect = expectation(description: #function)
         
-        initTestCase4(filterId1: colorFilterId, filterId2: materialFilterId)
+        initTestCase4(catalogVM, filterId1: colorFilterId, filterId2: materialFilterId)
         
-        selectSubFilters(vm: subFilterVM1, selectIds: [green, yellow, brown], select: true, newMsgId: 1)
+        selectSubFilters(catalogVM, vm: subFilterVM1, selectIds: [green, yellow, brown], select: true, msgId: 0, newMsgId: 1)
         
-        selectSubFilters(vm: subFilterVM2, selectIds: [angora], select: true, msgId: 1, newMsgId: 2)
+        selectSubFilters(catalogVM, vm: subFilterVM2, selectIds: [angora], select: true, msgId: 1, newMsgId: 2)
         
-        applyFromFilter(msgId: 2, newMsgId: 3)
+        applyFromFilter(catalogVM, filterVM:filterVM, msgId: 2, newMsgId: 3)
         
-        cleanupFromFilter(msgId: 3, newMsgId: 4)
+        cleanupFromFilter(catalogVM, filterVM:filterVM, msgId: 3, newMsgId: 4)
         
-        takeFilterFinish(msgId: 4, expect: expect )
+        takeFilterFinish(catalogVM, result: myResult, filterVM:filterVM, msgId: 4, expect: expect )
         
-        waitForExpectations(timeout: 20.0) { [weak self] error in
+        waitForExpectations(timeout: timeout) { [weak self] error in
             guard error == nil else {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава ", self?.result)
+            XCTAssertEqual("Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава Цена2 ",  myResult.res)
         }
     }
     
     
     // apply from subf, new select and apply again from subf
     func testExample14(){
+        
+        let catalogVM = CatalogVM(categoryId: categoryId)
+        let myResult = MyResults()
+        let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
         let expect = expectation(description: #function)
         
-        initTestCase4(filterId1: colorFilterId, filterId2: materialFilterId)
+        initTestCase4(catalogVM, filterId1: colorFilterId, filterId2: materialFilterId)
         
-        selectSubFilters(vm: subFilterVM1, selectIds: [green, yellow, brown], select: true, newMsgId: 1)
+        selectSubFilters(catalogVM, vm: subFilterVM1, selectIds: [green, yellow, brown], select: true, msgId: 0, newMsgId: 1)
         
-        apply(vm: subFilterVM1, msgId: 1, newMsgId: 2)
+        apply(catalogVM, vm: subFilterVM1, msgId: 1, newMsgId: 2)
         
-        enterSubFilter(filterId: materialFilterId, msgId: 2, newMsgId: 3)
+        enterSubFilter(catalogVM, filterId: materialFilterId, msgId: 2, newMsgId: 3)
         
-        takeFromVM(operationId: 1, vm: subFilterVM2, msgId: 3, newMsgId: 4)
+        takeFromVM(catalogVM, result: myResult, operationId: 1, vm: subFilterVM2, msgId: 3, newMsgId: 4)
         
-        selectSubFilters(vm: subFilterVM1, selectIds: [red, orange], select: true, msgId: 4, newMsgId: 5)
+        selectSubFilters(catalogVM, vm: subFilterVM1, selectIds: [red, orange], select: true, msgId: 4, newMsgId: 5)
         
-        apply(vm: subFilterVM1, msgId: 5, newMsgId: 6)
+        apply(catalogVM, vm: subFilterVM1, msgId: 5, newMsgId: 6)
         
-        enterSubFilter(filterId: materialFilterId, msgId: 6, newMsgId: 7)
+        enterSubFilter(catalogVM, filterId: materialFilterId, msgId: 6, newMsgId: 7)
         
-        takeFinish(vm: subFilterVM2, msgId: 7, expect: expect)
+        takeFinish(catalogVM, result: myResult, vm: subFilterVM2, msgId: 7, expect: expect)
         
-        waitForExpectations(timeout: 20.0) { [weak self] error in
+        waitForExpectations(timeout: timeout) { [weak self] error in
             guard error == nil else {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: вискоза false полиамид false хлопок false эластан false \\\\\\вискоза false полиамид false полиэстер false хлопок false шерсть false эластан false ", self?.result)
+            XCTAssertEqual("1: вискоза false полиамид false хлопок false эластан false \\\\\\вискоза false полиамид false полиэстер false хлопок false шерсть false эластан false ",  myResult.res )
         }
     }
     

@@ -112,64 +112,93 @@ class NetworkMgt{
             let code = FunctionsErrorCode(rawValue: error.code)
             let message = error.localizedDescription
             let details = error.userInfo[FunctionsErrorDetailsKey]
+            
+            if code == FunctionsErrorCode.resourceExhausted {
+                DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(30), execute: {
+                    networkFunc?()
+                })
+            }
+        
             print("error:\(code) : \(message) : \(details)")
+            
         }
     }
     
     
+    static var networkFunc: (() -> Void)?
+    
+    private static func runRequest(networkFunction: (()->Void)? = nil){
+        networkFunction?()
+    }
+    
+    
+    
     public static func requestCatalogStart(categoryId: Int, appliedSubFilters: Set<Int>) {
+        networkFunc = {
         functions.httpsCallable("catalogTotal").call(["useCache":true,
                                                       "categoryId":categoryId,
                                                      ]) {(result, error) in
-            if let error = error as NSError? {
-                firebaseHandleErr(error: error)
+                if let error = error as NSError? {
+                    firebaseHandleErr(error: error)
+                    return
+                }
+                let sFetchLimit = parseJsonVal(result: result, key: "fetchLimit")
+                guard let fetchLimit = Int(sFetchLimit) else {return}
+                let itemIds:[Int] = parseJsonArr(result: result, key: "itemIds")
+                                                        
+                nextCatalogTotal(itemIds: itemIds, fetchLimit: fetchLimit)
             }
-            let sFetchLimit = parseJsonVal(result: result, key: "fetchLimit")
-            guard let fetchLimit = Int(sFetchLimit) else {return}
-            let itemIds:[Int] = parseJsonArr(result: result, key: "itemIds")
-                                                       
-            nextCatalogTotal(itemIds: itemIds, fetchLimit: fetchLimit)
         }
+        NetworkMgt.runRequest(networkFunction: networkFunc)
     }
     
     
     public static func requestCatalogModel(categoryId: Int, itemIds: [Int]) {
-        print("requestCatalogModel")
-        
-        functions.httpsCallable("catalogEntities").call(["useCache": true,
-                                                         "categoryId": categoryId,
-                                                         "itemsIds": itemIds
-                                                        ]) {(result, error) in
-            if let error = error as NSError? {
-                firebaseHandleErr(error: error)
+       
+       networkFunc = {
+            functions.httpsCallable("catalogEntities").call(["useCache": true,
+                                                             "categoryId": categoryId,
+                                                             "itemsIds": itemIds
+                                                            ]) {(result, error) in
+                if let error = error as NSError? {
+                    firebaseHandleErr(error: error)
+                    return
+                }
+                let arr:[CatalogModel] = parseJsonObjArr(result: result, key: "items")
+                nextCatalogModel(catalogModel: arr)
             }
-            let arr:[CatalogModel] = parseJsonObjArr(result: result, key: "items")
-            nextCatalogModel(catalogModel: arr)
         }
+        NetworkMgt.runRequest(networkFunction: networkFunc)
     }
     
     
     // MARK: - request functions
     public static func requestFullFilterEntities(categoryId: Int){
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
-            functions.httpsCallable("fullFilterEntities").call(["useCache":true]) {(result, error) in
-                if let error = error as NSError? {
-                    firebaseHandleErr(error: error)
-                }
-                let arr:[FilterModel] = parseJsonObjArr(result: result, key: "filters")
-                let arr2:[SubfilterModel] = parseJsonObjArr(result: result, key: "subFilters")
-                nextFullFilterEntities(filterModels: arr, subFilterModels: arr2)
+            networkFunc = {
+                    functions.httpsCallable("fullFilterEntities").call(["useCache":true]) {(result, error) in
+                        if let error = error as NSError? {
+                            firebaseHandleErr(error: error)
+                            return
+                        }
+                        let arr:[FilterModel] = parseJsonObjArr(result: result, key: "filters")
+                        let arr2:[SubfilterModel] = parseJsonObjArr(result: result, key: "subFilters")
+                        nextFullFilterEntities(filterModels: arr, subFilterModels: arr2)
+                    }
             }
+            NetworkMgt.runRequest(networkFunction: networkFunc)
         })
     }
     
     
     
     public static func requestEnterSubFilter(filterId: Int, appliedSubFilters: Set<Int>){
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
+        
+        networkFunc = {
             functions.httpsCallable("currSubFilterIds").call(["useCache":true, "filterId":filterId, "appliedSubFilters":Array(appliedSubFilters)]) {(result, error) in
                 if let error = error as NSError? {
                     firebaseHandleErr(error: error)
+                    return
                 }
                 let sfilterId = parseJsonVal(result: result, key: "filterId")
                 guard let filterId = Int(sfilterId) else {return}
@@ -178,18 +207,20 @@ class NetworkMgt{
                 let dict:[Int:Int] = parseJsonDict(result: result, key: "countItemsBySubfilter")
                 nextEnterSubFilter(filterId: filterId, subFiltersIds: arr, appliedSubFilters: Set(arr2), cntBySubfilterId: dict)
             }
-        })
+        }
+        NetworkMgt.runRequest(networkFunction: networkFunc)
     }
     
     
     
     public static func requestApplyFromFilter(categoryId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>){
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
+        networkFunc = {
             functions.httpsCallable("applyFromFilterNow").call(["useCache":true,
                                                                 "selectedSubFilters":Array(selectedSubFilters),
                                                                 "appliedSubFilters":Array(appliedSubFilters)]) {(result, error) in
                 if let error = error as NSError? {
                     firebaseHandleErr(error: error)
+                    return
                 }
                 
                 let arr:[Int] = parseJsonArr(result: result, key: "filtersIds")
@@ -200,11 +231,12 @@ class NetworkMgt{
                                                                     
                 nextApplyForItems(filterIds: arr, subFiltersIds: arr2, appliedSubFilters: Set(arr3), selectedSubFilters: Set(arr4), itemIds: arr5)
             }
-        })
+        }
+        NetworkMgt.runRequest(networkFunction: networkFunc)
     }
     
     public static func requestApplyFromSubFilter(filterId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>){
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: {
+        networkFunc = {
             
             functions.httpsCallable("applyFromSubFilterNow").call([ "useCache":true,
                                                                     "filterId":filterId,
@@ -212,6 +244,7 @@ class NetworkMgt{
                                                                     "appliedSubFilters":Array(appliedSubFilters)]) {(result, error) in
                 if let error = error as NSError? {
                     firebaseHandleErr(error: error)
+                    return
                 }
                                                                     
                 let arr:[Int] = parseJsonArr(result: result, key: "filtersIds")
@@ -221,7 +254,8 @@ class NetworkMgt{
                 
                 nextApplyForFilters(filterIds: arr, subFiltersIds: arr2, appliedSubFilters: Set(arr3), selectedSubFilters: Set(arr4))
             }
-        })
+        }
+        NetworkMgt.runRequest(networkFunction: networkFunc)
     }
     
     

@@ -271,6 +271,7 @@ extension CatalogVM : FilterActionDelegate {
                 self.enableSubFilters(ids: _filters.1)
                 
                 self.appliedSubFilters = _filters.2
+                self.midAppliedSubFilters = _filters.2 // last added!!!
                 self.selectedSubFilters = _filters.3
                 self.outFiltersEvent.onNext(self.getEnabledFilters())
                 self.setupFetch(itemsIds: _filters.4)
