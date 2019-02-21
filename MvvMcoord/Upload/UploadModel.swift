@@ -20,21 +20,20 @@ class FilterModel1 {
         self.title = title
         self.categoryId = categoryId
         self.filterEnum = filterEnum
-        firebaseStore()
+        filterFirebaseStore()
     }
     
     func getDictionary()->[String: Any]  {
         return ["id": id, "title":title, "categoryId":categoryId, "enabled":enabled, "filterEnum":filterEnum.rawValue]
     }
     
-    func firebaseStore(){
+    func filterFirebaseStore(){
         let rootRef = Database.database().reference()
         let childRef = rootRef.child("filters")
         let itemsRef = childRef.child("filter\(id)")
         let dict = getDictionary()
         itemsRef.setValue(dict)
     }
-    
 }
 
 
@@ -54,14 +53,14 @@ class SubfilterModel1 {
         addSubF(id: id, subFilter: self)
         fillSubfiltersByFilter(filterId: filterId, subfilterId: id)
         
-        firebaseStore()
+        subfilterFirebaseStore()
     }
     
     func getDictionary()->[String: Any]  {
         return ["id": id, "filterId":filterId, "title":title, "enabled":enabled, "sectionHeader":sectionHeader]
     }
     
-    func firebaseStore(){
+    func subfilterFirebaseStore(){
         let rootRef = Database.database().reference()
         let childRef = rootRef.child("subfilters")
         let itemsRef = childRef.child("subfilter\(id)")
@@ -80,14 +79,14 @@ class Item {
         self.id = id
         self.subfilters = subfilters
         fillItemsBySubfilter(item: id, subfilters: subfilters)
-        firebaseStore()
+        itemFirebaseStore()
     }
     
     func getDictionary()->[String: Any]  {
         return ["id": id, "subfilters": subfilters]
     }
     
-    func firebaseStore(){
+    func itemFirebaseStore(){
         let rootRef = Database.database().reference()
         let childRef = rootRef.child("subfiltersByItem")
         let itemsRef = childRef.child("item\(id)")
@@ -133,19 +132,28 @@ class CatalogModel1{
         }
         self.name = newName
         
-        firebaseStore()
+        catalogFirebaseStore()
+        catalogFirebaseStore2()
     }
     
     func getDictionary()->[String: Any]  {
         return ["id": id, "categoryId": categoryId, "name":name, "thumbnail":thumbnail, "stars":stars, "newPrice":newPrice, "oldPrice":oldPrice, "votes":votes, "discount":discount]
     }
     
-    func firebaseStore(){
+    func catalogFirebaseStore(){
         let rootRef = Database.database().reference()
         let childRef = rootRef.child("catalog")
         let itemsRef = childRef.child("item\(id)")
         let dict = getDictionary()
         itemsRef.setValue(dict)
+    }
+    
+    
+    func catalogFirebaseStore2(){
+        let rootRef = Database.database().reference()
+        let childRef = rootRef.child("pricesByItem")
+        let itemsRef = childRef.child("item\(id)")
+        itemsRef.setValue(["id": id, "price": newPrice])
     }
 }
 
@@ -189,9 +197,14 @@ func fillSubfiltersByFilter(filterId:Int, subfilterId: Int){
     subfiltersByFilter[filterId]?.append(subfilterId)
 }
 
+func firebaseStore3(categoryId: Int, minPrice: CGFloat, maxPrice: CGFloat){
+    let rootRef = Database.database().reference()
+    let childRef = rootRef.child("rangePriceByCategory")
+    let itemsRef = childRef.child("category\(categoryId)")
+    itemsRef.setValue(["id": categoryId, "minPrice": minPrice, "maxPrice": maxPrice])
+}
 
-
-func runUpload(){
+func cleanupFirebase(){
     let rootRef = Database.database().reference()
     var ref = rootRef.child("catalog");
     ref.removeValue()
@@ -208,9 +221,20 @@ func runUpload(){
     ref = rootRef.child("subfiltersByFilter");
     ref.removeValue()
     
-    
     ref = rootRef.child("subfiltersByItem");
     ref.removeValue()
+    
+    ref = rootRef.child("priceByItem");
+    ref.removeValue()
+    
+    ref = rootRef.child("rangePriceByCategory");
+    ref.removeValue()
+}
+
+func runUpload(){
+    
+    cleanupFirebase()
+    
     
     let _ = FilterModel1(id:0, title: "Цена", categoryId: 01010101, filterEnum: .range)
     let _ = FilterModel1(id:1, title: "Бренд", categoryId: 01010101, filterEnum: .section)
@@ -225,7 +249,6 @@ func runUpload(){
     let _ = FilterModel1(id:10, title: "Длина юбки/платья", categoryId: 01010101)
     let _ = FilterModel1(id:11, title: "Конструктивные элементы", categoryId: 01010101)
     let _ = FilterModel1(id:12, title: "Тип рукава", categoryId: 01010101)
-    let _ = FilterModel1(id:13, title: "Цена2", categoryId: 01010101, filterEnum: .range)
     
     
     
@@ -464,155 +487,160 @@ func runUpload(){
     firebaseStore()
     
     firebaseStore2()
+    
+    firebaseStore3(categoryId: 01010101, minPrice: 2200, maxPrice: 15600)
+    firebaseStore3(categoryId: 01010102, minPrice: 3000, maxPrice: 19000)
+    firebaseStore3(categoryId: 01010103, minPrice: 5555, maxPrice: 55000)
+    
     //stride(from: 0, to: 30038, by: 38)
    // for i in stride(from: 0, to: 138, by: 38) {
-        let _ = CatalogModel1(id: i+1, categoryId: 01010101, name: "", thumbnail: "blue-1", stars: 3, newPrice: 4500, oldPrice: 6500, votes: 145, discount: 30)
-        let _ = CatalogModel1(id: i+2, categoryId: 01010101, name: "", thumbnail: "yellow-1", stars: 1, newPrice: 4700, oldPrice: 5200, votes: 245, discount: 30)
-        let _ = CatalogModel1(id: i+3, categoryId: 01010101, name: "", thumbnail: "yellow-2", stars: 4, newPrice: 2200, oldPrice: 3000, votes: 545, discount: 50)
-        let _ = CatalogModel1(id: i+4, categoryId: 01010101, name: "", thumbnail: "green-1", stars: 5, newPrice: 5500, oldPrice: 7500, votes: 45, discount: 50)
-        let _ = CatalogModel1(id: i+5, categoryId: 01010101, name: "", thumbnail: "brown-1", stars: 1, newPrice: 4555, oldPrice: 6400, votes: 45, discount: 50)
-        let _ = CatalogModel1(id: i+6, categoryId: 01010101, name: "", thumbnail: "blue-2", stars: 2, newPrice: 4555, oldPrice: 6350, votes: 45, discount: 40)
-        let _ = CatalogModel1(id: i+7, categoryId: 01010101, name: "", thumbnail: "orange-1", stars: 2, newPrice: 5800, oldPrice: 8400, votes: 1, discount: 40)
-        let _ = CatalogModel1(id: i+8, categoryId: 01010101, name: "", thumbnail: "pink-1", stars: 3, newPrice: 8540, oldPrice: 10500, votes: 433, discount: 40)
-        let _ = CatalogModel1(id: i+9, categoryId: 01010101, name: "", thumbnail: "brown-2", stars: 4, newPrice: 9000, oldPrice: 11200, votes: 1003, discount: 30)
-        let _ = CatalogModel1(id: i+10, categoryId: 01010101, name: "", thumbnail: "blue-3", stars: 4, newPrice: 3000, oldPrice: 4700, votes: 445, discount: 30)
-        let _ = CatalogModel1(id: i+11, categoryId: 01010101, name: "", thumbnail: "violet-1", stars: 4, newPrice: 4555, oldPrice: 6500, votes: 33, discount: 20)
-        let _ = CatalogModel1(id: i+12, categoryId: 01010101, name: "", thumbnail: "black-1", stars: 5, newPrice: 4555, oldPrice: 6500, votes: 54, discount: 20)
-        let _ = CatalogModel1(id: i+13, categoryId: 01010101, name: "", thumbnail: "white-1", stars: 5, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+14, categoryId: 01010101, name: "", thumbnail: "black-2", stars: 4, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 40)
-        let _ = CatalogModel1(id: i+15, categoryId: 01010101, name: "", thumbnail: "red-1", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 25)
-        let _ = CatalogModel1(id: i+16, categoryId: 01010101, name: "", thumbnail: "white-2", stars: 2, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 35)
-        let _ = CatalogModel1(id: i+17, categoryId: 01010101, name: "", thumbnail: "brown-3", stars: 2, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50)
-        let _ = CatalogModel1(id: i+18, categoryId: 01010101, name: "", thumbnail: "black-3", stars: 2, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50)
-        let _ = CatalogModel1(id: i+19, categoryId: 01010101, name: "", thumbnail: "orange-2", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50)
-        let _ = CatalogModel1(id: i+20, categoryId: 01010101, name: "", thumbnail: "white-3", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 40)
-        let _ = CatalogModel1(id: i+21, categoryId: 01010101, name: "", thumbnail: "yellow-3", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+22, categoryId: 01010101, name: "", thumbnail: "black-4", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+23, categoryId: 01010101, name: "", thumbnail: "violet-2", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+24, categoryId: 01010101, name: "", thumbnail: "blue-4", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+25, categoryId: 01010101, name: "", thumbnail: "blue-5", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+26, categoryId: 01010101, name: "", thumbnail: "white-4", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+27, categoryId: 01010101, name: "", thumbnail: "white-5", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+28, categoryId: 01010101, name: "", thumbnail: "blue-6", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+29, categoryId: 01010101, name: "", thumbnail: "blue-7", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+30, categoryId: 01010101, name: "", thumbnail: "beige1", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+31, categoryId: 01010101, name: "", thumbnail: "white-5", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+32, categoryId: 01010101, name: "", thumbnail: "white-6", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+33, categoryId: 01010101, name: "", thumbnail: "blue-8", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+34, categoryId: 01010101, name: "", thumbnail: "white-7", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+35, categoryId: 01010101, name: "", thumbnail: "white-8", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+36, categoryId: 01010101, name: "", thumbnail: "white-9", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+37, categoryId: 01010101, name: "", thumbnail: "blue-9", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+38, categoryId: 01010101, name: "", thumbnail: "beige2", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+39, categoryId: 01010101, name: "", thumbnail: "beige3", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+40, categoryId: 01010101, name: "", thumbnail: "beige4", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+41, categoryId: 01010101, name: "", thumbnail: "beige5", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+42, categoryId: 01010101, name: "", thumbnail: "beige6", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+43, categoryId: 01010101, name: "", thumbnail: "beige7", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+44, categoryId: 01010101, name: "", thumbnail: "beige8", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+1, categoryId: 01010101, name: "", thumbnail: "blue-1", stars: 3, newPrice: 2200, oldPrice: 6500, votes: 145, discount: 30)
+        let _ = CatalogModel1(id: i+2, categoryId: 01010101, name: "", thumbnail: "yellow-1", stars: 1, newPrice: 2300, oldPrice: 5200, votes: 245, discount: 30)
+        let _ = CatalogModel1(id: i+3, categoryId: 01010101, name: "", thumbnail: "yellow-2", stars: 4, newPrice: 2400, oldPrice: 3000, votes: 545, discount: 50)
+        let _ = CatalogModel1(id: i+4, categoryId: 01010101, name: "", thumbnail: "green-1", stars: 5, newPrice: 2500, oldPrice: 7500, votes: 45, discount: 50)
+        let _ = CatalogModel1(id: i+5, categoryId: 01010101, name: "", thumbnail: "brown-1", stars: 1, newPrice: 2600, oldPrice: 6400, votes: 45, discount: 50)
+        let _ = CatalogModel1(id: i+6, categoryId: 01010101, name: "", thumbnail: "blue-2", stars: 2, newPrice: 2700, oldPrice: 6350, votes: 45, discount: 40)
+        let _ = CatalogModel1(id: i+7, categoryId: 01010101, name: "", thumbnail: "orange-1", stars: 2, newPrice: 2800, oldPrice: 8400, votes: 1, discount: 40)
+        let _ = CatalogModel1(id: i+8, categoryId: 01010101, name: "", thumbnail: "pink-1", stars: 3, newPrice: 2900, oldPrice: 10500, votes: 433, discount: 40)
+        let _ = CatalogModel1(id: i+9, categoryId: 01010101, name: "", thumbnail: "brown-2", stars: 4, newPrice: 3000, oldPrice: 11200, votes: 1003, discount: 30)
+        let _ = CatalogModel1(id: i+10, categoryId: 01010101, name: "", thumbnail: "blue-3", stars: 4, newPrice: 3100, oldPrice: 4700, votes: 445, discount: 30)
+        let _ = CatalogModel1(id: i+11, categoryId: 01010101, name: "", thumbnail: "violet-1", stars: 4, newPrice: 3100, oldPrice: 6500, votes: 33, discount: 20)
+        let _ = CatalogModel1(id: i+12, categoryId: 01010101, name: "", thumbnail: "black-1", stars: 5, newPrice: 3300, oldPrice: 6500, votes: 54, discount: 20)
+        let _ = CatalogModel1(id: i+13, categoryId: 01010101, name: "", thumbnail: "white-1", stars: 5, newPrice: 3400, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+14, categoryId: 01010101, name: "", thumbnail: "black-2", stars: 4, newPrice: 3500, oldPrice: 6500, votes: 45, discount: 40)
+        let _ = CatalogModel1(id: i+15, categoryId: 01010101, name: "", thumbnail: "red-1", stars: 1, newPrice: 3600, oldPrice: 6500, votes: 45, discount: 25)
+        let _ = CatalogModel1(id: i+16, categoryId: 01010101, name: "", thumbnail: "white-2", stars: 2, newPrice: 3700, oldPrice: 6500, votes: 45, discount: 35)
+        let _ = CatalogModel1(id: i+17, categoryId: 01010101, name: "", thumbnail: "brown-3", stars: 2, newPrice: 3800, oldPrice: 6500, votes: 45, discount: 50)
+        let _ = CatalogModel1(id: i+18, categoryId: 01010101, name: "", thumbnail: "black-3", stars: 2, newPrice: 3900, oldPrice: 6500, votes: 45, discount: 50)
+        let _ = CatalogModel1(id: i+19, categoryId: 01010101, name: "", thumbnail: "orange-2", stars: 1, newPrice: 4000, oldPrice: 6500, votes: 45, discount: 50)
+        let _ = CatalogModel1(id: i+20, categoryId: 01010101, name: "", thumbnail: "white-3", stars: 3, newPrice: 4100, oldPrice: 6500, votes: 45, discount: 40)
+        let _ = CatalogModel1(id: i+21, categoryId: 01010101, name: "", thumbnail: "yellow-3", stars: 3, newPrice: 4200, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+22, categoryId: 01010101, name: "", thumbnail: "black-4", stars: 3, newPrice: 4300, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+23, categoryId: 01010101, name: "", thumbnail: "violet-2", stars: 3, newPrice: 4400, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+24, categoryId: 01010101, name: "", thumbnail: "blue-4", stars: 3, newPrice: 4500, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+25, categoryId: 01010101, name: "", thumbnail: "blue-5", stars: 3, newPrice: 4600, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+26, categoryId: 01010101, name: "", thumbnail: "white-4", stars: 3, newPrice: 4700, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+27, categoryId: 01010101, name: "", thumbnail: "white-5", stars: 3, newPrice: 4800, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+28, categoryId: 01010101, name: "", thumbnail: "blue-6", stars: 3, newPrice: 4900, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+29, categoryId: 01010101, name: "", thumbnail: "blue-7", stars: 3, newPrice: 5000, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+30, categoryId: 01010101, name: "", thumbnail: "beige1", stars: 3, newPrice: 5100, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+31, categoryId: 01010101, name: "", thumbnail: "white-5", stars: 3, newPrice: 5200, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+32, categoryId: 01010101, name: "", thumbnail: "white-6", stars: 3, newPrice: 5300, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+33, categoryId: 01010101, name: "", thumbnail: "blue-8", stars: 3, newPrice: 5400, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+34, categoryId: 01010101, name: "", thumbnail: "white-7", stars: 3, newPrice: 5500, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+35, categoryId: 01010101, name: "", thumbnail: "white-8", stars: 3, newPrice: 5600, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+36, categoryId: 01010101, name: "", thumbnail: "white-9", stars: 3, newPrice: 5700, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+37, categoryId: 01010101, name: "", thumbnail: "blue-9", stars: 3, newPrice: 5800, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+38, categoryId: 01010101, name: "", thumbnail: "beige2", stars: 3, newPrice: 5900, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+39, categoryId: 01010101, name: "", thumbnail: "beige3", stars: 3, newPrice: 6000, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+40, categoryId: 01010101, name: "", thumbnail: "beige4", stars: 3, newPrice: 6100, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+41, categoryId: 01010101, name: "", thumbnail: "beige5", stars: 3, newPrice: 6200, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+42, categoryId: 01010101, name: "", thumbnail: "beige6", stars: 3, newPrice: 6300, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+43, categoryId: 01010101, name: "", thumbnail: "beige7", stars: 3, newPrice: 6400, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+44, categoryId: 01010101, name: "", thumbnail: "beige8", stars: 3, newPrice: 6500, oldPrice: 6500, votes: 45, discount: 30)
         
         
-        let _ = CatalogModel1(id: i+45, categoryId: 01010101, name: "", thumbnail: "yellow-4", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+46, categoryId: 01010101, name: "", thumbnail: "yellow-5", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+47, categoryId: 01010101, name: "", thumbnail: "yellow-6", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+48, categoryId: 01010101, name: "", thumbnail: "yellow-7", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+49, categoryId: 01010101, name: "", thumbnail: "yellow-8", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+50, categoryId: 01010101, name: "", thumbnail: "yellow-9", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+51, categoryId: 01010101, name: "", thumbnail: "yellow-10", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+52, categoryId: 01010101, name: "", thumbnail: "yellow-11", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+53, categoryId: 01010101, name: "", thumbnail: "yellow-12", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+54, categoryId: 01010101, name: "", thumbnail: "yellow-13", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+55, categoryId: 01010101, name: "", thumbnail: "yellow-14", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+56, categoryId: 01010101, name: "", thumbnail: "yellow-15", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+57, categoryId: 01010101, name: "", thumbnail: "yellow-16", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+58, categoryId: 01010101, name: "", thumbnail: "yellow-17", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+45, categoryId: 01010101, name: "", thumbnail: "yellow-4", stars: 3, newPrice: 6600, oldPrice: 7500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+46, categoryId: 01010101, name: "", thumbnail: "yellow-5", stars: 3, newPrice: 6700, oldPrice: 7500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+47, categoryId: 01010101, name: "", thumbnail: "yellow-6", stars: 3, newPrice: 6800, oldPrice: 7500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+48, categoryId: 01010101, name: "", thumbnail: "yellow-7", stars: 3, newPrice: 6900, oldPrice: 7500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+49, categoryId: 01010101, name: "", thumbnail: "yellow-8", stars: 3, newPrice: 7000, oldPrice: 7500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+50, categoryId: 01010101, name: "", thumbnail: "yellow-9", stars: 3, newPrice: 7100, oldPrice: 7500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+51, categoryId: 01010101, name: "", thumbnail: "yellow-10", stars: 3, newPrice: 7200, oldPrice: 7500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+52, categoryId: 01010101, name: "", thumbnail: "yellow-11", stars: 3, newPrice: 7300, oldPrice: 8500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+53, categoryId: 01010101, name: "", thumbnail: "yellow-12", stars: 3, newPrice: 7400, oldPrice: 8500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+54, categoryId: 01010101, name: "", thumbnail: "yellow-13", stars: 3, newPrice: 7500, oldPrice: 8500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+55, categoryId: 01010101, name: "", thumbnail: "yellow-14", stars: 3, newPrice: 7600, oldPrice: 8500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+56, categoryId: 01010101, name: "", thumbnail: "yellow-15", stars: 3, newPrice: 7700, oldPrice: 8500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+57, categoryId: 01010101, name: "", thumbnail: "yellow-16", stars: 3, newPrice: 7800, oldPrice: 8500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+58, categoryId: 01010101, name: "", thumbnail: "yellow-17", stars: 3, newPrice: 7900, oldPrice: 8500, votes: 45, discount: 30)
         
-        let _ = CatalogModel1(id: i+59, categoryId: 01010101, name: "", thumbnail: "green-2", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+60, categoryId: 01010101, name: "", thumbnail: "green-3", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+61, categoryId: 01010101, name: "", thumbnail: "green-4", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+62, categoryId: 01010101, name: "", thumbnail: "green-5", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+63, categoryId: 01010101, name: "", thumbnail: "green-6", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+64, categoryId: 01010101, name: "", thumbnail: "green-7", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+65, categoryId: 01010101, name: "", thumbnail: "green-8", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+66, categoryId: 01010101, name: "", thumbnail: "green-9", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+59, categoryId: 01010101, name: "", thumbnail: "green-2", stars: 3, newPrice: 8000, oldPrice: 8500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+60, categoryId: 01010101, name: "", thumbnail: "green-3", stars: 3, newPrice: 8100, oldPrice: 8500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+61, categoryId: 01010101, name: "", thumbnail: "green-4", stars: 3, newPrice: 8200, oldPrice: 8500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+62, categoryId: 01010101, name: "", thumbnail: "green-5", stars: 3, newPrice: 8300, oldPrice: 9500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+63, categoryId: 01010101, name: "", thumbnail: "green-6", stars: 3, newPrice: 8400, oldPrice: 9500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+64, categoryId: 01010101, name: "", thumbnail: "green-7", stars: 3, newPrice: 8500, oldPrice: 9500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+65, categoryId: 01010101, name: "", thumbnail: "green-8", stars: 3, newPrice: 8600, oldPrice: 9500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+66, categoryId: 01010101, name: "", thumbnail: "green-9", stars: 3, newPrice: 8700, oldPrice: 9500, votes: 45, discount: 30)
         
-        let _ = CatalogModel1(id: i+67, categoryId: 01010101, name: "", thumbnail: "brown-4", stars: 4, newPrice: 9000, oldPrice: 11200, votes: 1003, discount: 30)
-        let _ = CatalogModel1(id: i+68, categoryId: 01010101, name: "", thumbnail: "brown-5", stars: 4, newPrice: 9000, oldPrice: 11200, votes: 1003, discount: 30)
+        let _ = CatalogModel1(id: i+67, categoryId: 01010101, name: "", thumbnail: "brown-4", stars: 4, newPrice: 8800, oldPrice: 11200, votes: 1003, discount: 30)
+        let _ = CatalogModel1(id: i+68, categoryId: 01010101, name: "", thumbnail: "brown-5", stars: 4, newPrice: 8900, oldPrice: 11200, votes: 1003, discount: 30)
         let _ = CatalogModel1(id: i+69, categoryId: 01010101, name: "", thumbnail: "brown-6", stars: 4, newPrice: 9000, oldPrice: 11200, votes: 1003, discount: 30)
-        let _ = CatalogModel1(id: i+70, categoryId: 01010101, name: "", thumbnail: "brown-7", stars: 4, newPrice: 9000, oldPrice: 11200, votes: 1003, discount: 30)
-        let _ = CatalogModel1(id: i+71, categoryId: 01010101, name: "", thumbnail: "brown-8", stars: 4, newPrice: 9000, oldPrice: 11200, votes: 1003, discount: 30)
-        let _ = CatalogModel1(id: i+72, categoryId: 01010101, name: "", thumbnail: "brown-9", stars: 4, newPrice: 9000, oldPrice: 11200, votes: 1003, discount: 30)
-        let _ = CatalogModel1(id: i+73, categoryId: 01010101, name: "", thumbnail: "brown-10", stars: 4, newPrice: 9000, oldPrice: 11200, votes: 1003, discount: 30)
-        let _ = CatalogModel1(id: i+74, categoryId: 01010101, name: "", thumbnail: "brown-11", stars: 4, newPrice: 9000, oldPrice: 11200, votes: 1003, discount: 30)
-        let _ = CatalogModel1(id: i+75, categoryId: 01010101, name: "", thumbnail: "brown-12", stars: 4, newPrice: 9000, oldPrice: 11200, votes: 1003, discount: 30)
-        let _ = CatalogModel1(id: i+76, categoryId: 01010101, name: "", thumbnail: "brown-13", stars: 4, newPrice: 9000, oldPrice: 11200, votes: 1003, discount: 30)
-        let _ = CatalogModel1(id: i+77, categoryId: 01010101, name: "", thumbnail: "brown-14", stars: 4, newPrice: 9000, oldPrice: 11200, votes: 1003, discount: 30)
-        let _ = CatalogModel1(id: i+78, categoryId: 01010101, name: "", thumbnail: "brown-15", stars: 4, newPrice: 9000, oldPrice: 11200, votes: 1003, discount: 30)
-        let _ = CatalogModel1(id: i+79, categoryId: 01010101, name: "", thumbnail: "brown-16", stars: 4, newPrice: 9000, oldPrice: 11200, votes: 1003, discount: 30)
-        let _ = CatalogModel1(id: i+80, categoryId: 01010101, name: "", thumbnail: "brown-17", stars: 4, newPrice: 9000, oldPrice: 11200, votes: 1003, discount: 30)
+        let _ = CatalogModel1(id: i+70, categoryId: 01010101, name: "", thumbnail: "brown-7", stars: 4, newPrice: 9100, oldPrice: 11200, votes: 1003, discount: 30)
+        let _ = CatalogModel1(id: i+71, categoryId: 01010101, name: "", thumbnail: "brown-8", stars: 4, newPrice: 9200, oldPrice: 11200, votes: 1003, discount: 30)
+        let _ = CatalogModel1(id: i+72, categoryId: 01010101, name: "", thumbnail: "brown-9", stars: 4, newPrice: 9300, oldPrice: 11200, votes: 1003, discount: 30)
+        let _ = CatalogModel1(id: i+73, categoryId: 01010101, name: "", thumbnail: "brown-10", stars: 4, newPrice: 9400, oldPrice: 11200, votes: 1003, discount: 30)
+        let _ = CatalogModel1(id: i+74, categoryId: 01010101, name: "", thumbnail: "brown-11", stars: 4, newPrice: 9500, oldPrice: 11200, votes: 1003, discount: 30)
+        let _ = CatalogModel1(id: i+75, categoryId: 01010101, name: "", thumbnail: "brown-12", stars: 4, newPrice: 9600, oldPrice: 11200, votes: 1003, discount: 30)
+        let _ = CatalogModel1(id: i+76, categoryId: 01010101, name: "", thumbnail: "brown-13", stars: 4, newPrice: 9700, oldPrice: 11200, votes: 1003, discount: 30)
+        let _ = CatalogModel1(id: i+77, categoryId: 01010101, name: "", thumbnail: "brown-14", stars: 4, newPrice: 9800, oldPrice: 11200, votes: 1003, discount: 30)
+        let _ = CatalogModel1(id: i+78, categoryId: 01010101, name: "", thumbnail: "brown-15", stars: 4, newPrice: 9900, oldPrice: 11200, votes: 1003, discount: 30)
+        let _ = CatalogModel1(id: i+79, categoryId: 01010101, name: "", thumbnail: "brown-16", stars: 4, newPrice: 10000, oldPrice: 11200, votes: 1003, discount: 30)
+        let _ = CatalogModel1(id: i+80, categoryId: 01010101, name: "", thumbnail: "brown-17", stars: 4, newPrice: 10100, oldPrice: 11200, votes: 1003, discount: 30)
 
-        let _ = CatalogModel1(id: i+81, categoryId: 01010101, name: "", thumbnail: "red-2", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 25)
-        let _ = CatalogModel1(id: i+82, categoryId: 01010101, name: "", thumbnail: "red-3", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 25)
-        let _ = CatalogModel1(id: i+83, categoryId: 01010101, name: "", thumbnail: "red-4", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 25)
-        let _ = CatalogModel1(id: i+84, categoryId: 01010101, name: "", thumbnail: "red-5", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 25)
-        let _ = CatalogModel1(id: i+85, categoryId: 01010101, name: "", thumbnail: "red-6", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 25)
-        let _ = CatalogModel1(id: i+86, categoryId: 01010101, name: "", thumbnail: "red-7", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 25)
-        let _ = CatalogModel1(id: i+87, categoryId: 01010101, name: "", thumbnail: "red-8", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 25)
-        let _ = CatalogModel1(id: i+88, categoryId: 01010101, name: "", thumbnail: "red-9", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 25)
-        let _ = CatalogModel1(id: i+89, categoryId: 01010101, name: "", thumbnail: "red-10", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 25)
-        let _ = CatalogModel1(id: i+90, categoryId: 01010101, name: "", thumbnail: "red-11", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 25)
+        let _ = CatalogModel1(id: i+81, categoryId: 01010101, name: "", thumbnail: "red-2", stars: 1, newPrice: 10200, oldPrice: 16500, votes: 45, discount: 25)
+        let _ = CatalogModel1(id: i+82, categoryId: 01010101, name: "", thumbnail: "red-3", stars: 1, newPrice: 10300, oldPrice: 16500, votes: 45, discount: 25)
+        let _ = CatalogModel1(id: i+83, categoryId: 01010101, name: "", thumbnail: "red-4", stars: 1, newPrice: 10400, oldPrice: 16500, votes: 45, discount: 25)
+        let _ = CatalogModel1(id: i+84, categoryId: 01010101, name: "", thumbnail: "red-5", stars: 1, newPrice: 10500, oldPrice: 16500, votes: 45, discount: 25)
+        let _ = CatalogModel1(id: i+85, categoryId: 01010101, name: "", thumbnail: "red-6", stars: 1, newPrice: 10600, oldPrice: 16500, votes: 45, discount: 25)
+        let _ = CatalogModel1(id: i+86, categoryId: 01010101, name: "", thumbnail: "red-7", stars: 1, newPrice: 10700, oldPrice: 16500, votes: 45, discount: 25)
+        let _ = CatalogModel1(id: i+87, categoryId: 01010101, name: "", thumbnail: "red-8", stars: 1, newPrice: 10800, oldPrice: 16500, votes: 45, discount: 25)
+        let _ = CatalogModel1(id: i+88, categoryId: 01010101, name: "", thumbnail: "red-9", stars: 1, newPrice: 10900, oldPrice: 16500, votes: 45, discount: 25)
+        let _ = CatalogModel1(id: i+89, categoryId: 01010101, name: "", thumbnail: "red-10", stars: 1, newPrice: 11000, oldPrice: 16500, votes: 45, discount: 25)
+        let _ = CatalogModel1(id: i+90, categoryId: 01010101, name: "", thumbnail: "red-11", stars: 1, newPrice: 11100, oldPrice: 16500, votes: 45, discount: 25)
         
-        let _ = CatalogModel1(id: i+91, categoryId: 01010101, name: "", thumbnail: "orange-3", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50)
-        let _ = CatalogModel1(id: i+92, categoryId: 01010101, name: "", thumbnail: "orange-4", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50)
-        let _ = CatalogModel1(id: i+93, categoryId: 01010101, name: "", thumbnail: "orange-5", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50)
-        let _ = CatalogModel1(id: i+94, categoryId: 01010101, name: "", thumbnail: "orange-6", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50)
-        let _ = CatalogModel1(id: i+95, categoryId: 01010101, name: "", thumbnail: "orange-7", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50)
-        let _ = CatalogModel1(id: i+96, categoryId: 01010101, name: "", thumbnail: "orange-8", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50)
-        let _ = CatalogModel1(id: i+97, categoryId: 01010101, name: "", thumbnail: "orange-9", stars: 1, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 50)
+        let _ = CatalogModel1(id: i+91, categoryId: 01010101, name: "", thumbnail: "orange-3", stars: 1, newPrice: 11200, oldPrice: 16500, votes: 45, discount: 50)
+        let _ = CatalogModel1(id: i+92, categoryId: 01010101, name: "", thumbnail: "orange-4", stars: 1, newPrice: 11300, oldPrice: 16500, votes: 45, discount: 50)
+        let _ = CatalogModel1(id: i+93, categoryId: 01010101, name: "", thumbnail: "orange-5", stars: 1, newPrice: 11400, oldPrice: 16500, votes: 45, discount: 50)
+        let _ = CatalogModel1(id: i+94, categoryId: 01010101, name: "", thumbnail: "orange-6", stars: 1, newPrice: 11500, oldPrice: 16500, votes: 45, discount: 50)
+        let _ = CatalogModel1(id: i+95, categoryId: 01010101, name: "", thumbnail: "orange-7", stars: 1, newPrice: 11600, oldPrice: 16500, votes: 45, discount: 50)
+        let _ = CatalogModel1(id: i+96, categoryId: 01010101, name: "", thumbnail: "orange-8", stars: 1, newPrice: 11700, oldPrice: 16500, votes: 45, discount: 50)
+        let _ = CatalogModel1(id: i+97, categoryId: 01010101, name: "", thumbnail: "orange-9", stars: 1, newPrice: 11800, oldPrice: 16500, votes: 45, discount: 50)
         
-        let _ = CatalogModel1(id: i+98, categoryId: 01010101, name: "", thumbnail: "pink-2", stars: 3, newPrice: 8540, oldPrice: 10500, votes: 433, discount: 40)
-        let _ = CatalogModel1(id: i+99, categoryId: 01010101, name: "", thumbnail: "pink-3", stars: 3, newPrice: 8540, oldPrice: 10500, votes: 433, discount: 40)
-        let _ = CatalogModel1(id: i+100, categoryId: 01010101, name: "", thumbnail: "pink-4", stars: 3, newPrice: 8540, oldPrice: 10500, votes: 433, discount: 40)
-        let _ = CatalogModel1(id: i+101, categoryId: 01010101, name: "", thumbnail: "pink-5", stars: 3, newPrice: 8540, oldPrice: 10500, votes: 433, discount: 40)
-        let _ = CatalogModel1(id: i+102, categoryId: 01010101, name: "", thumbnail: "pink-6", stars: 3, newPrice: 8540, oldPrice: 10500, votes: 433, discount: 40)
-        let _ = CatalogModel1(id: i+103, categoryId: 01010101, name: "", thumbnail: "pink-7", stars: 3, newPrice: 8540, oldPrice: 10500, votes: 433, discount: 40)
-        
-        
-        let _ = CatalogModel1(id: i+104, categoryId: 01010101, name: "", thumbnail: "gray-1", stars: 3, newPrice: 8540, oldPrice: 10500, votes: 433, discount: 40)
-        let _ = CatalogModel1(id: i+105, categoryId: 01010101, name: "", thumbnail: "gray-2", stars: 3, newPrice: 8540, oldPrice: 10500, votes: 433, discount: 40)
-        let _ = CatalogModel1(id: i+106, categoryId: 01010101, name: "", thumbnail: "gray-3", stars: 3, newPrice: 8540, oldPrice: 10500, votes: 433, discount: 40)
-        let _ = CatalogModel1(id: i+107, categoryId: 01010101, name: "", thumbnail: "gray-4", stars: 3, newPrice: 8540, oldPrice: 10500, votes: 433, discount: 40)
-        let _ = CatalogModel1(id: i+108, categoryId: 01010101, name: "", thumbnail: "gray-5", stars: 3, newPrice: 8540, oldPrice: 10500, votes: 433, discount: 40)
-        let _ = CatalogModel1(id: i+109, categoryId: 01010101, name: "", thumbnail: "gray-6", stars: 3, newPrice: 8540, oldPrice: 10500, votes: 433, discount: 40)
-        let _ = CatalogModel1(id: i+110, categoryId: 01010101, name: "", thumbnail: "gray-7", stars: 3, newPrice: 8540, oldPrice: 10500, votes: 433, discount: 40)
-        let _ = CatalogModel1(id: i+111, categoryId: 01010101, name: "", thumbnail: "gray-8", stars: 3, newPrice: 8540, oldPrice: 10500, votes: 433, discount: 40)
+        let _ = CatalogModel1(id: i+98, categoryId: 01010101, name: "", thumbnail: "pink-2", stars: 3, newPrice: 11900, oldPrice: 12500, votes: 433, discount: 40)
+        let _ = CatalogModel1(id: i+99, categoryId: 01010101, name: "", thumbnail: "pink-3", stars: 3, newPrice: 12000, oldPrice: 15500, votes: 433, discount: 40)
+        let _ = CatalogModel1(id: i+100, categoryId: 01010101, name: "", thumbnail: "pink-4", stars: 3, newPrice: 12100, oldPrice: 15500, votes: 433, discount: 40)
+        let _ = CatalogModel1(id: i+101, categoryId: 01010101, name: "", thumbnail: "pink-5", stars: 3, newPrice: 12200, oldPrice: 15500, votes: 433, discount: 40)
+        let _ = CatalogModel1(id: i+102, categoryId: 01010101, name: "", thumbnail: "pink-6", stars: 3, newPrice: 12300, oldPrice: 16500, votes: 433, discount: 40)
+        let _ = CatalogModel1(id: i+103, categoryId: 01010101, name: "", thumbnail: "pink-7", stars: 3, newPrice: 12400, oldPrice: 17500, votes: 433, discount: 40)
         
         
-        let _ = CatalogModel1(id: i+112, categoryId: 01010101, name: "", thumbnail: "blue-11", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+113, categoryId: 01010101, name: "", thumbnail: "blue-12", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+114, categoryId: 01010101, name: "", thumbnail: "blue-13", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+115, categoryId: 01010101, name: "", thumbnail: "blue-14", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+116, categoryId: 01010101, name: "", thumbnail: "blue-15", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+117, categoryId: 01010101, name: "", thumbnail: "blue-16", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+118, categoryId: 01010101, name: "", thumbnail: "blue-17", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+119, categoryId: 01010101, name: "", thumbnail: "blue-18", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+120, categoryId: 01010101, name: "", thumbnail: "blue-19", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+121, categoryId: 01010101, name: "", thumbnail: "blue-20", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+122, categoryId: 01010101, name: "", thumbnail: "blue-21", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+123, categoryId: 01010101, name: "", thumbnail: "blue-22", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+124, categoryId: 01010101, name: "", thumbnail: "blue-23", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+125, categoryId: 01010101, name: "", thumbnail: "blue-24", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+126, categoryId: 01010101, name: "", thumbnail: "blue-25", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+127, categoryId: 01010101, name: "", thumbnail: "blue-26", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+128, categoryId: 01010101, name: "", thumbnail: "blue-27", stars: 3, newPrice: 4555, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+104, categoryId: 01010101, name: "", thumbnail: "gray-1", stars: 3, newPrice: 12500, oldPrice: 18500, votes: 433, discount: 40)
+        let _ = CatalogModel1(id: i+105, categoryId: 01010101, name: "", thumbnail: "gray-2", stars: 3, newPrice: 12600, oldPrice: 19500, votes: 433, discount: 40)
+        let _ = CatalogModel1(id: i+106, categoryId: 01010101, name: "", thumbnail: "gray-3", stars: 3, newPrice: 12700, oldPrice: 13500, votes: 433, discount: 40)
+        let _ = CatalogModel1(id: i+107, categoryId: 01010101, name: "", thumbnail: "gray-4", stars: 3, newPrice: 12800, oldPrice: 12500, votes: 433, discount: 40)
+        let _ = CatalogModel1(id: i+108, categoryId: 01010101, name: "", thumbnail: "gray-5", stars: 3, newPrice: 12900, oldPrice: 13500, votes: 433, discount: 40)
+        let _ = CatalogModel1(id: i+109, categoryId: 01010101, name: "", thumbnail: "gray-6", stars: 3, newPrice: 13000, oldPrice: 14500, votes: 433, discount: 40)
+        let _ = CatalogModel1(id: i+110, categoryId: 01010101, name: "", thumbnail: "gray-7", stars: 3, newPrice: 13100, oldPrice: 15500, votes: 433, discount: 40)
+        let _ = CatalogModel1(id: i+111, categoryId: 01010101, name: "", thumbnail: "gray-8", stars: 3, newPrice: 13200, oldPrice: 16500, votes: 433, discount: 40)
         
-        let _ = CatalogModel1(id: i+129, categoryId: 01010101, name: "", thumbnail: "violet-3", stars: 4, newPrice: 4555, oldPrice: 6500, votes: 33, discount: 20)
-        let _ = CatalogModel1(id: i+130, categoryId: 01010101, name: "", thumbnail: "violet-4", stars: 4, newPrice: 4555, oldPrice: 6500, votes: 33, discount: 20)
-        let _ = CatalogModel1(id: i+131, categoryId: 01010101, name: "", thumbnail: "violet-5", stars: 4, newPrice: 4555, oldPrice: 6500, votes: 33, discount: 20)
-        let _ = CatalogModel1(id: i+132, categoryId: 01010101, name: "", thumbnail: "violet-6", stars: 4, newPrice: 4555, oldPrice: 6500, votes: 33, discount: 20)
-        let _ = CatalogModel1(id: i+133, categoryId: 01010101, name: "", thumbnail: "violet-7", stars: 4, newPrice: 4555, oldPrice: 6500, votes: 33, discount: 20)
-        let _ = CatalogModel1(id: i+134, categoryId: 01010101, name: "", thumbnail: "violet-8", stars: 4, newPrice: 4555, oldPrice: 6500, votes: 33, discount: 20)
-        let _ = CatalogModel1(id: i+135, categoryId: 01010101, name: "", thumbnail: "violet-9", stars: 4, newPrice: 4555, oldPrice: 6500, votes: 33, discount: 20)
+        
+        let _ = CatalogModel1(id: i+112, categoryId: 01010101, name: "", thumbnail: "blue-11", stars: 3, newPrice: 13300, oldPrice: 16500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+113, categoryId: 01010101, name: "", thumbnail: "blue-12", stars: 3, newPrice: 13400, oldPrice: 16500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+114, categoryId: 01010101, name: "", thumbnail: "blue-13", stars: 3, newPrice: 13500, oldPrice: 16500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+115, categoryId: 01010101, name: "", thumbnail: "blue-14", stars: 3, newPrice: 13600, oldPrice: 16500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+116, categoryId: 01010101, name: "", thumbnail: "blue-15", stars: 3, newPrice: 13700, oldPrice: 16500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+117, categoryId: 01010101, name: "", thumbnail: "blue-16", stars: 3, newPrice: 13800, oldPrice: 16500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+118, categoryId: 01010101, name: "", thumbnail: "blue-17", stars: 3, newPrice: 13900, oldPrice: 16500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+119, categoryId: 01010101, name: "", thumbnail: "blue-18", stars: 3, newPrice: 14000, oldPrice: 16500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+120, categoryId: 01010101, name: "", thumbnail: "blue-19", stars: 3, newPrice: 14100, oldPrice: 16500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+121, categoryId: 01010101, name: "", thumbnail: "blue-20", stars: 3, newPrice: 14200, oldPrice: 16500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+122, categoryId: 01010101, name: "", thumbnail: "blue-21", stars: 3, newPrice: 14300, oldPrice: 16500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+123, categoryId: 01010101, name: "", thumbnail: "blue-22", stars: 3, newPrice: 14400, oldPrice: 16500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+124, categoryId: 01010101, name: "", thumbnail: "blue-23", stars: 3, newPrice: 14500, oldPrice: 16500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+125, categoryId: 01010101, name: "", thumbnail: "blue-24", stars: 3, newPrice: 14600, oldPrice: 16500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+126, categoryId: 01010101, name: "", thumbnail: "blue-25", stars: 3, newPrice: 14700, oldPrice: 16500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+127, categoryId: 01010101, name: "", thumbnail: "blue-26", stars: 3, newPrice: 14800, oldPrice: 16500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+128, categoryId: 01010101, name: "", thumbnail: "blue-27", stars: 3, newPrice: 14900, oldPrice: 16500, votes: 45, discount: 30)
+        
+        let _ = CatalogModel1(id: i+129, categoryId: 01010101, name: "", thumbnail: "violet-3", stars: 4, newPrice: 15000, oldPrice: 16500, votes: 33, discount: 20)
+        let _ = CatalogModel1(id: i+130, categoryId: 01010101, name: "", thumbnail: "violet-4", stars: 4, newPrice: 15100, oldPrice: 26500, votes: 33, discount: 20)
+        let _ = CatalogModel1(id: i+131, categoryId: 01010101, name: "", thumbnail: "violet-5", stars: 4, newPrice: 15200, oldPrice: 26500, votes: 33, discount: 20)
+        let _ = CatalogModel1(id: i+132, categoryId: 01010101, name: "", thumbnail: "violet-6", stars: 4, newPrice: 15300, oldPrice: 26500, votes: 33, discount: 20)
+        let _ = CatalogModel1(id: i+133, categoryId: 01010101, name: "", thumbnail: "violet-7", stars: 4, newPrice: 15400, oldPrice: 26500, votes: 33, discount: 20)
+        let _ = CatalogModel1(id: i+134, categoryId: 01010101, name: "", thumbnail: "violet-8", stars: 4, newPrice: 15500, oldPrice: 26500, votes: 33, discount: 20)
+        let _ = CatalogModel1(id: i+135, categoryId: 01010101, name: "", thumbnail: "violet-9", stars: 4, newPrice: 15600, oldPrice: 26500, votes: 33, discount: 20)
    // }
 
 }

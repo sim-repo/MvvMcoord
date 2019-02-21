@@ -97,7 +97,7 @@ class SubFilterSectionVC: UIViewController {
             }
             .disposed(by: bag)
         
-        viewModel.filterActionDelegate?.showApplyingViewEvent()
+        viewModel.filterActionDelegate?.showApplyViewEvent()
             .bind(onNext: {[weak self] isShow in
                 guard let `self` = self else {return}
                 self.applyViewBottomCon.constant = isShow ? 0 : self.applyView.frame.height

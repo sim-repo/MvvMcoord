@@ -770,6 +770,7 @@
                                             <outlet property="collapseImageView" destination="bE2-v3-b7c" id="1z7-ul-0kX"/>
                                             <outlet property="containerView" destination="DzZ-qY-Bc0" id="A5P-6Z-eWq"/>
                                             <outlet property="filterLabel" destination="CkT-uO-flA" id="Rk5-dp-KEo"/>
+                                            <outlet property="rangeSlider" destination="teH-Nh-VXA" id="xQz-8L-9mV"/>
                                             <outlet property="stackView" destination="Njj-yJ-Vb3" id="it8-f4-9Ik"/>
                                         </connections>
                                     </tableViewCell>
@@ -832,10 +833,21 @@
                                     <constraint firstAttribute="height" constant="60" id="ch6-Sk-D1d"/>
                                 </constraints>
                             </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2cO-U4-NMd" userLabel="Price Apply View" customClass="PriceApply" customModule="MvvMcoord" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="896" width="414" height="60"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="60" id="2xN-9d-FkX"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="xJk-C6-Umv" firstAttribute="top" secondItem="AHp-81-c4P" secondAttribute="top" id="1wp-cX-ueI"/>
+                            <constraint firstItem="2cO-U4-NMd" firstAttribute="leading" secondItem="AHp-81-c4P" secondAttribute="leading" id="2VP-JE-fAj"/>
+                            <constraint firstItem="2cO-U4-NMd" firstAttribute="bottom" secondItem="uOh-0a-FBk" secondAttribute="bottom" constant="60" id="5F7-iA-Rr5"/>
+                            <constraint firstItem="AHp-81-c4P" firstAttribute="trailing" secondItem="2cO-U4-NMd" secondAttribute="trailing" id="AGV-Vg-shL"/>
+                            <constraint firstItem="uOh-0a-FBk" firstAttribute="top" secondItem="xJk-C6-Umv" secondAttribute="bottom" id="DBP-da-1FW"/>
                             <constraint firstItem="xJk-C6-Umv" firstAttribute="leading" secondItem="AHp-81-c4P" secondAttribute="leading" id="RAy-WV-bkD"/>
                             <constraint firstAttribute="bottom" secondItem="uOh-0a-FBk" secondAttribute="bottom" id="YFU-Fo-CH5"/>
                             <constraint firstItem="AHp-81-c4P" firstAttribute="trailing" secondItem="uOh-0a-FBk" secondAttribute="trailing" id="YZX-99-XNh"/>
@@ -847,6 +859,8 @@
                     </view>
                     <connections>
                         <outlet property="applyView" destination="uOh-0a-FBk" id="g79-w8-5cS"/>
+                        <outlet property="priceApplyView" destination="2cO-U4-NMd" id="hhE-7P-Uqf"/>
+                        <outlet property="priceApplyViewBottomCon" destination="5F7-iA-Rr5" id="1q3-hO-13p"/>
                         <outlet property="tableView" destination="xJk-C6-Umv" id="7q2-T1-ig7"/>
                     </connections>
                 </viewController>

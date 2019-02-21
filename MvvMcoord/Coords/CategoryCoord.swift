@@ -23,8 +23,8 @@ class CategoryCoord: BaseCoord<CoordRetEnum> {
             else { fatalError("view model") }
         
         viewController.viewModel = vm
-        
-        
+    
+      
         vm.outShowSubcategory
             .flatMap{[weak self] baseId -> Observable<CoordRetEnum> in
                 guard let `self` = self else { return .empty() }

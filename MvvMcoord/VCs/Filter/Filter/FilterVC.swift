@@ -7,6 +7,9 @@ class FilterVC: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var applyView: ApplyButton!
+    @IBOutlet weak var priceApplyView: PriceApply!
+    @IBOutlet weak var priceApplyViewBottomCon: NSLayoutConstraint!
+    
     
     public var viewModel: FilterVM!
     private var bag = DisposeBag()
@@ -15,6 +18,7 @@ class FilterVC: UIViewController {
     private let waitActivityView = UIActivityIndicatorView(style: .whiteLarge)
     var removeFilterEvent = PublishSubject<Int>()
     
+    var rangeCellIndexPath: IndexPath!
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -23,8 +27,10 @@ class FilterVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         bindCell()
         bindApply()
+        bindPriceApply()
         bindWaitEvent()
         bindSelection()
         bindRemoveFilter()
@@ -67,7 +73,7 @@ class FilterVC: UIViewController {
                     case .range:
                         guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCell", for: indexPath) as? FilterCell else { return UITableViewCell() }
                         
-                        cell.configCell(model: model)
+                        cell.configCell(model: model, viewModel: self.viewModel)
                         cell.state = self.cellIsExpanded(at: indexPath) ? .expanded : .collapsed
                         return cell
                     case .select:
@@ -88,18 +94,34 @@ class FilterVC: UIViewController {
    
     
     
+    private func doHideRangePricesCell()->Bool{
+        guard rangeCellIndexPath == nil
+            else {
+                let cell = tableView.cellForRow(at: rangeCellIndexPath) as! FilterCell
+                cell.state = .collapsed
+                removeExpandedIndexPath(rangeCellIndexPath)
+                rangeCellIndexPath = nil
+                tableView.beginUpdates()
+                tableView.endUpdates()
+                return true
+        }
+        return false
+    }
+    
+    
     private func bindSelection(){
         
         let selected = tableView.rx.itemSelected
-        let deselected = tableView.rx.itemDeselected
         
         selected
             .subscribe(onNext: {[weak self] indexPath  in
                 let cell = self!.tableView.cellForRow(at: indexPath)
-                
+                self!.tableView.deselectRow(at: indexPath, animated: true)
                 switch cell {
                 case is FilterCellSelect:
-                    self!.tableView.deselectRow(at: indexPath, animated: true)
+                    
+                    guard self!.doHideRangePricesCell() == false else { return }
+                    
                     let id = (cell as! FilterCellSelect).id!
                     self!.viewModel.inSelectFilter.onNext(id)
                     
@@ -107,32 +129,16 @@ class FilterVC: UIViewController {
                     if let `cell` = cell as? FilterCell {
                         cell.state = .expanded
                         self!.addExpandedIndexPath(indexPath)
+                        self!.viewModel.filterActionDelegate?.showPriceApplyViewEvent().onNext(true)
+                        self!.rangeCellIndexPath = indexPath
                     }
+                    
                 case is FilterCellSection:
+                    guard self!.doHideRangePricesCell() == false else { return }
+                    
                     let id = (cell as! FilterCellSection).id!
                     self!.viewModel.inSelectFilter.onNext(id)
                     
-                default:
-                    print("bindingRowSelected err")
-                }
-                self!.tableView.beginUpdates()
-                self!.tableView.endUpdates()
-            })
-            .disposed(by: bag)
-        
-        
-        
-        deselected
-            .subscribe(onNext: {[weak self] indexPath  in
-                let cell = self!.tableView.cellForRow(at: indexPath)
-                switch cell {
-                case is FilterCellSelect:
-                    print("bindingRowSelected must implement")
-                case is FilterCell:
-                    if let `cell` = cell as? FilterCell {
-                        cell.state = .collapsed
-                        self!.removeExpandedIndexPath(indexPath)
-                    }
                 default:
                     print("bindingRowSelected err")
                 }
@@ -157,8 +163,26 @@ class FilterVC: UIViewController {
                 self?.viewModel.inCleanUp.onCompleted()
             }
             .disposed(by: bag)
-
     }
+    
+    
+    private func bindPriceApply(){
+        priceApplyView.applyButton.rx.tap
+            .subscribe{ [weak self] _ in
+                self?.doHideRangePricesCell()
+                self?.viewModel.priceInApply.onNext(Void())
+            }
+            .disposed(by: bag)
+        
+        viewModel.filterActionDelegate?.showPriceApplyViewEvent()
+            .bind(onNext: {[weak self] isShow in
+                guard let `self` = self else {return}
+                self.priceApplyViewBottomCon.constant = isShow ? 0 : self.priceApplyView.frame.height
+                self.view.layoutIfNeeded()
+            })
+            .disposed(by: bag)
+    }
+    
     
     private func bindNavigation() {
         viewModel.outCloseVC
@@ -239,3 +263,4 @@ extension FilterVC: UITableViewDelegate {
         }
     }
 }
+

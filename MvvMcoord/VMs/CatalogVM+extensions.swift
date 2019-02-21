@@ -19,8 +19,12 @@ protocol FilterActionDelegate : class {
     func cleanupFromFilterEvent() -> PublishSubject<Void>
     func cleanupFromSubFilterEvent() -> PublishSubject<Int>
     func requestComplete() -> PublishSubject<Int>
-    func showApplyingViewEvent() -> BehaviorSubject<Bool>
+    func showApplyViewEvent() -> BehaviorSubject<Bool>
+    func showPriceApplyViewEvent() -> BehaviorSubject<Bool>
     func refreshedCellSelectionsEvent()->PublishSubject<Set<Int>>
+    func applyByPrices() -> PublishSubject<Void>
+    func getPriceRange()-> (CGFloat, CGFloat, CGFloat, CGFloat)
+    func setPriceRange(minPrice: CGFloat, maxPrice: CGFloat)
     func wait() -> BehaviorSubject<(FilterActionEnum, Bool)>
 }
 
@@ -49,7 +53,12 @@ extension CatalogVM : FilterActionDelegate {
     func requestSubFilters(filterId: Int) {
         wait().onNext((.enterSubFilter, true))
         showCleanSubFilterVC(filterId: filterId)
-        NetworkMgt.requestEnterSubFilter(filterId: filterId, appliedSubFilters: self.midAppliedSubFilters)
+        NetworkMgt.requestEnterSubFilter(categoryId: categoryId,
+                                         filterId: filterId,
+                                         appliedSubFilters: self.midAppliedSubFilters,
+                                         minPrice: self.currMinPrice != self.minPrice ? self.currMinPrice : 0,
+                                         maxPrice: self.currMaxPrice != self.maxPrice ? self.currMaxPrice : 0
+                                         )
     }
     
     func removeFilterEvent() -> PublishSubject<Int> {
@@ -72,6 +81,10 @@ extension CatalogVM : FilterActionDelegate {
         return inApplyFromSubFilterEvent
     }
     
+    func applyByPrices() -> PublishSubject<Void> {
+        return inApplyByPricesEvent
+    }
+    
     func requestComplete() -> PublishSubject<Int> {
         return outRequestComplete
     }
@@ -92,12 +105,26 @@ extension CatalogVM : FilterActionDelegate {
         return inCleanUpFromSubFilterEvent
     }
     
-    func showApplyingViewEvent() -> BehaviorSubject<Bool> {
-        return outShowApplyingViewEvent
+    func showApplyViewEvent() -> BehaviorSubject<Bool> {
+        return outShowApplyViewEvent
     }
+    
+    func showPriceApplyViewEvent() -> BehaviorSubject<Bool> {
+        return outShowPriceApplyViewEvent
+    }
+    
     
     func refreshedCellSelectionsEvent() -> PublishSubject<Set<Int>> {
         return outRefreshedCellSelectionsEvent
+    }
+    
+    func getPriceRange()-> (CGFloat, CGFloat, CGFloat, CGFloat) {
+        return (minPrice, maxPrice, currMinPrice, currMaxPrice)
+    }
+    
+    func setPriceRange(minPrice: CGFloat, maxPrice: CGFloat) {
+        self.currMinPrice = minPrice
+        self.currMaxPrice = maxPrice
     }
     
     func wait() -> BehaviorSubject<(FilterActionEnum, Bool)> {
@@ -148,34 +175,54 @@ extension CatalogVM : FilterActionDelegate {
         
         inApplyFromFilterEvent
             .subscribe(onNext: {[weak self] _ in
-                if let `self` = self {
+                guard let `self` = self else { return }
                     
-                    let midApplying = self.midAppliedSubFilters.subtracting(self.unapplying)
-                    
-                    
-                    if midApplying.count == 0 && self.selectedSubFilters.count == 0{
+                let midApplying = self.midAppliedSubFilters.subtracting(self.unapplying)
+                if midApplying.count == 0 &&
+                   self.selectedSubFilters.count == 0 &&
+                   self.minPrice == self.currMinPrice &&
+                   self.maxPrice == self.maxPrice {
                         self.resetFilters()
                         return
-                    }
-                    self.showCleanFilterVC()
-                    self.unapplying.removeAll()
-                    self.wait().onNext((.applyFilter, true))
-                    NetworkMgt.requestApplyFromFilter(categoryId: self.categoryId, appliedSubFilters: midApplying, selectedSubFilters: self.selectedSubFilters)
                 }
+                self.showCleanFilterVC()
+                self.unapplying.removeAll()
+                self.wait().onNext((.applyFilter, true))
+                NetworkMgt.requestApplyFromFilter(categoryId: self.categoryId,
+                                                  appliedSubFilters: midApplying,
+                                                  selectedSubFilters: self.selectedSubFilters,
+                                                  minPrice: self.currMinPrice != self.minPrice ? self.currMinPrice : 0,
+                                                  maxPrice: self.currMaxPrice != self.maxPrice ? self.currMaxPrice : 0
+                                                  )
             })
             .disposed(by: bag)
         
+        
         inApplyFromSubFilterEvent
             .subscribe(onNext: {[weak self] filterId in
-                if let `self` = self {
-                    let midApplying = self.midAppliedSubFilters.subtracting(self.unapplying)
-                    self.wait().onNext((.applySubFilter, true))
-                    self.unapplying.removeAll()
-                    self.showCleanFilterVC()
-                    NetworkMgt.requestApplyFromSubFilter(filterId: filterId, appliedSubFilters: midApplying, selectedSubFilters: self.selectedSubFilters)
-                }
+                guard let `self` = self else { return }
+                let midApplying = self.midAppliedSubFilters.subtracting(self.unapplying)
+                self.wait().onNext((.applySubFilter, true))
+                self.unapplying.removeAll()
+                self.showCleanFilterVC()
+                NetworkMgt.requestApplyFromSubFilter(categoryId: self.categoryId,
+                                                     filterId: filterId,
+                                                     appliedSubFilters: midApplying,
+                                                     selectedSubFilters: self.selectedSubFilters,
+                                                     minPrice: self.currMinPrice != self.minPrice ? self.currMinPrice : 0,
+                                                     maxPrice: self.currMaxPrice != self.maxPrice ? self.currMaxPrice : 0
+                                                     )
             })
             .disposed(by: bag)
+        
+        
+        inApplyByPricesEvent
+            .subscribe(onNext: {[weak self] _ in
+                guard let `self` = self else { return }
+                NetworkMgt.requestApplyByPrices(categoryId: self.categoryId, minPrice: self.currMinPrice, maxPrice: self.currMaxPrice)
+            })
+            .disposed(by: bag)
+        
         
         inRemoveFilterEvent
             .subscribe(onNext: {[weak self] filterId in
@@ -187,6 +234,7 @@ extension CatalogVM : FilterActionDelegate {
                 }
             })
             .disposed(by: bag)
+        
         
         inSelectSubFilterEvent
             .subscribe(onNext: {[weak self] (subFilterId, selected) in
@@ -296,6 +344,17 @@ extension CatalogVM : FilterActionDelegate {
                 self.wait().onNext((.applySubFilter, false))
                 
                 self.unitTestSignalOperationComplete.onNext(self.utMsgId)
+            })
+            .disposed(by: bag)
+        
+        
+        
+        NetworkMgt.outApplyByPrices
+            .subscribe(onNext: {[weak self] _filters in
+                guard let `self` = self else {return}
+                self.enableFilters(ids: _filters)
+                let filters = self.getEnabledFilters()
+                self.outFiltersEvent.onNext(filters)
             })
             .disposed(by: bag)
         

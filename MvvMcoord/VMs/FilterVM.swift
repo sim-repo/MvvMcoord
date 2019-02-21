@@ -9,13 +9,17 @@ class FilterVM : BaseVM {
     public var inSelectFilter = PublishSubject<Int>()
     public var inApply = PublishSubject<Void>()
     public var inCleanUp = PublishSubject<Void>()
+    public var priceInApply = PublishSubject<Void>()
     public var inRemoveFilter = PublishSubject<Int>()
-    
+    private var tmpMinPrice: CGFloat = 0
+    private var tmpMaxPrice: CGFloat = 0
     
     // MARK: - Outputs to ViewController or Coord
     public var outShowSubFilters = PublishSubject<Int>()
     public var outCloseVC = PublishSubject<Void>()
-   
+    
+    
+    
     var categoryId : Int
     
     public weak var filterActionDelegate: FilterActionDelegate?
@@ -34,12 +38,17 @@ class FilterVM : BaseVM {
         return self.filterActionDelegate?.appliedTitle(filterId: filterId) ?? ""
     }
     
+    public func setTmpRangePrice(minPrice: CGFloat, maxPrice: CGFloat) {
+        self.tmpMinPrice = minPrice
+        self.tmpMaxPrice = maxPrice
+    }
     
     private func bindSelection(){
         inSelectFilter
             .subscribe(
                 onNext: {[weak self] filterId in
                     self?.filterActionDelegate?.requestSubFilters(filterId: filterId)
+                    self?.filterActionDelegate?.showPriceApplyViewEvent().onNext(false)
                 }
             )
             .disposed(by: bag)
@@ -74,6 +83,16 @@ class FilterVM : BaseVM {
                         .removeFilterEvent()
                         .onNext(filterId)
                 }
+            })
+            .disposed(by: bag)
+        
+        priceInApply
+            .subscribe(onNext: {[weak self] _ in   // onNext need for unit-tests
+                guard let `self` = self else {return}
+                self.filterActionDelegate?.setPriceRange(minPrice: self.tmpMinPrice, maxPrice: self.tmpMaxPrice)
+                self.filterActionDelegate?.showPriceApplyViewEvent().onNext(false)
+                self.filterActionDelegate?.applyByPrices().onNext(Void())
+                //self.filterActionDelegate?.applyFromSubFilterEvent().onNext(filterId)
             })
             .disposed(by: bag)
     }

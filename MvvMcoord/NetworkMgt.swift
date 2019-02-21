@@ -13,17 +13,17 @@ class NetworkMgt{
     private init(){}
     
     static let baseURL = "https://api.vk.com/method/"
-
+    
     public static let outFilterEntitiesResponse = BehaviorSubject<([FilterModel], [SubfilterModel])>(value: ([],[]))
     public static var outEnterSubFilterResponse = PublishSubject<(Int, [Int?], Set<Int>, [Int:Int])>()
     public static var outCatalogModel = PublishSubject<[CatalogModel?]>()
-    public static var outCatalogTotal = BehaviorSubject<([Int], Int)>(value: ([],20))
+    public static var outCatalogTotal = BehaviorSubject<([Int], Int, CGFloat, CGFloat)>(value: ([],20, 0, 0))
     
     static let backend: ApiBackendLogic = BackendLogic.shared
     
     static var outApplyItemsResponse = PublishSubject<([Int?], [Int?], Set<Int>, Set<Int>, [Int])>()
     static var outApplyFiltersResponse = PublishSubject<([Int?], [Int?], Set<Int>, Set<Int>)>()
-    
+    static var outApplyByPrices = PublishSubject<[Int?]>()
     static let delay = 0
     
     
@@ -48,8 +48,12 @@ class NetworkMgt{
         outCatalogModel.onNext(catalogModel)
     }
     
-    private static func nextCatalogTotal(itemIds: [Int], fetchLimit: Int) {
-        outCatalogTotal.onNext((itemIds, fetchLimit))
+    private static func nextCatalogTotal(itemIds: [Int], fetchLimit: Int, minPrice: CGFloat, maxPrice: CGFloat) {
+        outCatalogTotal.onNext((itemIds, fetchLimit, minPrice, maxPrice))
+    }
+    
+    private static func nextApplyByPrices(filterIds: [Int?]) {
+        outApplyByPrices.onNext(filterIds)
     }
     
     
@@ -57,24 +61,24 @@ class NetworkMgt{
     private static func parseJsonObjArr<T: ModelProtocol>(result: HTTPSCallableResult?, key:String)->[T]{
         var res: [T] = []
         if let text = (result?.data as? [String: Any])?[key] as? String,
-           let data = text.data(using: .utf8),
-           let json = try? JSON(data: data) {
-                for j in json["items"].arrayValue {
-                    let t: T = T(json: j)
-                    res.append(t)
-                }
+            let data = text.data(using: .utf8),
+            let json = try? JSON(data: data) {
+            for j in json["items"].arrayValue {
+                let t: T = T(json: j)
+                res.append(t)
             }
+        }
         return res
     }
     
     private static func parseJsonArr(result: HTTPSCallableResult?, key:String)->[Int]{
         var res: [Int] = []
         if let text = (result?.data as? [String: Any])?[key] as? String,
-           let data = text.data(using: .utf8),
-           let json = try? JSON(data: data) {
-                for j in json["items"].arrayValue {
-                    res.append(j.intValue)
-                }
+            let data = text.data(using: .utf8),
+            let json = try? JSON(data: data) {
+            for j in json["items"].arrayValue {
+                res.append(j.intValue)
+            }
         }
         return res
     }
@@ -85,24 +89,32 @@ class NetworkMgt{
         if let text = (result?.data as? [String: Any])?[key] as? String,
             let data = text.data(using: .utf8),
             let json = try? JSON(data: data) {
-                    for j in json["items"].arrayValue {
-                        let dict = j.dictionaryObject as! [String:Int]
-                        for(key,val) in dict {
-                            res[Int(key)!] = val
-                        }
-                    }
+            for j in json["items"].arrayValue {
+                let dict = j.dictionaryObject as! [String:Int]
+                for(key,val) in dict {
+                    res[Int(key)!] = val
+                }
+            }
         }
         return res
     }
     
-    private static func parseJsonVal(result: HTTPSCallableResult?, key:String)->String{
-        var res: String = ""
+    private static func parseJsonVal<T>(type: T.Type, result: HTTPSCallableResult?, key:String)->T?{
         if let text = (result?.data as? [String: Any])?[key] as? String,
             let data = text.data(using: .utf8),
             let json = try? JSON(data: data) {
-                res = json[key].stringValue
+            switch type {
+            case is Int.Type:
+                return json[key].intValue as? T
+            case is CGFloat.Type:
+                return json[key].floatValue as? T
+            case is String.Type:
+                return json[key].stringValue as? T
+            default:
+                return json[key].stringValue as? T
+            }
         }
-        return res
+        return nil
     }
     
     
@@ -132,20 +144,26 @@ class NetworkMgt{
     
     public static func requestCatalogStart(categoryId: Int, appliedSubFilters: Set<Int>) {
         networkFunc = {
-        functions.httpsCallable("catalogTotal").call(["useCache":true,
-                                                      "categoryId":categoryId,
-                                                     ]) {(result, error) in
-                if let error = error as NSError? {
-                    firebaseHandleErr(error: error)
-                    return
-                }
-                let sFetchLimit = parseJsonVal(result: result, key: "fetchLimit")
-                guard let fetchLimit = Int(sFetchLimit) else {return}
-                let itemIds:[Int] = parseJsonArr(result: result, key: "itemIds")
-                                                
-                                                        
-                
-                nextCatalogTotal(itemIds: itemIds, fetchLimit: fetchLimit)
+            functions.httpsCallable("catalogTotal").call(["useCache":true,
+                                                          "categoryId":categoryId,
+                                                          ]) {(result, error) in
+                                                            if let error = error as NSError? {
+                                                                firebaseHandleErr(error: error)
+                                                                return
+                                                            }
+                                                            let fetchLimit_ = parseJsonVal(type: Int.self, result: result, key: "fetchLimit")
+                                                            
+                                                            let itemIds:[Int] = parseJsonArr(result: result, key: "itemIds")
+                                                            let minPrice_ = parseJsonVal(type: Int.self, result: result, key: "minPrice")
+                                                            let maxPrice_ = parseJsonVal(type: Int.self, result: result, key: "maxPrice")
+                                                            
+                                                 
+                                                            guard let fetchLimit = fetchLimit_,
+                                                                let minPrice = minPrice_,
+                                                                let maxPrice = maxPrice_
+                                                                else { return firebaseHandleErr(error: NSError(domain: FunctionsErrorDomain, code: 1, userInfo: ["Parse Int":0])  )}
+                                                            
+                                                            nextCatalogTotal(itemIds: itemIds, fetchLimit: fetchLimit, minPrice: CGFloat(minPrice), maxPrice: CGFloat(maxPrice))
             }
         }
         NetworkMgt.runRequest(networkFunction: networkFunc)
@@ -153,11 +171,11 @@ class NetworkMgt{
     
     
     public static func requestCatalogModel(categoryId: Int, itemIds: [Int]) {
-       networkFunc = {
+        networkFunc = {
             functions.httpsCallable("catalogEntities").call(["useCache": true,
                                                              "categoryId": categoryId,
                                                              "itemsIds": itemIds
-                                                            ]) {(result, error) in
+            ]) {(result, error) in
                 if let error = error as NSError? {
                     firebaseHandleErr(error: error)
                     return
@@ -172,30 +190,38 @@ class NetworkMgt{
     
     public static func requestFullFilterEntities(categoryId: Int){
         networkFunc = {
-                functions.httpsCallable("fullFilterEntities").call(["useCache":true]) {(result, error) in
-                    if let error = error as NSError? {
-                        firebaseHandleErr(error: error)
-                        return
-                    }
-                    let arr:[FilterModel] = parseJsonObjArr(result: result, key: "filters")
-                    let arr2:[SubfilterModel] = parseJsonObjArr(result: result, key: "subFilters")
-                    nextFullFilterEntities(filterModels: arr, subFilterModels: arr2)
+            functions.httpsCallable("fullFilterEntities").call(["useCache":true]) {(result, error) in
+                if let error = error as NSError? {
+                    firebaseHandleErr(error: error)
+                    return
                 }
+                let arr:[FilterModel] = parseJsonObjArr(result: result, key: "filters")
+                let arr2:[SubfilterModel] = parseJsonObjArr(result: result, key: "subFilters")
+                nextFullFilterEntities(filterModels: arr, subFilterModels: arr2)
+            }
         }
         NetworkMgt.runRequest(networkFunction: networkFunc)
     }
     
     
     
-    public static func requestEnterSubFilter(filterId: Int, appliedSubFilters: Set<Int>){
+    public static func requestEnterSubFilter(categoryId: Int, filterId: Int, appliedSubFilters: Set<Int>, minPrice: CGFloat, maxPrice: CGFloat){
         networkFunc = {
-            functions.httpsCallable("currSubFilterIds").call(["useCache":true, "filterId":filterId, "appliedSubFilters":Array(appliedSubFilters)]) {(result, error) in
+            functions.httpsCallable("currSubFilterIds").call(["useCache":true,
+                                                              "categoryId": categoryId,
+                                                              "filterId":filterId,
+                                                              "appliedSubFilters":Array(appliedSubFilters),
+                                                              "minPrice":minPrice,
+                                                              "maxPrice":maxPrice
+                                                              ]) {(result, error) in
                 if let error = error as NSError? {
                     firebaseHandleErr(error: error)
                     return
                 }
-                let sfilterId = parseJsonVal(result: result, key: "filterId")
-                guard let filterId = Int(sfilterId) else {return}
+                let filterId_ = parseJsonVal(type: Int.self, result: result, key: "filterId")
+                guard let filterId = filterId_
+                    else { return firebaseHandleErr(error: NSError(domain: "parse INT error", code: 0, userInfo: [:]))}
+                
                 let arr:[Int] = parseJsonArr(result: result, key: "subFiltersIds")
                 let arr2:[Int] = parseJsonArr(result: result, key: "appliedSubFiltersIds")
                 let dict:[Int:Int] = parseJsonDict(result: result, key: "countItemsBySubfilter")
@@ -207,45 +233,73 @@ class NetworkMgt{
     
     
     
-    public static func requestApplyFromFilter(categoryId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>){
+    public static func requestApplyFromFilter(categoryId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>, minPrice: CGFloat, maxPrice: CGFloat){
         networkFunc = {
             functions.httpsCallable("applyFromFilterNow").call(["useCache":true,
+                                                                "categoryId":categoryId,
                                                                 "selectedSubFilters":Array(selectedSubFilters),
-                                                                "appliedSubFilters":Array(appliedSubFilters)]) {(result, error) in
-                if let error = error as NSError? {
-                    firebaseHandleErr(error: error)
-                    return
-                }
-                
-                let arr:[Int] = parseJsonArr(result: result, key: "filtersIds")
-                let arr2:[Int] = parseJsonArr(result: result, key: "subFiltersIds")
-                let arr3:[Int] = parseJsonArr(result: result, key: "appliedSubFiltersIds")
-                let arr4:[Int] = parseJsonArr(result: result, key: "selectedSubFiltersIds")
-                let arr5:[Int] = parseJsonArr(result: result, key: "itemIds")
+                                                                "appliedSubFilters":Array(appliedSubFilters),
+                                                                "minPrice":minPrice,
+                                                                "maxPrice":maxPrice
+                                                                ]) {(result, error) in
+                                                                    if let error = error as NSError? {
+                                                                        firebaseHandleErr(error: error)
+                                                                        return
+                                                                    }
                                                                     
-                nextApplyForItems(filterIds: arr, subFiltersIds: arr2, appliedSubFilters: Set(arr3), selectedSubFilters: Set(arr4), itemIds: arr5)
+                                                                    let arr:[Int] = parseJsonArr(result: result, key: "filtersIds")
+                                                                    let arr2:[Int] = parseJsonArr(result: result, key: "subFiltersIds")
+                                                                    let arr3:[Int] = parseJsonArr(result: result, key: "appliedSubFiltersIds")
+                                                                    let arr4:[Int] = parseJsonArr(result: result, key: "selectedSubFiltersIds")
+                                                                    let arr5:[Int] = parseJsonArr(result: result, key: "itemIds")
+                                                                    
+                                                                    nextApplyForItems(filterIds: arr, subFiltersIds: arr2, appliedSubFilters: Set(arr3), selectedSubFilters: Set(arr4), itemIds: arr5)
             }
         }
         NetworkMgt.runRequest(networkFunction: networkFunc)
     }
     
-    public static func requestApplyFromSubFilter(filterId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>){
+    public static func requestApplyFromSubFilter(categoryId: Int, filterId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>, minPrice: CGFloat, maxPrice: CGFloat){
         networkFunc = {
             functions.httpsCallable("applyFromSubFilterNow").call([ "useCache":true,
+                                                                    "categoryId":categoryId,
                                                                     "filterId":filterId,
                                                                     "selectedSubFilters":Array(selectedSubFilters),
-                                                                    "appliedSubFilters":Array(appliedSubFilters)]) {(result, error) in
-                if let error = error as NSError? {
-                    firebaseHandleErr(error: error)
-                    return
-                }
+                                                                    "appliedSubFilters":Array(appliedSubFilters),
+                                                                    "minPrice":minPrice,
+                                                                    "maxPrice":maxPrice
+                                                                    ]) {(result, error) in
+                                                                        if let error = error as NSError? {
+                                                                            firebaseHandleErr(error: error)
+                                                                            return
+                                                                        }
+                                                                        
+                                                                        let arr:[Int] = parseJsonArr(result: result, key: "filtersIds")
+                                                                        let arr2:[Int] = parseJsonArr(result: result, key: "subFiltersIds")
+                                                                        let arr3:[Int] = parseJsonArr(result: result, key: "appliedSubFiltersIds")
+                                                                        let arr4:[Int] = parseJsonArr(result: result, key: "selectedSubFiltersIds")
+                                                                        
+                                                                        nextApplyForFilters(filterIds: arr, subFiltersIds: arr2, appliedSubFilters: Set(arr3), selectedSubFilters: Set(arr4))
+            }
+        }
+        NetworkMgt.runRequest(networkFunction: networkFunc)
+    }
+    
+    
+    public static func requestApplyByPrices(categoryId: Int, minPrice: CGFloat, maxPrice: CGFloat){
+        networkFunc = {
+            functions.httpsCallable("applyByPrices").call(["useCache":true,
+                                                                "categoryId":categoryId,
+                                                                "minPrice":minPrice,
+                                                                "maxPrice":maxPrice]) {(result, error) in
+                                                                    if let error = error as NSError? {
+                                                                        firebaseHandleErr(error: error)
+                                                                        return
+                                                                    }
                                                                     
-                let arr:[Int] = parseJsonArr(result: result, key: "filtersIds")
-                let arr2:[Int] = parseJsonArr(result: result, key: "subFiltersIds")
-                let arr3:[Int] = parseJsonArr(result: result, key: "appliedSubFiltersIds")
-                let arr4:[Int] = parseJsonArr(result: result, key: "selectedSubFiltersIds")
-                
-                nextApplyForFilters(filterIds: arr, subFiltersIds: arr2, appliedSubFilters: Set(arr3), selectedSubFilters: Set(arr4))
+                                                                    let arr:[Int] = parseJsonArr(result: result, key: "filterIds")
+                                                            
+                                                                    nextApplyByPrices(filterIds: arr)
             }
         }
         NetworkMgt.runRequest(networkFunction: networkFunc)
@@ -253,22 +307,22 @@ class NetworkMgt{
     
     
     public static func requestRemoveFilter(filterId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>){
-            networkFunc = {
-                functions.httpsCallable("apiRemoveFilter").call([   "useCache":true,
-                                                                    "filterId":filterId,
-                                                                    "selectedSubFilters":Array(selectedSubFilters),
-                                                                    "appliedSubFilters":Array(appliedSubFilters)]) {(result, error) in
-                                                                        if let error = error as NSError? {
-                                                                            firebaseHandleErr(error: error)
-                                                                        }
-                                                                        
-                    let arr:[Int] = parseJsonArr(result: result, key: "filtersIds")
-                    let arr2:[Int] = parseJsonArr(result: result, key: "subFiltersIds")
-                    let arr3:[Int] = parseJsonArr(result: result, key: "appliedSubFiltersIds")
-                    let arr4:[Int] = parseJsonArr(result: result, key: "selectedSubFiltersIds")
-                    
-                    nextApplyForFilters(filterIds: arr, subFiltersIds: arr2, appliedSubFilters: Set(arr3), selectedSubFilters: Set(arr4))
-                }
+        networkFunc = {
+            functions.httpsCallable("apiRemoveFilter").call([   "useCache":true,
+                                                                "filterId":filterId,
+                                                                "selectedSubFilters":Array(selectedSubFilters),
+                                                                "appliedSubFilters":Array(appliedSubFilters)]) {(result, error) in
+                                                                    if let error = error as NSError? {
+                                                                        firebaseHandleErr(error: error)
+                                                                    }
+                                                                    
+                                                                    let arr:[Int] = parseJsonArr(result: result, key: "filtersIds")
+                                                                    let arr2:[Int] = parseJsonArr(result: result, key: "subFiltersIds")
+                                                                    let arr3:[Int] = parseJsonArr(result: result, key: "appliedSubFiltersIds")
+                                                                    let arr4:[Int] = parseJsonArr(result: result, key: "selectedSubFiltersIds")
+                                                                    
+                                                                    nextApplyForFilters(filterIds: arr, subFiltersIds: arr2, appliedSubFilters: Set(arr3), selectedSubFilters: Set(arr4))
+            }
         }
         NetworkMgt.runRequest(networkFunction: networkFunc)
     }

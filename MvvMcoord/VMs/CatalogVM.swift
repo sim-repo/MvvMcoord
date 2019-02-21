@@ -60,6 +60,18 @@ class CatalogVM : BaseVM {
     private var catalog: [CatalogModel?] = []
     private var itemIds: [Int] = []
     
+    internal var minPrice: CGFloat = 0 {
+        didSet{
+            currMinPrice = minPrice
+        }
+    }
+    internal var maxPrice: CGFloat = 0 {
+        didSet{
+            currMaxPrice = maxPrice
+        }
+    }
+    internal var currMinPrice: CGFloat = 0
+    internal var currMaxPrice: CGFloat = 0
     
     internal var inPrefetchEvent = PublishSubject<[CatalogModel?]>()
     private var isPrefetchInProgress = false
@@ -75,15 +87,18 @@ class CatalogVM : BaseVM {
     // MARK: --------------FilterActionDelegate properties--------------
     internal var inApplyFromFilterEvent = PublishSubject<Void>()
     internal var inApplyFromSubFilterEvent = PublishSubject<Int>()
+    internal var inApplyByPricesEvent = PublishSubject<Void>()
     internal var inRemoveFilterEvent = PublishSubject<Int>()
     internal var inSelectSubFilterEvent = PublishSubject<(Int, Bool)>()
+    internal var inCleanUpFromFilterEvent = PublishSubject<Void>()
+    internal var inCleanUpFromSubFilterEvent = PublishSubject<Int>()
+    
     internal var outFiltersEvent = BehaviorSubject<[FilterModel?]>(value: [])
     internal var outSubFiltersEvent = BehaviorSubject<[SubfilterModel?]>(value: [])
     internal var outSectionSubFiltersEvent = BehaviorSubject<[SectionOfSubFilterModel]>(value: [])
     internal var outRequestComplete = PublishSubject<Int>()
-    internal var inCleanUpFromFilterEvent = PublishSubject<Void>()
-    internal var inCleanUpFromSubFilterEvent = PublishSubject<Int>()
-    internal var outShowApplyingViewEvent = BehaviorSubject<Bool>(value: false)
+    internal var outShowApplyViewEvent = BehaviorSubject<Bool>(value: false)
+    internal var outShowPriceApplyViewEvent = BehaviorSubject<Bool>(value: false)
     internal var outRefreshedCellSelectionsEvent = PublishSubject<Set<Int>>()
     internal var outWaitEvent = BehaviorSubject<(FilterActionEnum, Bool)>(value: (.applyFilter, false))
     
@@ -137,6 +152,8 @@ class CatalogVM : BaseVM {
             .subscribe(onNext: { [weak self] res in
                 self?.fullCatalogItemIds = res.0
                 self?.setupFetch(itemsIds: res.0, fetchLimit: res.1)
+                self?.minPrice = res.2
+                self?.maxPrice = res.3
                 self?.outReloadVC.onNext(Void())
                 self?.emitPrefetchEvent()
             })
@@ -274,7 +291,7 @@ class CatalogVM : BaseVM {
     
     private func showApplyingView(isSelectNow: Bool){
         if isSelectNow {
-            outShowApplyingViewEvent.onNext(true)
+            outShowApplyViewEvent.onNext(true)
             return
         }
         
@@ -283,12 +300,18 @@ class CatalogVM : BaseVM {
             self.selectedSubFilters.isEmpty == false ||
             self.unapplying.isEmpty == false {
             
-            outShowApplyingViewEvent.onNext(true)
+            outShowApplyViewEvent.onNext(true)
             return
         }
         
-        outShowApplyingViewEvent.onNext(false)
+        outShowApplyViewEvent.onNext(false)
     }
+    
+    
+    private func showPriceApplyView(){
+        outShowPriceApplyViewEvent.onNext(true)
+    }
+    
     
     internal func showCleanFilterVC(){
        self.outFiltersEvent.onNext([])
@@ -387,7 +410,7 @@ class CatalogVM : BaseVM {
     
     internal func enableFilters(ids: [Int?]) {
         
-        for subf in filters {
+        for subf in filters.filter({$0.value.filterEnum != FilterEnum.range}) {
             subf.value.enabled = false
         }
         

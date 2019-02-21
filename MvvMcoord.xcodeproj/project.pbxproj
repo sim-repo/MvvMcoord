@@ -34,6 +34,8 @@
 		1618DDF5221E862C00E96EDC /* RangeSeekSliderDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1618DDF2221E862C00E96EDC /* RangeSeekSliderDelegate.swift */; };
 		1618DDF6221E862C00E96EDC /* RangeSeekSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1618DDF3221E862C00E96EDC /* RangeSeekSlider.swift */; };
 		1618DDF7221E862C00E96EDC /* TapticEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1618DDF4221E862C00E96EDC /* TapticEngine.swift */; };
+		1618DDF9221EC59D00E96EDC /* PriceApply.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1618DDF8221EC59D00E96EDC /* PriceApply.xib */; };
+		1618DDFB221EC78600E96EDC /* PriceApply.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1618DDFA221EC78600E96EDC /* PriceApply.swift */; };
 		1619ECFF220D873100B452E4 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1619ECFE220D873100B452E4 /* TestData.swift */; };
 		161A440021F740E400D16F1E /* NetworkMgt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161A43FF21F740E400D16F1E /* NetworkMgt.swift */; };
 		161AC87521DB6B080078F020 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161AC87421DB6B080078F020 /* AppDelegate.swift */; };
@@ -111,6 +113,8 @@
 		1618DDF2221E862C00E96EDC /* RangeSeekSliderDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RangeSeekSliderDelegate.swift; sourceTree = "<group>"; };
 		1618DDF3221E862C00E96EDC /* RangeSeekSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RangeSeekSlider.swift; sourceTree = "<group>"; };
 		1618DDF4221E862C00E96EDC /* TapticEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TapticEngine.swift; sourceTree = "<group>"; };
+		1618DDF8221EC59D00E96EDC /* PriceApply.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PriceApply.xib; sourceTree = "<group>"; };
+		1618DDFA221EC78600E96EDC /* PriceApply.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceApply.swift; sourceTree = "<group>"; };
 		1619ECFE220D873100B452E4 /* TestData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestData.swift; sourceTree = "<group>"; };
 		161A43FF21F740E400D16F1E /* NetworkMgt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMgt.swift; sourceTree = "<group>"; };
 		161AC87121DB6B080078F020 /* MvvMcoord.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MvvMcoord.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -415,6 +419,8 @@
 			children = (
 				16D58B0F21EC724C0025FE15 /* ApplyButton.xib */,
 				16D58B1121EC725C0025FE15 /* ApplyButton.swift */,
+				1618DDF8221EC59D00E96EDC /* PriceApply.xib */,
+				1618DDFA221EC78600E96EDC /* PriceApply.swift */,
 			);
 			path = XIB;
 			sourceTree = "<group>";
@@ -559,6 +565,7 @@
 			files = (
 				161AC87F21DB6B090078F020 /* LaunchScreen.storyboard in Resources */,
 				1611909021DDFEB300E3CB93 /* Assets.xcassets in Resources */,
+				1618DDF9221EC59D00E96EDC /* PriceApply.xib in Resources */,
 				161D84C8220A3AEB008D74F0 /* GoogleService-Info.plist in Resources */,
 				16D58B1021EC724C0025FE15 /* ApplyButton.xib in Resources */,
 				161AC87A21DB6B080078F020 /* Main.storyboard in Resources */,
@@ -722,6 +729,7 @@
 				1609DB8A221C511000D7891C /* MyResults.swift in Sources */,
 				16C6CC6821DFF8BB00F535D0 /* CatalogSquareCell.swift in Sources */,
 				1611909221DE231400E3CB93 /* DiscountLabel.swift in Sources */,
+				1618DDFB221EC78600E96EDC /* PriceApply.swift in Sources */,
 				163AD71F21E5529E00EA91B0 /* FilterCellSection.swift in Sources */,
 				1611908E21DDF8CB00E3CB93 /* UIView+Ext.swift in Sources */,
 				1609261D21E0EB0400650707 /* BaseVM.swift in Sources */,
