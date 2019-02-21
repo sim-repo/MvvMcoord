@@ -48,7 +48,7 @@ class FilterUnitTest {
     }
     
     
-    func selectSubFilters(vm: SubFilterVM, selectIds: [Int], select: Bool){
+    private func selectSubFilters(vm: SubFilterVM, selectIds: [Int], select: Bool){
         for subFilterId in selectIds {
             vm.filterActionDelegate?.selectSubFilterEvent().onNext((subFilterId, select))
         }

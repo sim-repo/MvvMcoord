@@ -12,14 +12,33 @@ class CatalogSquaresCell : UICollectionViewCell{
     @IBOutlet weak var starsLabel: UILabel!
     
     
-    func configCell(model: CatalogModel?){
-        guard let `model` = model else {return}
+    func configCell(model: CatalogModel?, indexPath: IndexPath){
         
-        imageView.image = UIImage(named: model.thumbnail)
-        discountView.label?.text = "    -" + String(model.discount) + "%"
-        itemNameLabel.text = model.name
-        newPriceLabel.text = model.newPrice
-        oldPriceLabel.attributedText = model.oldPrice
-        starsLabel.attributedText = model.stars
+        if let `model` = model {
+            
+            let gsReference = storage.reference(forURL: "gs://mvvmcoord.appspot.com/\(model.thumbnail).jpg")
+            imageView.image = UIImage(named: "no-images")
+            gsReference.getData(maxSize: 1 * 320 * 240) {[weak self] data, error in
+                if let error = error {
+                    print("Storage: \(error.localizedDescription)")
+                } else {
+                    if self?.tag == indexPath.row {
+                        self?.imageView.image = UIImage(data: data!)
+                    }
+                }
+            }
+            discountView.label?.text = "    -" + String(model.discount) + "%"
+            itemNameLabel.text = model.name
+            newPriceLabel.text = model.newPrice
+            oldPriceLabel.attributedText = model.oldPrice
+            starsLabel.attributedText = model.stars
+        } else {
+            imageView.image = UIImage(named: "no-images")
+            discountView.label?.text = ""
+            itemNameLabel.text = ""
+            newPriceLabel.text = ""
+            oldPriceLabel.attributedText = nil
+            starsLabel.attributedText = nil
+        }
     }
 }

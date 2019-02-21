@@ -76,7 +76,7 @@ class FilterVC: UIViewController {
                         return cell
                     case .section:
                         guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCellSection", for: indexPath) as? FilterCellSection else { return UITableViewCell() }
-                        cell.configCell(model: model)
+                        cell.configCell(model: model, appliedTitles: appliedTitles, tableView: self.tableView, parent: self)
                         return cell
                     }
                 } else {

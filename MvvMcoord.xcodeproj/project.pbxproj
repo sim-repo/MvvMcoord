@@ -31,6 +31,9 @@
 		1617B57521E3F1A200FFE2DA /* SubFilterSelectCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1617B57421E3F1A200FFE2DA /* SubFilterSelectCell.swift */; };
 		1617B57721E3F20000FFE2DA /* SubFilterVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1617B57621E3F20000FFE2DA /* SubFilterVM.swift */; };
 		1617B57921E3F28600FFE2DA /* SubFilterCoord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1617B57821E3F28600FFE2DA /* SubFilterCoord.swift */; };
+		1618DDF5221E862C00E96EDC /* RangeSeekSliderDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1618DDF2221E862C00E96EDC /* RangeSeekSliderDelegate.swift */; };
+		1618DDF6221E862C00E96EDC /* RangeSeekSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1618DDF3221E862C00E96EDC /* RangeSeekSlider.swift */; };
+		1618DDF7221E862C00E96EDC /* TapticEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1618DDF4221E862C00E96EDC /* TapticEngine.swift */; };
 		1619ECFF220D873100B452E4 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1619ECFE220D873100B452E4 /* TestData.swift */; };
 		161A440021F740E400D16F1E /* NetworkMgt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161A43FF21F740E400D16F1E /* NetworkMgt.swift */; };
 		161AC87521DB6B080078F020 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161AC87421DB6B080078F020 /* AppDelegate.swift */; };
@@ -105,6 +108,9 @@
 		1617B57421E3F1A200FFE2DA /* SubFilterSelectCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubFilterSelectCell.swift; sourceTree = "<group>"; };
 		1617B57621E3F20000FFE2DA /* SubFilterVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubFilterVM.swift; sourceTree = "<group>"; };
 		1617B57821E3F28600FFE2DA /* SubFilterCoord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubFilterCoord.swift; sourceTree = "<group>"; };
+		1618DDF2221E862C00E96EDC /* RangeSeekSliderDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RangeSeekSliderDelegate.swift; sourceTree = "<group>"; };
+		1618DDF3221E862C00E96EDC /* RangeSeekSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RangeSeekSlider.swift; sourceTree = "<group>"; };
+		1618DDF4221E862C00E96EDC /* TapticEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TapticEngine.swift; sourceTree = "<group>"; };
 		1619ECFE220D873100B452E4 /* TestData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestData.swift; sourceTree = "<group>"; };
 		161A43FF21F740E400D16F1E /* NetworkMgt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMgt.swift; sourceTree = "<group>"; };
 		161AC87121DB6B080078F020 /* MvvMcoord.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MvvMcoord.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -201,6 +207,24 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
+		1618DDEE221E861600E96EDC /* UI Controls */ = {
+			isa = PBXGroup;
+			children = (
+				1618DDF1221E862C00E96EDC /* RangeSeekSlider */,
+			);
+			path = "UI Controls";
+			sourceTree = "<group>";
+		};
+		1618DDF1221E862C00E96EDC /* RangeSeekSlider */ = {
+			isa = PBXGroup;
+			children = (
+				1618DDF2221E862C00E96EDC /* RangeSeekSliderDelegate.swift */,
+				1618DDF3221E862C00E96EDC /* RangeSeekSlider.swift */,
+				1618DDF4221E862C00E96EDC /* TapticEngine.swift */,
+			);
+			path = RangeSeekSlider;
+			sourceTree = "<group>";
+		};
 		161AC86821DB6B080078F020 = {
 			isa = PBXGroup;
 			children = (
@@ -226,6 +250,7 @@
 		161AC87321DB6B080078F020 /* MvvMcoord */ = {
 			isa = PBXGroup;
 			children = (
+				1618DDEE221E861600E96EDC /* UI Controls */,
 				161D84C9220A5543008D74F0 /* Upload */,
 				16123A9022030722004E507C /* Test Module */,
 				16EAE04821EBCE14007ACCCB /* XIB */,
@@ -683,6 +708,7 @@
 				163AD71B21E5516F00EA91B0 /* SubFilterSectionVC.swift in Sources */,
 				163AD71D21E551D100EA91B0 /* SubFilterSectionCell.swift in Sources */,
 				1617B56D21E351CE00FFE2DA /* FilterCell.swift in Sources */,
+				1618DDF6221E862C00E96EDC /* RangeSeekSlider.swift in Sources */,
 				16C6CC6C21E0026000F535D0 /* Formatter.swift in Sources */,
 				161AC8C421DBBEE60078F020 /* CategoryModel.swift in Sources */,
 				161AC8C621DC1FBB0078F020 /* RootCoord.swift in Sources */,
@@ -692,6 +718,7 @@
 				1617B57521E3F1A200FFE2DA /* SubFilterSelectCell.swift in Sources */,
 				1617B57721E3F20000FFE2DA /* SubFilterVM.swift in Sources */,
 				160C002321FB734900C8C44F /* FilterModel2.swift in Sources */,
+				1618DDF5221E862C00E96EDC /* RangeSeekSliderDelegate.swift in Sources */,
 				1609DB8A221C511000D7891C /* MyResults.swift in Sources */,
 				16C6CC6821DFF8BB00F535D0 /* CatalogSquareCell.swift in Sources */,
 				1611909221DE231400E3CB93 /* DiscountLabel.swift in Sources */,
@@ -699,6 +726,7 @@
 				1611908E21DDF8CB00E3CB93 /* UIView+Ext.swift in Sources */,
 				1609261D21E0EB0400650707 /* BaseVM.swift in Sources */,
 				161AC8AF21DBBABF0078F020 /* AppCoord.swift in Sources */,
+				1618DDF7221E862C00E96EDC /* TapticEngine.swift in Sources */,
 				16C6CC6A21DFF8CA00F535D0 /* CatalogSquaresCell.swift in Sources */,
 				161AC8AB21DB6D050078F020 /* BaseCoord.swift in Sources */,
 				1617B56A21E34BBF00FFE2DA /* FilterVM.swift in Sources */,

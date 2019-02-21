@@ -20,7 +20,6 @@ class CategoryVM : BaseVM {
     
     init(parentBaseId: Int){
         super.init()
-        //network request
         let models = CategoryModel.getModelsA(baseId: parentBaseId).share()
 
         models
@@ -36,7 +35,6 @@ class CategoryVM : BaseVM {
        inSelectCategory
             .subscribe(
                 onNext: {[weak self] baseId in
-                    //local request
                     if models2[baseId]?.last ?? true {
                         self?.outShowCatalog.onNext(baseId)
                     } else {

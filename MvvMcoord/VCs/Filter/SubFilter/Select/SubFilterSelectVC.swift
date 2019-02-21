@@ -155,7 +155,6 @@ class SubFilterSelectVC: UIViewController {
     
     
     private func startWait() {
-        print("wait in SubFilter")
         tableView.isHidden = true
         waitContainer.isHidden = false
         waitActivityView.startAnimating()

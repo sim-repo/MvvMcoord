@@ -338,8 +338,9 @@ class CatalogVM : BaseVM {
         if appliedSubFilters.contains(subFilterId) ||
             midAppliedSubFilters.contains(subFilterId) {
     
-            guard selected == false else {return}
-            unapplying.insert(subFilterId)
+            if selected == false {
+                unapplying.insert(subFilterId)
+            }
         }
         
         if selected {

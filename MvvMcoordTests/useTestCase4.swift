@@ -363,7 +363,7 @@ class useTestCase4: XCTestCase {
                 return
             }
             XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: бежевый false белый false голубой false желтый true зеленый true коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный false \\\\\\3: вискоза false полиамид false хлопок false \\\\\\вискоза false полиамид false ",  myResult.res)
-
+            
         }
     }
     
@@ -542,7 +542,7 @@ class useTestCase4: XCTestCase {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: зеленый true розовый false серый false черный false \\\\\\вискоза false полиамид false хлопок true эластан false ",  myResult.res)
+            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: зеленый true розовый false черный false \\\\\\вискоза false полиамид false хлопок true эластан false ",  myResult.res)
             
            
         }
@@ -644,6 +644,63 @@ class useTestCase4: XCTestCase {
                 return
             }
             XCTAssertEqual("1: вискоза false полиамид false хлопок false эластан false \\\\\\вискоза false полиамид false полиэстер false хлопок false шерсть false эластан false ",  myResult.res )
+        }
+    }
+    
+    
+    func initTestCase15(_ catalogVM: CatalogVM, filterId1: Int){
+        
+        catalogVM.utMsgId = 0
+        catalogVM.requestFilters(categoryId: categoryId)
+        let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
+        
+        subFilterVM1 = SubFilterVM(filterId: filterId1, filterActionDelegate: filterVM.filterActionDelegate)
+    }
+    
+    // select subfilters -> apply from filter, deselect -> apply subfilters, select -> apply subfilters
+    func testExample15(){
+        
+        let catalogVM = CatalogVM(categoryId: categoryId)
+        let myResult = MyResults()
+        let ut = FilterUnitTest(catalogVM: catalogVM, result: myResult)
+        let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
+        let expect = expectation(description: #function)
+        initTestCase15(catalogVM, filterId1: colorFilterId)
+        
+        
+        
+        ut.selectSubFilters(vm: subFilterVM1, selectIds: [green, yellow, brown], select: true, msgId: 0, newMsgId: 1)
+        
+        ut.applyFromFilter(filterVM: filterVM, msgId: 1, newMsgId: 2)
+        
+        ut.takeFromFilter(operationId: 1, msgId: 2, newMsgId: 3)
+        
+        ut.enterSubFilter(filterId: colorFilterId, msgId: 3, newMsgId: 4)
+        
+        ut.takeFromVM(operationId: 2, vm: subFilterVM1, msgId: 4, newMsgId: 5)
+        
+        ut.selectSubFilters(vm: subFilterVM1, selectIds: [green, yellow, brown], select: false, msgId: 5, newMsgId: 6)
+        
+        ut.apply(vm: subFilterVM1, msgId: 6, newMsgId: 7)
+        
+        ut.takeFromFilter(operationId: 3, msgId: 7, newMsgId: 8)
+        
+        ut.enterSubFilter(filterId: colorFilterId, msgId: 8, newMsgId: 9)
+        
+        ut.takeFromVM(operationId: 4, vm: subFilterVM1, msgId: 9, newMsgId: 10)
+        
+        ut.selectSubFilters(vm: subFilterVM1, selectIds: [green, yellow, brown], select: true, msgId: 10, newMsgId: 11)
+        
+        ut.apply(vm: subFilterVM1, msgId: 11, newMsgId: 12)
+        
+        takeFilterFinish(ut: ut, filterVM: filterVM, msgId: 12, expect: expect)
+
+        waitForExpectations(timeout: timeout) { error in
+            guard error == nil else {
+                XCTFail(error!.localizedDescription)
+                return
+            }
+            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: бежевый false белый false голубой false желтый true зеленый true коричневый true красный false оранжевый false розовый false серый false синий false фиолетовый false черный false \\\\\\3: Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава Цена2 \\\\\\4: бежевый false белый false голубой false желтый false зеленый false коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный false \\\\\\Бренд Размер Сезон Состав Срок доставки Цвет ",  myResult.res )
         }
     }
     

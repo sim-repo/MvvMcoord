@@ -701,16 +701,50 @@
                                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dv4-iS-SK1">
                                                                     <rect key="frame" x="0.0" y="35" width="358" height="58.666666666666657"/>
                                                                     <subviews>
-                                                                        <slider opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="Ft2-iD-aPJ">
-                                                                            <rect key="frame" x="-2" y="8" width="362" height="43.666666666666664"/>
-                                                                        </slider>
+                                                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="teH-Nh-VXA" customClass="RangeSeekSlider" customModule="MvvMcoord" customModuleProvider="target">
+                                                                            <rect key="frame" x="0.0" y="0.0" width="358" height="58.666666666666664"/>
+                                                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                            <color key="tintColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                            <userDefinedRuntimeAttributes>
+                                                                                <userDefinedRuntimeAttribute type="number" keyPath="minValue">
+                                                                                    <real key="value" value="500"/>
+                                                                                </userDefinedRuntimeAttribute>
+                                                                                <userDefinedRuntimeAttribute type="number" keyPath="maxValue">
+                                                                                    <real key="value" value="40000"/>
+                                                                                </userDefinedRuntimeAttribute>
+                                                                                <userDefinedRuntimeAttribute type="number" keyPath="selectedMinValue">
+                                                                                    <real key="value" value="500"/>
+                                                                                </userDefinedRuntimeAttribute>
+                                                                                <userDefinedRuntimeAttribute type="number" keyPath="selectedMaxValue">
+                                                                                    <real key="value" value="40000"/>
+                                                                                </userDefinedRuntimeAttribute>
+                                                                                <userDefinedRuntimeAttribute type="color" keyPath="colorBetweenHandles">
+                                                                                    <color key="value" red="0.8685233161" green="0.33324805559999998" blue="0.5574756233" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                                                </userDefinedRuntimeAttribute>
+                                                                                <userDefinedRuntimeAttribute type="number" keyPath="minDistance">
+                                                                                    <real key="value" value="500"/>
+                                                                                </userDefinedRuntimeAttribute>
+                                                                                <userDefinedRuntimeAttribute type="number" keyPath="step">
+                                                                                    <real key="value" value="500"/>
+                                                                                </userDefinedRuntimeAttribute>
+                                                                                <userDefinedRuntimeAttribute type="number" keyPath="handleDiameter">
+                                                                                    <real key="value" value="20"/>
+                                                                                </userDefinedRuntimeAttribute>
+                                                                                <userDefinedRuntimeAttribute type="number" keyPath="selectedHandleDiameterMultiplier">
+                                                                                    <real key="value" value="1.5"/>
+                                                                                </userDefinedRuntimeAttribute>
+                                                                                <userDefinedRuntimeAttribute type="color" keyPath="handleColor">
+                                                                                    <color key="value" red="0.8685233161" green="0.33324805559999998" blue="0.5574756233" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                                                </userDefinedRuntimeAttribute>
+                                                                            </userDefinedRuntimeAttributes>
+                                                                        </view>
                                                                     </subviews>
                                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                     <constraints>
-                                                                        <constraint firstItem="Ft2-iD-aPJ" firstAttribute="leading" secondItem="dv4-iS-SK1" secondAttribute="leading" id="6eK-to-Qo2"/>
-                                                                        <constraint firstAttribute="bottom" secondItem="Ft2-iD-aPJ" secondAttribute="bottom" constant="8" id="AoZ-re-hT3"/>
-                                                                        <constraint firstItem="Ft2-iD-aPJ" firstAttribute="top" secondItem="dv4-iS-SK1" secondAttribute="top" constant="8" id="nn7-b8-YeJ"/>
-                                                                        <constraint firstAttribute="trailing" secondItem="Ft2-iD-aPJ" secondAttribute="trailing" id="tev-Do-VID"/>
+                                                                        <constraint firstAttribute="bottom" secondItem="teH-Nh-VXA" secondAttribute="bottom" id="2JJ-e8-tAq"/>
+                                                                        <constraint firstItem="teH-Nh-VXA" firstAttribute="leading" secondItem="dv4-iS-SK1" secondAttribute="leading" id="IOR-Qa-oKn"/>
+                                                                        <constraint firstAttribute="trailing" secondItem="teH-Nh-VXA" secondAttribute="trailing" id="tuv-Ss-3D9"/>
+                                                                        <constraint firstItem="teH-Nh-VXA" firstAttribute="top" secondItem="dv4-iS-SK1" secondAttribute="top" id="xd1-hh-dDT"/>
                                                                     </constraints>
                                                                 </view>
                                                             </subviews>
@@ -772,7 +806,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Filter" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="m2j-ev-EDE">
-                                                    <rect key="frame" x="28" y="11" width="358" height="30"/>
+                                                    <rect key="frame" x="28" y="15.666666666666666" width="358" height="20.333333333333336"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
@@ -780,12 +814,12 @@
                                             </subviews>
                                             <constraints>
                                                 <constraint firstItem="m2j-ev-EDE" firstAttribute="leading" secondItem="XUg-aa-k1f" secondAttribute="leadingMargin" constant="8" id="Ag8-zp-txW"/>
-                                                <constraint firstItem="m2j-ev-EDE" firstAttribute="top" secondItem="XUg-aa-k1f" secondAttribute="topMargin" id="JSa-vl-ZBs"/>
-                                                <constraint firstItem="m2j-ev-EDE" firstAttribute="bottom" secondItem="XUg-aa-k1f" secondAttribute="bottomMargin" id="PvA-EU-K4m"/>
+                                                <constraint firstItem="m2j-ev-EDE" firstAttribute="centerY" secondItem="XUg-aa-k1f" secondAttribute="centerY" id="Bop-0O-x0u"/>
                                                 <constraint firstAttribute="trailingMargin" secondItem="m2j-ev-EDE" secondAttribute="trailing" constant="8" id="unF-lt-SbJ"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>
+                                            <outlet property="conCenterY" destination="Bop-0O-x0u" id="c5q-wL-yv8"/>
                                             <outlet property="filterLabel" destination="m2j-ev-EDE" id="hPo-Wk-hB0"/>
                                         </connections>
                                     </tableViewCell>
@@ -898,7 +932,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="VFH-dr-CuJ">
-                                <rect key="frame" x="0.0" y="44" width="414" height="758"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" accessoryType="checkmark" indentationWidth="10" reuseIdentifier="SubFilterSectionCell" id="bcq-4W-dzI" customClass="SubFilterSectionCell" customModule="MvvMcoord" customModuleProvider="target">
@@ -929,7 +963,7 @@
                                 </prototypes>
                             </tableView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3US-bo-JCl" customClass="ApplyButton" customModule="MvvMcoord" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="802" width="414" height="60"/>
+                                <rect key="frame" x="0.0" y="896" width="414" height="60"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="60" id="ckx-IW-haA"/>
@@ -938,17 +972,19 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="Ffi-4I-fMQ" firstAttribute="trailing" secondItem="3US-bo-JCl" secondAttribute="trailing" id="16X-0w-Eh0"/>
+                            <constraint firstAttribute="trailing" secondItem="3US-bo-JCl" secondAttribute="trailing" id="16X-0w-Eh0"/>
                             <constraint firstItem="3US-bo-JCl" firstAttribute="top" secondItem="VFH-dr-CuJ" secondAttribute="bottom" id="1de-ee-ZAC"/>
-                            <constraint firstItem="VFH-dr-CuJ" firstAttribute="leading" secondItem="Ffi-4I-fMQ" secondAttribute="leading" id="Cgw-zN-UhO"/>
-                            <constraint firstItem="Ffi-4I-fMQ" firstAttribute="trailing" secondItem="VFH-dr-CuJ" secondAttribute="trailing" id="Tx4-0e-pjc"/>
-                            <constraint firstItem="3US-bo-JCl" firstAttribute="leading" secondItem="Ffi-4I-fMQ" secondAttribute="leading" id="ejR-bc-Jic"/>
-                            <constraint firstItem="VFH-dr-CuJ" firstAttribute="top" secondItem="Ffi-4I-fMQ" secondAttribute="top" id="ggN-uA-jVb"/>
-                            <constraint firstItem="Ffi-4I-fMQ" firstAttribute="bottom" secondItem="3US-bo-JCl" secondAttribute="bottom" id="lPs-lH-aX8"/>
+                            <constraint firstItem="VFH-dr-CuJ" firstAttribute="leading" secondItem="zBx-Mu-wGQ" secondAttribute="leading" id="Cgw-zN-UhO"/>
+                            <constraint firstAttribute="trailing" secondItem="VFH-dr-CuJ" secondAttribute="trailing" id="Tx4-0e-pjc"/>
+                            <constraint firstItem="3US-bo-JCl" firstAttribute="leading" secondItem="zBx-Mu-wGQ" secondAttribute="leading" id="ejR-bc-Jic"/>
+                            <constraint firstItem="VFH-dr-CuJ" firstAttribute="top" secondItem="zBx-Mu-wGQ" secondAttribute="top" id="ggN-uA-jVb"/>
+                            <constraint firstItem="3US-bo-JCl" firstAttribute="bottom" secondItem="zBx-Mu-wGQ" secondAttribute="bottom" constant="60" id="lPs-lH-aX8"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="Ffi-4I-fMQ"/>
+                        <viewLayoutGuide key="safeArea" id="J8W-VF-wFK"/>
                     </view>
                     <connections>
+                        <outlet property="applyView" destination="3US-bo-JCl" id="iFv-UC-8mD"/>
+                        <outlet property="applyViewBottomCon" destination="lPs-lH-aX8" id="Qyb-v9-sKv"/>
                         <outlet property="tableView" destination="VFH-dr-CuJ" id="1ir-P7-rja"/>
                     </connections>
                 </viewController>
