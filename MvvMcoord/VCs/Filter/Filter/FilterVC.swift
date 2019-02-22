@@ -9,6 +9,7 @@ class FilterVC: UIViewController {
     @IBOutlet weak var applyView: ApplyButton!
     @IBOutlet weak var priceApplyView: PriceApply!
     @IBOutlet weak var priceApplyViewBottomCon: NSLayoutConstraint!
+
     
     
     public var viewModel: FilterVM!

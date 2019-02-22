@@ -4,15 +4,6 @@ import UIKit
 enum CellState {
     case collapsed
     case expanded
-    
-    var collapseImage: UIImage {
-        switch self {
-        case .collapsed:
-            return #imageLiteral(resourceName: "expand")
-        case .expanded:
-            return #imageLiteral(resourceName: "collapse")
-        }
-    }
 }
 
 
@@ -20,9 +11,9 @@ class FilterCell : UITableViewCell{
     
     var id: Int!
 
+    @IBOutlet weak var priceTitle: UILabel!
     @IBOutlet weak var rangeSlider: RangeSeekSlider!
     @IBOutlet weak var containerView: UIView!
-    @IBOutlet weak var collapseImageView: UIImageView!
     @IBOutlet weak var filterLabel: UILabel!
     @IBOutlet weak var stackView: UIStackView!
     private let expandedViewIndex: Int = 1
@@ -54,11 +45,11 @@ class FilterCell : UITableViewCell{
          rangeSlider.maxValue,
          rangeSlider.selectedMinValue,
          rangeSlider.selectedMaxValue) = viewModel.filterActionDelegate?.getPriceRange() ?? (0,0,0,0)
+         priceTitle.text = "\(Int(floor(rangeSlider.selectedMinValue))) - \(Int(floor(rangeSlider.selectedMaxValue)))"
     }
     
     private func toggle() {
         stackView.arrangedSubviews[expandedViewIndex].isHidden = stateIsCollapsed()
-        collapseImageView.image = state.collapseImage
     }
     
     private func stateIsCollapsed() -> Bool {
@@ -72,14 +63,12 @@ extension FilterCell: RangeSeekSliderDelegate {
     
     func rangeSeekSlider(_ slider: RangeSeekSlider, didChange minValue: CGFloat, maxValue: CGFloat) {
         viewModel.setTmpRangePrice(minPrice: minValue, maxPrice: maxValue)
+        priceTitle.text = "\(Int(floor(minValue))) - \(Int(floor(maxValue)))"
     }
     
-    
     func didStartTouches(in slider: RangeSeekSlider) {
-        print("did start touches")
     }
     
     func didEndTouches(in slider: RangeSeekSlider) {
-        print("did end touches")
     }
 }

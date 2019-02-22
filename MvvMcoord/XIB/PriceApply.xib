@@ -26,7 +26,7 @@
                             <rect key="frame" x="0.0" y="0.0" width="525" height="155"/>
                             <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
                             <state key="normal" title="Готово">
-                                <color key="titleColor" red="0.7975024288" green="0.35844165830000002" blue="0.74796124990000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <color key="titleColor" red="0.23405902926706978" green="0.20989196183729225" blue="0.67009391191709844" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                             </state>
                         </button>
                     </subviews>

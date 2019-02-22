@@ -675,27 +675,29 @@
                                                                     <rect key="frame" x="0.0" y="0.0" width="358" height="35"/>
                                                                     <subviews>
                                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Filter" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CkT-uO-flA">
-                                                                            <rect key="frame" x="0.0" y="7.9999999999999982" width="320" height="20.333333333333329"/>
+                                                                            <rect key="frame" x="0.0" y="8" width="38.333333333333336" height="19"/>
                                                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                                             <nil key="textColor"/>
                                                                             <nil key="highlightedColor"/>
                                                                         </label>
-                                                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="expand" translatesAutoresizingMaskIntoConstraints="NO" id="bE2-v3-b7c">
-                                                                            <rect key="frame" x="328" y="3.3333333333333321" width="30" height="29.999999999999996"/>
-                                                                            <constraints>
-                                                                                <constraint firstAttribute="height" constant="30" id="RZQ-vB-vqv"/>
-                                                                                <constraint firstAttribute="width" constant="30" id="Tdi-lF-jBS"/>
-                                                                            </constraints>
-                                                                        </imageView>
+                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WsG-Zt-1kD">
+                                                                            <rect key="frame" x="46.333333333333343" y="8" width="303.66666666666663" height="19"/>
+                                                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                                            <color key="textColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                            <nil key="highlightedColor"/>
+                                                                        </label>
                                                                     </subviews>
                                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                     <constraints>
+                                                                        <constraint firstItem="CkT-uO-flA" firstAttribute="centerY" secondItem="dW9-LR-DpG" secondAttribute="centerY" id="0bN-gE-paj"/>
                                                                         <constraint firstItem="CkT-uO-flA" firstAttribute="top" secondItem="dW9-LR-DpG" secondAttribute="top" constant="8" id="39s-wR-ePi"/>
-                                                                        <constraint firstItem="bE2-v3-b7c" firstAttribute="centerY" secondItem="CkT-uO-flA" secondAttribute="centerY" id="Er3-rg-7eA"/>
+                                                                        <constraint firstItem="WsG-Zt-1kD" firstAttribute="top" secondItem="dW9-LR-DpG" secondAttribute="top" constant="8" id="HEG-OJ-eDr"/>
                                                                         <constraint firstItem="CkT-uO-flA" firstAttribute="leading" secondItem="dW9-LR-DpG" secondAttribute="leading" id="HOw-A5-w6X"/>
-                                                                        <constraint firstItem="bE2-v3-b7c" firstAttribute="leading" secondItem="CkT-uO-flA" secondAttribute="trailing" constant="8" id="MhY-5L-26z"/>
                                                                         <constraint firstAttribute="height" priority="999" constant="35" id="Y1U-Gy-RiT"/>
-                                                                        <constraint firstAttribute="trailing" secondItem="bE2-v3-b7c" secondAttribute="trailing" id="oVk-9l-KRj"/>
+                                                                        <constraint firstItem="WsG-Zt-1kD" firstAttribute="leading" secondItem="CkT-uO-flA" secondAttribute="trailing" constant="8" id="jhf-Ct-N0R"/>
+                                                                        <constraint firstAttribute="bottom" secondItem="WsG-Zt-1kD" secondAttribute="bottom" constant="8" id="nxn-xb-jNh"/>
+                                                                        <constraint firstAttribute="trailing" secondItem="WsG-Zt-1kD" secondAttribute="trailing" constant="8" id="si9-R4-K25"/>
+                                                                        <constraint firstItem="WsG-Zt-1kD" firstAttribute="centerY" secondItem="dW9-LR-DpG" secondAttribute="centerY" id="umr-yc-L7Y"/>
                                                                     </constraints>
                                                                 </view>
                                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dv4-iS-SK1">
@@ -725,7 +727,7 @@
                                                                                     <real key="value" value="500"/>
                                                                                 </userDefinedRuntimeAttribute>
                                                                                 <userDefinedRuntimeAttribute type="number" keyPath="step">
-                                                                                    <real key="value" value="500"/>
+                                                                                    <real key="value" value="100"/>
                                                                                 </userDefinedRuntimeAttribute>
                                                                                 <userDefinedRuntimeAttribute type="number" keyPath="handleDiameter">
                                                                                     <real key="value" value="20"/>
@@ -734,6 +736,16 @@
                                                                                     <real key="value" value="1.5"/>
                                                                                 </userDefinedRuntimeAttribute>
                                                                                 <userDefinedRuntimeAttribute type="color" keyPath="handleColor">
+                                                                                    <color key="value" red="0.8685233161" green="0.33324805559999998" blue="0.5574756233" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                                                </userDefinedRuntimeAttribute>
+                                                                                <userDefinedRuntimeAttribute type="number" keyPath="lineHeight">
+                                                                                    <real key="value" value="3"/>
+                                                                                </userDefinedRuntimeAttribute>
+                                                                                <userDefinedRuntimeAttribute type="boolean" keyPath="enableStep" value="YES"/>
+                                                                                <userDefinedRuntimeAttribute type="color" keyPath="minLabelColor">
+                                                                                    <color key="value" red="0.8685233161" green="0.33324805559999998" blue="0.5574756233" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                                                </userDefinedRuntimeAttribute>
+                                                                                <userDefinedRuntimeAttribute type="color" keyPath="maxLabelColor">
                                                                                     <color key="value" red="0.8685233161" green="0.33324805559999998" blue="0.5574756233" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                                                 </userDefinedRuntimeAttribute>
                                                                             </userDefinedRuntimeAttributes>
@@ -767,9 +779,9 @@
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>
-                                            <outlet property="collapseImageView" destination="bE2-v3-b7c" id="1z7-ul-0kX"/>
                                             <outlet property="containerView" destination="DzZ-qY-Bc0" id="A5P-6Z-eWq"/>
                                             <outlet property="filterLabel" destination="CkT-uO-flA" id="Rk5-dp-KEo"/>
+                                            <outlet property="priceTitle" destination="WsG-Zt-1kD" id="G1B-tP-c82"/>
                                             <outlet property="rangeSlider" destination="teH-Nh-VXA" id="xQz-8L-9mV"/>
                                             <outlet property="stackView" destination="Njj-yJ-Vb3" id="it8-f4-9Ik"/>
                                         </connections>
@@ -1009,7 +1021,6 @@
     </scenes>
     <resources>
         <image name="cart" width="18.399999618530273" height="18.399999618530273"/>
-        <image name="expand" width="72" height="72"/>
         <image name="heart" width="18" height="18"/>
         <image name="list" width="18.399999618530273" height="18.399999618530273"/>
         <image name="pic18" width="246" height="328"/>
