@@ -60,18 +60,7 @@ class CatalogVM : BaseVM {
     private var catalog: [CatalogModel?] = []
     private var itemIds: [Int] = []
     
-    internal var minPrice: CGFloat = 0 {
-        didSet{
-            currMinPrice = minPrice
-        }
-    }
-    internal var maxPrice: CGFloat = 0 {
-        didSet{
-            currMaxPrice = maxPrice
-        }
-    }
-    internal var currMinPrice: CGFloat = 0
-    internal var currMaxPrice: CGFloat = 0
+    internal var rangePrice = RangePrice.shared
     
     internal var inPrefetchEvent = PublishSubject<[CatalogModel?]>()
     private var isPrefetchInProgress = false
@@ -144,6 +133,7 @@ class CatalogVM : BaseVM {
         NetworkMgt.requestCatalogStart(categoryId: categoryId, appliedSubFilters: appliedSubFilters)
     }
    
+   
     
     private func handleStartEvent(){
         NetworkMgt
@@ -152,8 +142,7 @@ class CatalogVM : BaseVM {
             .subscribe(onNext: { [weak self] res in
                 self?.fullCatalogItemIds = res.0
                 self?.setupFetch(itemsIds: res.0, fetchLimit: res.1)
-                self?.minPrice = res.2
-                self?.maxPrice = res.3
+                self?.rangePrice.setupRangePrice(minPrice: res.2, maxPrice: res.3)
                 self?.outReloadVC.onNext(Void())
                 self?.emitPrefetchEvent()
             })
@@ -173,7 +162,7 @@ class CatalogVM : BaseVM {
         
         if itemIds.count >= from {
             let nextItemIds = itemIds[from...to]
-            NetworkMgt.requestCatalogModel(categoryId: categoryId, itemIds: Array(nextItemIds))
+            NetworkMgt.requestCatalogModel(itemIds: Array(nextItemIds))
         }
     }
     

@@ -89,7 +89,7 @@ class FilterVM : BaseVM {
         priceInApply
             .subscribe(onNext: {[weak self] _ in   // onNext need for unit-tests
                 guard let `self` = self else {return}
-                self.filterActionDelegate?.setPriceRange(minPrice: self.tmpMinPrice, maxPrice: self.tmpMaxPrice)
+                self.filterActionDelegate?.setUserPriceRange(minPrice: self.tmpMinPrice, maxPrice: self.tmpMaxPrice)
                 self.filterActionDelegate?.showPriceApplyViewEvent().onNext(false)
                 self.filterActionDelegate?.applyByPrices().onNext(Void())
                 //self.filterActionDelegate?.applyFromSubFilterEvent().onNext(filterId)

@@ -149,7 +149,7 @@ class FilterUnitTest {
                     for element in sf {
                         self?.result.res += (element!.title + " ")
                     }
-                    self?.result.res += "\\\\\\"
+                    self?.result.res += "***"
                     print("take: \(self?.result.res)")
                     self?.catalogVM.unitTestSignalOperationComplete.onNext(newMsgId)
                 })
@@ -169,7 +169,7 @@ class FilterUnitTest {
                     for element in sf {
                         self?.result.res += (element!.title + " \(vm.isCheckmark(subFilterId: element!.id)) ")
                     }
-                    self?.result.res += "\\\\\\"
+                    self?.result.res += "***"
                     self?.catalogVM.unitTestSignalOperationComplete.onNext(newMsgId)
                     print("take: \(self?.result.res)")
                 })

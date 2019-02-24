@@ -161,7 +161,7 @@ class useTestCase4: XCTestCase {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("2: 1 день false \\\\\\3: хлопок false \\\\\\4: лето false \\\\\\42 false ", myResult.res)
+            XCTAssertEqual("2: 1 день false ***3: хлопок false ***4: лето false ***42 false ", myResult.res)
         }
         clearTestCase()
     }
@@ -205,7 +205,7 @@ class useTestCase4: XCTestCase {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: демисезон false круглогодичный false \\\\\\2: желтый false коричневый false красный false оранжевый false фиолетовый true черный false \\\\\\демисезон true круглогодичный false ",  myResult.res)
+            XCTAssertEqual("1: демисезон false круглогодичный false ***2: желтый false коричневый false красный false оранжевый false фиолетовый true черный false ***демисезон true круглогодичный false ",  myResult.res)
         }
         clearTestCase()
         
@@ -291,7 +291,7 @@ class useTestCase4: XCTestCase {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: Цвет \\\\\\2: бежевый false белый false голубой true желтый false зеленый false коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный false \\\\\\3: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\4: вискоза false полиамид false \\\\\\5: желтый true коричневый false \\\\\\желтый true коричневый false ",  myResult.res)
+            XCTAssertEqual("1: Цена Цвет ***2: бежевый false белый false голубой true желтый false зеленый false коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный false ***3: Цена Бренд Размер Сезон Состав Срок доставки Цвет ***4: вискоза false полиамид false ***5: желтый true коричневый false ***желтый true коричневый false ",  myResult.res)
         }
         clearTestCase()
     }
@@ -320,7 +320,7 @@ class useTestCase4: XCTestCase {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: \\\\\\",  myResult.res)
+            XCTAssertEqual("1: Цена ***",  myResult.res)
         }
     }
     
@@ -362,7 +362,7 @@ class useTestCase4: XCTestCase {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: бежевый false белый false голубой false желтый true зеленый true коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный false \\\\\\3: вискоза false полиамид false хлопок false \\\\\\вискоза false полиамид false ",  myResult.res)
+            XCTAssertEqual("1: Цена Бренд Размер Сезон Состав Срок доставки Цвет ***2: бежевый false белый false голубой false желтый true зеленый true коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный false ***3: вискоза false полиамид false хлопок false ***вискоза false полиамид false ",  myResult.res)
             
         }
     }
@@ -404,7 +404,7 @@ class useTestCase4: XCTestCase {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава Цена2 ",  myResult.res)
+            XCTAssertEqual("1: Цена Бренд Размер Сезон Состав Срок доставки Цвет ***Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава ",  myResult.res)
         }
     }
     
@@ -437,7 +437,7 @@ class useTestCase4: XCTestCase {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава Цена2 ", myResult.res)
+            XCTAssertEqual("1: Цена Бренд Размер Сезон Состав Срок доставки Цвет ***1: Цена Бренд Размер Сезон Состав Срок доставки Цвет ***Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава ", myResult.res)
         }
     }
     
@@ -475,7 +475,7 @@ class useTestCase4: XCTestCase {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: бежевый false белый false голубой false желтый true зеленый true коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный true \\\\\\Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава Цена2 ",  myResult.res)
+            XCTAssertEqual("1: Цена Бренд Размер Сезон Состав Срок доставки Цвет ***2: бежевый false белый false голубой false желтый true зеленый true коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный true ***Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава ",  myResult.res)
         }
     }
     
@@ -505,7 +505,7 @@ class useTestCase4: XCTestCase {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\Бренд Размер Сезон Состав Срок доставки Цвет ",  myResult.res)
+            XCTAssertEqual("1: Цена Бренд Размер Сезон Состав Срок доставки Цвет ***Цена Бренд Размер Сезон Состав Срок доставки Цвет ",  myResult.res)
         }
     }
     
@@ -542,9 +542,7 @@ class useTestCase4: XCTestCase {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: зеленый true розовый false черный false \\\\\\вискоза false полиамид false хлопок true эластан false ",  myResult.res)
-            
-           
+            XCTAssertEqual("1: Цена Бренд Размер Сезон Состав Срок доставки Цвет ***2: зеленый true розовый false серый false черный false ***вискоза false полиамид false хлопок true эластан false ",  myResult.res)
         }
     }
     
@@ -575,7 +573,7 @@ class useTestCase4: XCTestCase {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("",  myResult.res)
+            XCTAssertEqual("Цена ",  myResult.res)
         }
     }
     
@@ -607,7 +605,7 @@ class useTestCase4: XCTestCase {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава Цена2 ",  myResult.res)
+            XCTAssertEqual("Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава ",  myResult.res)
         }
     }
     
@@ -643,7 +641,7 @@ class useTestCase4: XCTestCase {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: вискоза false полиамид false хлопок false эластан false \\\\\\вискоза false полиамид false полиэстер false хлопок false шерсть false эластан false ",  myResult.res )
+            XCTAssertEqual("1: вискоза false полиамид false хлопок false эластан false ***вискоза false полиамид false полиэстер false хлопок false шерсть false эластан false ",  myResult.res )
         }
     }
     
@@ -700,7 +698,7 @@ class useTestCase4: XCTestCase {
                 XCTFail(error!.localizedDescription)
                 return
             }
-            XCTAssertEqual("1: Бренд Размер Сезон Состав Срок доставки Цвет \\\\\\2: бежевый false белый false голубой false желтый true зеленый true коричневый true красный false оранжевый false розовый false серый false синий false фиолетовый false черный false \\\\\\3: Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава Цена2 \\\\\\4: бежевый false белый false голубой false желтый false зеленый false коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный false \\\\\\Бренд Размер Сезон Состав Срок доставки Цвет ",  myResult.res )
+            XCTAssertEqual("1: Цена Бренд Размер Сезон Состав Срок доставки Цвет ***2: бежевый false белый false голубой false желтый true зеленый true коричневый true красный false оранжевый false розовый false серый false синий false фиолетовый false черный false ***3: Цена Бренд Размер Сезон Состав Срок доставки Цвет Вид застежки Вырез горловины Декоративные элементы Длина юбки/платья Конструктивные элементы Тип рукава ***4: бежевый false белый false голубой false желтый false зеленый false коричневый false красный false оранжевый false розовый false серый false синий false фиолетовый false черный false ***Цена Бренд Размер Сезон Состав Срок доставки Цвет ",  myResult.res )
         }
     }
     

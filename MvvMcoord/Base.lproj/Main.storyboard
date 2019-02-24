@@ -724,7 +724,7 @@
                                                                                     <color key="value" red="0.8685233161" green="0.33324805559999998" blue="0.5574756233" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                                                 </userDefinedRuntimeAttribute>
                                                                                 <userDefinedRuntimeAttribute type="number" keyPath="minDistance">
-                                                                                    <real key="value" value="500"/>
+                                                                                    <real key="value" value="100"/>
                                                                                 </userDefinedRuntimeAttribute>
                                                                                 <userDefinedRuntimeAttribute type="number" keyPath="step">
                                                                                     <real key="value" value="100"/>

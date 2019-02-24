@@ -101,6 +101,7 @@ class FilterVC: UIViewController {
                 let cell = tableView.cellForRow(at: rangeCellIndexPath) as! FilterCell
                 cell.state = .collapsed
                 removeExpandedIndexPath(rangeCellIndexPath)
+                viewModel.filterActionDelegate?.showPriceApplyViewEvent().onNext(false)
                 rangeCellIndexPath = nil
                 tableView.beginUpdates()
                 tableView.endUpdates()
@@ -130,6 +131,7 @@ class FilterVC: UIViewController {
                     if let `cell` = cell as? FilterCell {
                         cell.state = .expanded
                         self!.addExpandedIndexPath(indexPath)
+                        cell.setupRangeSlider()
                         self!.viewModel.filterActionDelegate?.showPriceApplyViewEvent().onNext(true)
                         self!.rangeCellIndexPath = indexPath
                     }
@@ -198,6 +200,7 @@ class FilterVC: UIViewController {
     private func bindRemoveFilter(){
         removeFilterEvent
             .subscribe(onNext: {[weak self] filterId in
+                self!.doHideRangePricesCell()
                 self!.viewModel.inRemoveFilter.onNext(filterId)
             })
             .disposed(by: bag)

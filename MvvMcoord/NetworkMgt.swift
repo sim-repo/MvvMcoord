@@ -22,7 +22,7 @@ class NetworkMgt{
     static let backend: ApiBackendLogic = BackendLogic.shared
     
     static var outApplyItemsResponse = PublishSubject<([Int?], [Int?], Set<Int>, Set<Int>, [Int])>()
-    static var outApplyFiltersResponse = PublishSubject<([Int?], [Int?], Set<Int>, Set<Int>)>()
+    static var outApplyFiltersResponse = PublishSubject<([Int?], [Int?], Set<Int>, Set<Int>, CGFloat, CGFloat)>()
     static var outApplyByPrices = PublishSubject<[Int?]>()
     static let delay = 0
     
@@ -40,8 +40,8 @@ class NetworkMgt{
         outApplyItemsResponse.onNext((filterIds, subFiltersIds, appliedSubFilters, selectedSubFilters, itemIds))
     }
     
-    private static func nextApplyForFilters(filterIds: [Int?], subFiltersIds: [Int?], appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>) {
-        outApplyFiltersResponse.onNext((filterIds, subFiltersIds, appliedSubFilters, selectedSubFilters))
+    private static func nextApplyForFilters(filterIds: [Int?], subFiltersIds: [Int?], appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>, tipMinPrice: CGFloat, tipMaxPrice: CGFloat) {
+        outApplyFiltersResponse.onNext((filterIds, subFiltersIds, appliedSubFilters, selectedSubFilters, tipMinPrice, tipMaxPrice))
     }
     
     private static func nextCatalogModel(catalogModel:[CatalogModel?]) {
@@ -145,37 +145,36 @@ class NetworkMgt{
     public static func requestCatalogStart(categoryId: Int, appliedSubFilters: Set<Int>) {
         networkFunc = {
             functions.httpsCallable("catalogTotal").call(["useCache":true,
-                                                          "categoryId":categoryId,
-                                                          ]) {(result, error) in
-                                                            if let error = error as NSError? {
-                                                                firebaseHandleErr(error: error)
-                                                                return
-                                                            }
-                                                            let fetchLimit_ = parseJsonVal(type: Int.self, result: result, key: "fetchLimit")
-                                                            
-                                                            let itemIds:[Int] = parseJsonArr(result: result, key: "itemIds")
-                                                            let minPrice_ = parseJsonVal(type: Int.self, result: result, key: "minPrice")
-                                                            let maxPrice_ = parseJsonVal(type: Int.self, result: result, key: "maxPrice")
-                                                            
-                                                 
-                                                            guard let fetchLimit = fetchLimit_,
-                                                                let minPrice = minPrice_,
-                                                                let maxPrice = maxPrice_
-                                                                else { return firebaseHandleErr(error: NSError(domain: FunctionsErrorDomain, code: 1, userInfo: ["Parse Int":0])  )}
-                                                            
-                                                            nextCatalogTotal(itemIds: itemIds, fetchLimit: fetchLimit, minPrice: CGFloat(minPrice), maxPrice: CGFloat(maxPrice))
+                                                          "categoryId":categoryId
+            ]){ (result, error) in
+                if let error = error as NSError? {
+                    firebaseHandleErr(error: error)
+                    return
+                }
+                let fetchLimit_ = parseJsonVal(type: Int.self, result: result, key: "fetchLimit")
+                
+                let itemIds:[Int] = parseJsonArr(result: result, key: "itemIds")
+                let minPrice_ = parseJsonVal(type: Int.self, result: result, key: "minPrice")
+                let maxPrice_ = parseJsonVal(type: Int.self, result: result, key: "maxPrice")
+                
+                
+                guard let fetchLimit = fetchLimit_,
+                    let minPrice = minPrice_,
+                    let maxPrice = maxPrice_
+                    else { return firebaseHandleErr(error: NSError(domain: FunctionsErrorDomain, code: 1, userInfo: ["Parse Int":0])  )}
+                
+                nextCatalogTotal(itemIds: itemIds, fetchLimit: fetchLimit, minPrice: CGFloat(minPrice), maxPrice: CGFloat(maxPrice))
             }
         }
         NetworkMgt.runRequest(networkFunction: networkFunc)
     }
     
     
-    public static func requestCatalogModel(categoryId: Int, itemIds: [Int]) {
+    public static func requestCatalogModel(itemIds: [Int]) {
         networkFunc = {
-            functions.httpsCallable("catalogEntities").call(["useCache": true,
-                                                             "categoryId": categoryId,
-                                                             "itemsIds": itemIds
-            ]) {(result, error) in
+            functions.httpsCallable("catalogEntities").call([ "useCache": true,
+                                                              "itemsIds": itemIds
+            ]){ (result, error) in
                 if let error = error as NSError? {
                     firebaseHandleErr(error: error)
                     return
@@ -190,7 +189,8 @@ class NetworkMgt{
     
     public static func requestFullFilterEntities(categoryId: Int){
         networkFunc = {
-            functions.httpsCallable("fullFilterEntities").call(["useCache":true]) {(result, error) in
+            functions.httpsCallable("fullFilterEntities").call(["useCache":true
+            ]) {(result, error) in
                 if let error = error as NSError? {
                     firebaseHandleErr(error: error)
                     return
@@ -205,15 +205,17 @@ class NetworkMgt{
     
     
     
-    public static func requestEnterSubFilter(categoryId: Int, filterId: Int, appliedSubFilters: Set<Int>, minPrice: CGFloat, maxPrice: CGFloat){
+    public static func requestEnterSubFilter(categoryId: Int, filterId: Int, appliedSubFilters: Set<Int>, rangePrice: RangePrice){
         networkFunc = {
             functions.httpsCallable("currSubFilterIds").call(["useCache":true,
                                                               "categoryId": categoryId,
                                                               "filterId":filterId,
                                                               "appliedSubFilters":Array(appliedSubFilters),
-                                                              "minPrice":minPrice,
-                                                              "maxPrice":maxPrice
-                                                              ]) {(result, error) in
+                                                              "userMinPrice":rangePrice.userMinPrice,
+                                                              "userMaxPrice":rangePrice.userMaxPrice,
+                                                              "tipMinPrice":rangePrice.tipMinPrice,
+                                                              "tipMaxPrice":rangePrice.tipMaxPrice
+            ]) {(result, error) in
                 if let error = error as NSError? {
                     firebaseHandleErr(error: error)
                     return
@@ -233,95 +235,138 @@ class NetworkMgt{
     
     
     
-    public static func requestApplyFromFilter(categoryId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>, minPrice: CGFloat, maxPrice: CGFloat){
+    public static func requestApplyFromFilter(categoryId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>, rangePrice: RangePrice){
         networkFunc = {
             functions.httpsCallable("applyFromFilterNow").call(["useCache":true,
                                                                 "categoryId":categoryId,
                                                                 "selectedSubFilters":Array(selectedSubFilters),
                                                                 "appliedSubFilters":Array(appliedSubFilters),
-                                                                "minPrice":minPrice,
-                                                                "maxPrice":maxPrice
-                                                                ]) {(result, error) in
-                                                                    if let error = error as NSError? {
-                                                                        firebaseHandleErr(error: error)
-                                                                        return
-                                                                    }
-                                                                    
-                                                                    let arr:[Int] = parseJsonArr(result: result, key: "filtersIds")
-                                                                    let arr2:[Int] = parseJsonArr(result: result, key: "subFiltersIds")
-                                                                    let arr3:[Int] = parseJsonArr(result: result, key: "appliedSubFiltersIds")
-                                                                    let arr4:[Int] = parseJsonArr(result: result, key: "selectedSubFiltersIds")
-                                                                    let arr5:[Int] = parseJsonArr(result: result, key: "itemIds")
-                                                                    
-                                                                    nextApplyForItems(filterIds: arr, subFiltersIds: arr2, appliedSubFilters: Set(arr3), selectedSubFilters: Set(arr4), itemIds: arr5)
+                                                                "userMinPrice":rangePrice.userMinPrice,
+                                                                "userMaxPrice":rangePrice.userMaxPrice,
+                                                                "tipMinPrice":rangePrice.tipMinPrice,
+                                                                "tipMaxPrice":rangePrice.tipMaxPrice
+            ]) {(result, error) in
+                if let error = error as NSError? {
+                    firebaseHandleErr(error: error)
+                    return
+                }
+                
+                let arr:[Int] = parseJsonArr(result: result, key: "filtersIds")
+                let arr2:[Int] = parseJsonArr(result: result, key: "subFiltersIds")
+                let arr3:[Int] = parseJsonArr(result: result, key: "appliedSubFiltersIds")
+                let arr4:[Int] = parseJsonArr(result: result, key: "selectedSubFiltersIds")
+                let arr5:[Int] = parseJsonArr(result: result, key: "itemIds")
+                
+                nextApplyForItems(filterIds: arr, subFiltersIds: arr2, appliedSubFilters: Set(arr3), selectedSubFilters: Set(arr4), itemIds: arr5)
             }
         }
         NetworkMgt.runRequest(networkFunction: networkFunc)
     }
     
-    public static func requestApplyFromSubFilter(categoryId: Int, filterId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>, minPrice: CGFloat, maxPrice: CGFloat){
+    public static func requestApplyFromSubFilter(categoryId: Int, filterId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>, rangePrice: RangePrice){
         networkFunc = {
             functions.httpsCallable("applyFromSubFilterNow").call([ "useCache":true,
                                                                     "categoryId":categoryId,
                                                                     "filterId":filterId,
                                                                     "selectedSubFilters":Array(selectedSubFilters),
                                                                     "appliedSubFilters":Array(appliedSubFilters),
-                                                                    "minPrice":minPrice,
-                                                                    "maxPrice":maxPrice
-                                                                    ]) {(result, error) in
-                                                                        if let error = error as NSError? {
-                                                                            firebaseHandleErr(error: error)
-                                                                            return
-                                                                        }
-                                                                        
-                                                                        let arr:[Int] = parseJsonArr(result: result, key: "filtersIds")
-                                                                        let arr2:[Int] = parseJsonArr(result: result, key: "subFiltersIds")
-                                                                        let arr3:[Int] = parseJsonArr(result: result, key: "appliedSubFiltersIds")
-                                                                        let arr4:[Int] = parseJsonArr(result: result, key: "selectedSubFiltersIds")
-                                                                        
-                                                                        nextApplyForFilters(filterIds: arr, subFiltersIds: arr2, appliedSubFilters: Set(arr3), selectedSubFilters: Set(arr4))
+                                                                    "initialMinPrice":rangePrice.initialMinPrice,
+                                                                    "initialMaxPrice":rangePrice.initialMaxPrice,
+                                                                    "userMinPrice":rangePrice.userMinPrice,
+                                                                    "userMaxPrice":rangePrice.userMaxPrice,
+                                                                    "tipMinPrice":rangePrice.tipMinPrice,
+                                                                    "tipMaxPrice":rangePrice.tipMaxPrice
+            ]) {(result, error) in
+                if let error = error as NSError? {
+                    firebaseHandleErr(error: error)
+                    return
+                }
+                
+                let arr:[Int] = parseJsonArr(result: result, key: "filtersIds")
+                let arr2:[Int] = parseJsonArr(result: result, key: "subFiltersIds")
+                let arr3:[Int] = parseJsonArr(result: result, key: "appliedSubFiltersIds")
+                let arr4:[Int] = parseJsonArr(result: result, key: "selectedSubFiltersIds")
+                let sTipMinPrice_ = parseJsonVal(type: Int.self, result: result, key: "tipMinPrice")
+                let sTipMaxPrice_ = parseJsonVal(type: Int.self, result: result, key: "tipMaxPrice")
+                
+                
+                guard let tipMinPrice = sTipMinPrice_,
+                    let tipMaxPrice = sTipMaxPrice_
+                    else { return firebaseHandleErr(error: NSError(domain: FunctionsErrorDomain, code: 1, userInfo: ["Parse Int":0])  )}
+                
+                nextApplyForFilters(filterIds: arr,
+                                    subFiltersIds: arr2,
+                                    appliedSubFilters: Set(arr3),
+                                    selectedSubFilters: Set(arr4),
+                                    tipMinPrice: CGFloat(tipMinPrice),
+                                    tipMaxPrice: CGFloat(tipMaxPrice)
+                )
             }
         }
         NetworkMgt.runRequest(networkFunction: networkFunc)
     }
     
     
-    public static func requestApplyByPrices(categoryId: Int, minPrice: CGFloat, maxPrice: CGFloat){
+    public static func requestApplyByPrices(categoryId: Int, rangePrice: RangePrice){
         networkFunc = {
             functions.httpsCallable("applyByPrices").call(["useCache":true,
-                                                                "categoryId":categoryId,
-                                                                "minPrice":minPrice,
-                                                                "maxPrice":maxPrice]) {(result, error) in
-                                                                    if let error = error as NSError? {
-                                                                        firebaseHandleErr(error: error)
-                                                                        return
-                                                                    }
-                                                                    
-                                                                    let arr:[Int] = parseJsonArr(result: result, key: "filterIds")
-                                                            
-                                                                    nextApplyByPrices(filterIds: arr)
+                                                           "categoryId":categoryId,
+                                                           "userMinPrice":rangePrice.userMinPrice,
+                                                           "userMaxPrice":rangePrice.userMaxPrice,
+                                                           "tipMinPrice":rangePrice.tipMinPrice,
+                                                           "tipMaxPrice":rangePrice.tipMaxPrice
+            ]) {(result, error) in
+                if let error = error as NSError? {
+                    firebaseHandleErr(error: error)
+                    return
+                }
+                
+                let arr:[Int] = parseJsonArr(result: result, key: "filterIds")
+                
+                nextApplyByPrices(filterIds: arr)
             }
         }
         NetworkMgt.runRequest(networkFunction: networkFunc)
     }
     
     
-    public static func requestRemoveFilter(filterId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>){
+    public static func requestRemoveFilter(categoryId: Int, filterId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>, rangePrice: RangePrice){
         networkFunc = {
-            functions.httpsCallable("apiRemoveFilter").call([   "useCache":true,
-                                                                "filterId":filterId,
-                                                                "selectedSubFilters":Array(selectedSubFilters),
-                                                                "appliedSubFilters":Array(appliedSubFilters)]) {(result, error) in
-                                                                    if let error = error as NSError? {
-                                                                        firebaseHandleErr(error: error)
-                                                                    }
-                                                                    
-                                                                    let arr:[Int] = parseJsonArr(result: result, key: "filtersIds")
-                                                                    let arr2:[Int] = parseJsonArr(result: result, key: "subFiltersIds")
-                                                                    let arr3:[Int] = parseJsonArr(result: result, key: "appliedSubFiltersIds")
-                                                                    let arr4:[Int] = parseJsonArr(result: result, key: "selectedSubFiltersIds")
-                                                                    
-                                                                    nextApplyForFilters(filterIds: arr, subFiltersIds: arr2, appliedSubFilters: Set(arr3), selectedSubFilters: Set(arr4))
+            functions.httpsCallable("apiRemoveFilter").call(["useCache":true,
+                                                            "filterId":filterId,
+                                                            "selectedSubFilters":Array(selectedSubFilters),
+                                                            "appliedSubFilters":Array(appliedSubFilters),
+                                                            "categoryId":categoryId,
+                                                            "initialMinPrice":rangePrice.initialMinPrice,
+                                                            "initialMaxPrice":rangePrice.initialMaxPrice,
+                                                            "userMinPrice":rangePrice.userMinPrice,
+                                                            "userMaxPrice":rangePrice.userMaxPrice,
+                                                            "tipMinPrice":rangePrice.tipMinPrice,
+                                                            "tipMaxPrice":rangePrice.tipMaxPrice
+            ]) {(result, error) in
+                if let error = error as NSError? {
+                    firebaseHandleErr(error: error)
+                }
+                
+                let arr:[Int] = parseJsonArr(result: result, key: "filtersIds")
+                let arr2:[Int] = parseJsonArr(result: result, key: "subFiltersIds")
+                let arr3:[Int] = parseJsonArr(result: result, key: "appliedSubFiltersIds")
+                let arr4:[Int] = parseJsonArr(result: result, key: "selectedSubFiltersIds")
+                let sTipMinPrice_ = parseJsonVal(type: Int.self, result: result, key: "tipMinPrice")
+                let sTipMaxPrice_ = parseJsonVal(type: Int.self, result: result, key: "tipMaxPrice")
+                
+                
+                guard let tipMinPrice = sTipMinPrice_,
+                    let tipMaxPrice = sTipMaxPrice_
+                    else { return firebaseHandleErr(error: NSError(domain: FunctionsErrorDomain, code: 1, userInfo: ["Parse Int":0])  )}
+                
+                nextApplyForFilters(filterIds: arr,
+                                    subFiltersIds: arr2,
+                                    appliedSubFilters: Set(arr3),
+                                    selectedSubFilters: Set(arr4),
+                                    tipMinPrice: CGFloat(tipMinPrice),
+                                    tipMaxPrice: CGFloat(tipMaxPrice))
+            
             }
         }
         NetworkMgt.runRequest(networkFunction: networkFunc)
@@ -334,7 +379,13 @@ class NetworkMgt{
                 .asObservable()
                 .share()
                 .subscribe(onNext: { res in
-                    nextApplyForFilters(filterIds: res.0, subFiltersIds: res.1, appliedSubFilters: res.2, selectedSubFilters: res.3)
+                    nextApplyForFilters(filterIds: res.0,
+                                        subFiltersIds: res.1,
+                                        appliedSubFilters: res.2,
+                                        selectedSubFilters: res.3,
+                                        tipMinPrice: 0,
+                                        tipMaxPrice: 0
+                    )
                 })
                 .disposed(by: bag)
         }

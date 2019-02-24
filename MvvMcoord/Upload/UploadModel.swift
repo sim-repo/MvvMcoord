@@ -523,7 +523,7 @@ func runUpload(){
         let _ = CatalogModel1(id: i+27, categoryId: 01010101, name: "", thumbnail: "white-5", stars: 3, newPrice: 4800, oldPrice: 6500, votes: 45, discount: 30)
         let _ = CatalogModel1(id: i+28, categoryId: 01010101, name: "", thumbnail: "blue-6", stars: 3, newPrice: 4900, oldPrice: 6500, votes: 45, discount: 30)
         let _ = CatalogModel1(id: i+29, categoryId: 01010101, name: "", thumbnail: "blue-7", stars: 3, newPrice: 5000, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+30, categoryId: 01010101, name: "", thumbnail: "beige1", stars: 3, newPrice: 5100, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+30, categoryId: 01010101, name: "", thumbnail: "beige1", stars: 3, newPrice: 5100, oldPrice: 6500, votes: 45, discount: 30) // --->
         let _ = CatalogModel1(id: i+31, categoryId: 01010101, name: "", thumbnail: "white-5", stars: 3, newPrice: 5200, oldPrice: 6500, votes: 45, discount: 30)
         let _ = CatalogModel1(id: i+32, categoryId: 01010101, name: "", thumbnail: "white-6", stars: 3, newPrice: 5300, oldPrice: 6500, votes: 45, discount: 30)
         let _ = CatalogModel1(id: i+33, categoryId: 01010101, name: "", thumbnail: "blue-8", stars: 3, newPrice: 5400, oldPrice: 6500, votes: 45, discount: 30)
@@ -532,7 +532,7 @@ func runUpload(){
         let _ = CatalogModel1(id: i+36, categoryId: 01010101, name: "", thumbnail: "white-9", stars: 3, newPrice: 5700, oldPrice: 6500, votes: 45, discount: 30)
         let _ = CatalogModel1(id: i+37, categoryId: 01010101, name: "", thumbnail: "blue-9", stars: 3, newPrice: 5800, oldPrice: 6500, votes: 45, discount: 30)
         let _ = CatalogModel1(id: i+38, categoryId: 01010101, name: "", thumbnail: "beige2", stars: 3, newPrice: 5900, oldPrice: 6500, votes: 45, discount: 30)
-        let _ = CatalogModel1(id: i+39, categoryId: 01010101, name: "", thumbnail: "beige3", stars: 3, newPrice: 6000, oldPrice: 6500, votes: 45, discount: 30)
+        let _ = CatalogModel1(id: i+39, categoryId: 01010101, name: "", thumbnail: "beige3", stars: 3, newPrice: 6000, oldPrice: 6500, votes: 45, discount: 30)// --->
         let _ = CatalogModel1(id: i+40, categoryId: 01010101, name: "", thumbnail: "beige4", stars: 3, newPrice: 6100, oldPrice: 6500, votes: 45, discount: 30)
         let _ = CatalogModel1(id: i+41, categoryId: 01010101, name: "", thumbnail: "beige5", stars: 3, newPrice: 6200, oldPrice: 6500, votes: 45, discount: 30)
         let _ = CatalogModel1(id: i+42, categoryId: 01010101, name: "", thumbnail: "beige6", stars: 3, newPrice: 6300, oldPrice: 6500, votes: 45, discount: 30)
