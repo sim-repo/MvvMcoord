@@ -21,8 +21,8 @@ class CatalogCoord : BaseCoord<CoordRetEnum>{
     }
     
     override func start() -> Observable<CoordRetEnum> {
-        viewModel = CatalogVM(categoryId: categoryId)
-        
+        let networkService = HeavyClientFCF.shared
+        viewModel = CatalogVM(networkService: networkService, categoryId: categoryId)
         
         viewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "CatalogVC") as? CatalogVC
         

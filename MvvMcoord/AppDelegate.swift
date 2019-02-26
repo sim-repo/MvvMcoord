@@ -19,8 +19,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         FirebaseApp.configure()
         CategoryModel.fillModels()
         
-        BackendLogic.shared.setup()
-        
         window = UIWindow()
         if let window = window {
             let mainVC = ViewController()

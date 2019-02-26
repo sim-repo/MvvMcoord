@@ -10,6 +10,10 @@ enum FilterActionEnum {
     case enterFilter, applyFilter, removeFilter, enterSubFilter, applySubFilter
 }
 
+enum BackEnum {
+    case fromFilter, fromSubFilter
+}
+
 class BaseVM {
     let bag = DisposeBag()
     

@@ -7,6 +7,7 @@ enum CellLayoutEnum {
     case list, square, squares
 }
 
+
 struct CellLayout {
     var cellLayoutType: CellLayoutEnum
     var cellScale: CGSize
@@ -17,6 +18,9 @@ struct CellLayout {
 
 
 class CatalogVM : BaseVM {
+    
+    internal var networkService: NetworkFacadeProtocol
+    
     
     // MARK: --------------properties --------------
     private var currCellLayout: CellLayoutEnum = .squares
@@ -50,12 +54,11 @@ class CatalogVM : BaseVM {
     internal var selectedSubFilters: Set<Int> = Set()
     internal var unapplying: Set<Int> = Set()
     
-    
-    internal var currState = UUID()
-    internal var prevState = UUID()
-    
     // optimization: avoid network request
+    internal var readyGetFullEntities = true
     private var fullCatalogItemIds: [Int] = []
+    internal var readyApplySubfilter = false
+    
     
     private var catalog: [CatalogModel?] = []
     private var itemIds: [Int] = []
@@ -87,13 +90,14 @@ class CatalogVM : BaseVM {
     internal var outSectionSubFiltersEvent = BehaviorSubject<[SectionOfSubFilterModel]>(value: [])
     internal var outRequestComplete = PublishSubject<Int>()
     internal var outShowApplyViewEvent = BehaviorSubject<Bool>(value: false)
-    internal var outShowPriceApplyViewEvent = BehaviorSubject<Bool>(value: false)
+    internal var outShowPriceApplyViewEvent = PublishSubject<Bool>()
     internal var outRefreshedCellSelectionsEvent = PublishSubject<Set<Int>>()
     internal var outWaitEvent = BehaviorSubject<(FilterActionEnum, Bool)>(value: (.applyFilter, false))
+    internal var outBackEvent = PublishSubject<Void>()
     
     
-    
-    internal init(categoryId: Int, fetchLimit: Int, currentPage: Int, totalPages: Int, totalItems: Int){
+    internal init(networkService: NetworkFacadeProtocol, categoryId: Int, fetchLimit: Int, currentPage: Int, totalPages: Int, totalItems: Int){
+        self.networkService = networkService
         self.categoryId = categoryId
         self.fetchLimit = fetchLimit
         self.currentPage = currentPage
@@ -130,14 +134,13 @@ class CatalogVM : BaseVM {
 
     
     private func emitStartEvent(){
-        NetworkMgt.requestCatalogStart(categoryId: categoryId, appliedSubFilters: appliedSubFilters)
+        networkService.requestCatalogStart(categoryId: categoryId, appliedSubFilters: appliedSubFilters)
     }
    
    
     
     private func handleStartEvent(){
-        NetworkMgt
-            .outCatalogTotal
+        networkService.getCatalogTotalEvent()
             .skip(1)
             .subscribe(onNext: { [weak self] res in
                 self?.fullCatalogItemIds = res.0
@@ -162,7 +165,7 @@ class CatalogVM : BaseVM {
         
         if itemIds.count >= from {
             let nextItemIds = itemIds[from...to]
-            NetworkMgt.requestCatalogModel(itemIds: Array(nextItemIds))
+            networkService.requestCatalogModel(itemIds: Array(nextItemIds))
         }
     }
     
@@ -258,6 +261,7 @@ class CatalogVM : BaseVM {
             }
             self.outSubFiltersEvent.onNext(res)
         case .section:
+            fillSectionSubFilters()
             if let sections = sectionSubFiltersByFilter[filterId] {
                 self.outSectionSubFiltersEvent.onNext(sections)
             }
@@ -278,22 +282,68 @@ class CatalogVM : BaseVM {
         unitTestSignalOperationComplete.onNext(utMsgId)
     }
     
-    private func showApplyingView(isSelectNow: Bool){
-        if isSelectNow {
-            outShowApplyViewEvent.onNext(true)
-            return
-        }
+    internal func selectSubFilter(subFilterId: Int, selected: Bool) {
         
-        if self.appliedSubFilters.isEmpty == false ||
-            self.midAppliedSubFilters.isEmpty == false ||
-            self.selectedSubFilters.isEmpty == false ||
-            self.unapplying.isEmpty == false {
+        if appliedSubFilters.contains(subFilterId) ||
+            midAppliedSubFilters.contains(subFilterId) {
             
-            outShowApplyViewEvent.onNext(true)
+            if selected == false {
+                unapplying.insert(subFilterId)
+            } else {
+                unapplying.remove(subFilterId)
+            }
+        }
+            
+        if selected {
+            selectedSubFilters.insert(subFilterId)
+        } else {
+            selectedSubFilters.remove(subFilterId)
+        }
+        
+        self.showApplyingView(subFilterId: subFilterId, isSelectNow: selected)
+    }
+    
+    
+    private func showApplyingView(subFilterId: Int, isSelectNow: Bool){
+        
+        guard let filterId = subFilters[subFilterId]?.filterId else {return}
+        guard let arr = subfiltersByFilter[filterId] else {return}
+        
+        outShowApplyViewEvent.onNext(true)
+        
+        let subfilters = Set(arr)
+        
+        let selected = self.selectedSubFilters.intersection(subfilters)
+        
+        let notAppliedButSelected = selected.subtracting(midAppliedSubFilters)
+        
+        if notAppliedButSelected.count > 0 {
+            readyApplySubfilter = true
+            return
+        }
+
+        if isSelectNow && midAppliedSubFilters.contains(subFilterId) {
+            readyApplySubfilter = false
             return
         }
         
-        outShowApplyViewEvent.onNext(false)
+       if isSelectNow == false && midAppliedSubFilters.contains(subFilterId) {
+            readyApplySubfilter = true
+            return
+        }
+        
+        let unapl = unapplying.intersection(subfilters)
+        if unapl.count > 0 {
+             readyApplySubfilter = true
+            return
+        }
+        
+        if isSelectNow {
+            readyApplySubfilter = true
+            return
+        }
+        
+        readyApplySubfilter = false
     }
     
     
@@ -320,48 +370,34 @@ class CatalogVM : BaseVM {
         
         var tmp = [String:[SubfilterModel]]()
         var tmp2 = [SectionOfSubFilterModel]()
+        let sectionFilters = filters
+                                .values
+                                .filter({$0.filterEnum == .section})
         
-        for filter in filters {
-            if filter.value.filterEnum != .section {
-                continue
-            }
+        for filter in sectionFilters {
             tmp.removeAll()
             tmp2.removeAll()
-            if let ids = subfiltersByFilter[filter.key] {
-                for id in ids {
-                    if let subf = subFilters[id] {
-                        if tmp[subf.sectionHeader] == nil {
-                            tmp[subf.sectionHeader]  = []
-                        }
-                        tmp[subf.sectionHeader]?.append(subf)
-                    }
+            guard let ids = subfiltersByFilter[filter.id]  else { continue }
+            
+            for id in ids {
+                guard let subf = subFilters[id],
+                      subf.enabled == true
+                      else { continue }
+                
+                if tmp[subf.sectionHeader] == nil {
+                    tmp[subf.sectionHeader]  = []
                 }
-                for t in tmp {
-                    tmp2.append(SectionOfSubFilterModel(header: t.key, items: t.value))
-                }
-                sectionSubFiltersByFilter[filter.key] = tmp2
+                tmp[subf.sectionHeader]?.append(subf)
             }
+            for t in tmp {
+                tmp2.append(SectionOfSubFilterModel(header: t.key, items: t.value))
+            }
+            sectionSubFiltersByFilter[filter.id] = tmp2
         }
     }
     
     
-    internal func selectSubFilter(subFilterId: Int, selected: Bool) {
-
-        if appliedSubFilters.contains(subFilterId) ||
-            midAppliedSubFilters.contains(subFilterId) {
-    
-            if selected == false {
-                unapplying.insert(subFilterId)
-            }
-        }
-        
-        if selected {
-            selectedSubFilters.insert(subFilterId)
-        } else {
-            selectedSubFilters.remove(subFilterId)
-        }
-        self.showApplyingView(isSelectNow: selected)
-    }
+   
     
     
     internal func getEnabledSubFilters(ids: [Int]) -> [SubfilterModel?] {

@@ -73,7 +73,6 @@ class FilterVC: UIViewController {
                     switch model.filterEnum {
                     case .range:
                         guard let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCell", for: indexPath) as? FilterCell else { return UITableViewCell() }
-                        
                         cell.configCell(model: model, viewModel: self.viewModel)
                         cell.state = self.cellIsExpanded(at: indexPath) ? .expanded : .collapsed
                         return cell

@@ -20,13 +20,14 @@ protocol FilterActionDelegate : class {
     func cleanupFromSubFilterEvent() -> PublishSubject<Int>
     func requestComplete() -> PublishSubject<Int>
     func showApplyViewEvent() -> BehaviorSubject<Bool>
-    func showPriceApplyViewEvent() -> BehaviorSubject<Bool>
+    func showPriceApplyViewEvent() -> PublishSubject<Bool>
     func refreshedCellSelectionsEvent()->PublishSubject<Set<Int>>
     func applyByPrices() -> PublishSubject<Void>
     func getPriceRange()-> (CGFloat, CGFloat, CGFloat, CGFloat)
     func setTipPriceRange(minPrice: CGFloat, maxPrice: CGFloat)
     func setUserPriceRange(minPrice: CGFloat, maxPrice: CGFloat)
     func wait() -> BehaviorSubject<(FilterActionEnum, Bool)>
+    func back() -> PublishSubject<Void>
 }
 
 
@@ -34,26 +35,26 @@ protocol FilterActionDelegate : class {
 // MARK: -------------- implements FilterActionDelegate --------------
 extension CatalogVM : FilterActionDelegate {
     
-    convenience init(categoryId: Int) {
-        self.init(categoryId: categoryId, fetchLimit: 0, currentPage: 1, totalPages: 0, totalItems: 0)
+    convenience init(networkService: NetworkFacadeProtocol ,categoryId: Int) {
+        self.init(networkService: networkService, categoryId: categoryId, fetchLimit: 0, currentPage: 1, totalPages: 0, totalItems: 0)
         handleDelegate()
     }
     
     
     func requestFilters(categoryId:Int) {
-        if (prevState != currState) {
+        if readyGetFullEntities {
             wait().onNext((.enterFilter, true))
-            NetworkMgt.requestFullFilterEntities(categoryId: categoryId)
-            prevState = currState
+            networkService.requestFullFilterEntities(categoryId: categoryId)
+            readyGetFullEntities = false
         }
         midAppliedSubFilters = appliedSubFilters // crytical! зависит работа applySubfilter
-        selectedSubFilters = appliedSubFilters // crytical! зависит работа applySubfilter
+       // selectedSubFilters = appliedSubFilters // crytical! зависит работа applySubfilter
     }
     
     func requestSubFilters(filterId: Int) {
         wait().onNext((.enterSubFilter, true))
         showCleanSubFilterVC(filterId: filterId)
-        NetworkMgt.requestEnterSubFilter(categoryId: categoryId,
+        networkService.requestEnterSubFilter(categoryId: categoryId,
                                          filterId: filterId,
                                          appliedSubFilters: self.midAppliedSubFilters,
                                          rangePrice: self.rangePrice.getPricesWhenRequestSubFilters()
@@ -108,7 +109,7 @@ extension CatalogVM : FilterActionDelegate {
         return outShowApplyViewEvent
     }
     
-    func showPriceApplyViewEvent() -> BehaviorSubject<Bool> {
+    func showPriceApplyViewEvent() -> PublishSubject<Bool> {
         return outShowPriceApplyViewEvent
     }
     
@@ -117,9 +118,12 @@ extension CatalogVM : FilterActionDelegate {
         return outRefreshedCellSelectionsEvent
     }
     
-    
     func wait() -> BehaviorSubject<(FilterActionEnum, Bool)> {
         return outWaitEvent
+    }
+    
+    func back() -> PublishSubject<Void> {
+        return outBackEvent
     }
     
     func getPriceRange() -> (CGFloat, CGFloat, CGFloat, CGFloat) {
@@ -191,7 +195,7 @@ extension CatalogVM : FilterActionDelegate {
                 self.unapplying.removeAll()
                 self.wait().onNext((.applyFilter, true))
                 
-                NetworkMgt.requestApplyFromFilter(categoryId: self.categoryId,
+                self.networkService.requestApplyFromFilter(categoryId: self.categoryId,
                                                   appliedSubFilters: midApplying,
                                                   selectedSubFilters: self.selectedSubFilters,
                                                   rangePrice: self.rangePrice.getPricesWhenApplyFilter()
@@ -203,12 +207,19 @@ extension CatalogVM : FilterActionDelegate {
         inApplyFromSubFilterEvent
             .subscribe(onNext: {[weak self] filterId in
                 guard let `self` = self else { return }
+                
+                guard self.readyApplySubfilter == true
+                    else {
+                        self.back().onNext(Void())
+                        return
+                    }
+                self.readyApplySubfilter = false
                 let midApplying = self.midAppliedSubFilters.subtracting(self.unapplying)
                 self.wait().onNext((.applySubFilter, true))
                 self.unapplying.removeAll()
                 self.showCleanFilterVC()
                 
-                NetworkMgt.requestApplyFromSubFilter(categoryId: self.categoryId,
+                self.networkService.requestApplyFromSubFilter(categoryId: self.categoryId,
                                                      filterId: filterId,
                                                      appliedSubFilters: midApplying,
                                                      selectedSubFilters: self.selectedSubFilters,
@@ -221,7 +232,7 @@ extension CatalogVM : FilterActionDelegate {
         inApplyByPricesEvent
             .subscribe(onNext: {[weak self] _ in
                 guard let `self` = self else { return }
-                NetworkMgt.requestApplyByPrices(categoryId: self.categoryId,
+                self.networkService.requestApplyByPrices(categoryId: self.categoryId,
                                                 rangePrice: self.rangePrice.getPricesWhenApplyByPrices()
                                                 )
             })
@@ -234,7 +245,7 @@ extension CatalogVM : FilterActionDelegate {
                     self.wait().onNext((.removeFilter, true))
                     let midApplying = self.midAppliedSubFilters
                     self.unapplying.removeAll()
-                    NetworkMgt.requestRemoveFilter(categoryId: self.categoryId,
+                    self.networkService.requestRemoveFilter(categoryId: self.categoryId,
                                                    filterId: filterId,
                                                    appliedSubFilters: midApplying,
                                                    selectedSubFilters: self.selectedSubFilters,
@@ -279,7 +290,7 @@ extension CatalogVM : FilterActionDelegate {
             .disposed(by: bag)
         
         
-        NetworkMgt.outFilterEntitiesResponse
+        self.networkService.getFullFilterEntitiesEvent()
             .skip(1)
             .subscribe(onNext: { [weak self] res in
                 guard let `self` = self else {return}
@@ -296,7 +307,7 @@ extension CatalogVM : FilterActionDelegate {
                     self.subfiltersByFilter[subf.filterId]?.append(subf.id)
                     self.subFilters[subf.id] = subf
                 }
-                self.fillSectionSubFilters()
+                //self.fillSectionSubFilters()
                 
                 self.outFiltersEvent.onNext(self.getEnabledFilters())
                 self.wait().onNext((.enterFilter, false))
@@ -306,7 +317,7 @@ extension CatalogVM : FilterActionDelegate {
             .disposed(by: bag)
         
         
-        NetworkMgt.outEnterSubFilterResponse
+        self.networkService.getEnterSubFilterEvent()
             .subscribe(onNext: {[weak self] res in
                 guard let `self` = self else { return }
                 let filterIds = res.1
@@ -321,7 +332,7 @@ extension CatalogVM : FilterActionDelegate {
             .disposed(by: bag)
         
         
-        NetworkMgt.outApplyItemsResponse
+        self.networkService.getApplyForItemsEvent()
             .subscribe(onNext: {[weak self] _filters in
                 guard let `self` = self else {return}
                 self.enableFilters(ids: _filters.0)
@@ -340,14 +351,14 @@ extension CatalogVM : FilterActionDelegate {
             })
             .disposed(by: bag)
         
-        
-        NetworkMgt.outApplyFiltersResponse
+        self.networkService.getApplyForFiltersEvent()
             .subscribe(onNext: {[weak self] _filters in
                 guard let `self` = self else {return}
                 self.enableFilters(ids: _filters.0)
                 self.enableSubFilters(ids: _filters.1)
                 self.midAppliedSubFilters = _filters.2
-                self.selectedSubFilters = _filters.3
+              //  self.selectedSubFilters = _filters.3
+                self.selectedSubFilters.removeAll()
                 self.setTipPriceRange(minPrice: _filters.4, maxPrice: _filters.5)
                 
                 let filters = self.getEnabledFilters()
@@ -359,8 +370,7 @@ extension CatalogVM : FilterActionDelegate {
             .disposed(by: bag)
         
         
-        
-        NetworkMgt.outApplyByPrices
+        self.networkService.getApplyByPriceEvent()
             .subscribe(onNext: {[weak self] _filters in
                 guard let `self` = self else {return}
                 self.enableFilters(ids: _filters)
@@ -369,8 +379,7 @@ extension CatalogVM : FilterActionDelegate {
             })
             .disposed(by: bag)
         
-        
-        NetworkMgt.outCatalogModel
+        self.networkService.getCatalogModelEvent()
             .subscribe(onNext: {[weak self] res in
                 guard let `self` = self else { return }
                 self.inPrefetchEvent.onNext(res)

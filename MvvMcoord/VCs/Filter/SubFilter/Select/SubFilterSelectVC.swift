@@ -27,6 +27,7 @@ class SubFilterSelectVC: UIViewController {
         bindSelection()
         bindApply()
         bindWaitEvent()
+        bindBack()
     }
     
     deinit {
@@ -125,6 +126,16 @@ class SubFilterSelectVC: UIViewController {
                 guard let `self` = self else {return}
                 self.applyViewBottomCon.constant = isShow ? 0 : self.applyView.frame.height
                 self.view.layoutIfNeeded()
+            })
+            .disposed(by: bag)
+    }
+    
+    
+    
+    private func bindBack(){
+        viewModel.filterActionDelegate?.back()
+            .subscribe(onNext:  {[weak self] _ in
+                self?.viewModel.backEvent.onNext(.back)
             })
             .disposed(by: bag)
     }

@@ -20,6 +20,7 @@ class CategoryVM : BaseVM {
     
     init(parentBaseId: Int){
         super.init()
+    
         let models = CategoryModel.getModelsA(baseId: parentBaseId).share()
 
         models
