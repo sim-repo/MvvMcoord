@@ -150,7 +150,7 @@ class FilterUnitTest {
                         self?.result.res += (element!.title + " ")
                     }
                     self?.result.res += "***"
-                    print("take: \(self?.result.res)")
+                    print("take: \(self!.result.res)")
                     self?.catalogVM.unitTestSignalOperationComplete.onNext(newMsgId)
                 })
                 .disposed(by: self!.bag)
@@ -171,7 +171,7 @@ class FilterUnitTest {
                     }
                     self?.result.res += "***"
                     self?.catalogVM.unitTestSignalOperationComplete.onNext(newMsgId)
-                    print("take: \(self?.result.res)")
+                    print("take: \(self!.result.res)")
                 })
                 .disposed(by: self!.bag)
         }

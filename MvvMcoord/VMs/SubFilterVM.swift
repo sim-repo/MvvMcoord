@@ -9,7 +9,7 @@ class SubFilterVM : BaseVM {
     
     // MARK: - when init. Output to ViewController
     var filterEnum: FilterEnum = .select
-    var outCloseVC = PublishSubject<Void>()
+    var outCloseSubFilterVC = PublishSubject<Void>()
     var outStartWait = PublishSubject<Void>()
     
     
@@ -34,8 +34,8 @@ class SubFilterVM : BaseVM {
         inApply
             .subscribe(onNext: {[weak self] _ in // onNext need for unit-tests
                 guard let `self` = self else {return}
+                self.outCloseSubFilterVC.onCompleted()
                 self.filterActionDelegate?.applyFromSubFilterEvent().onNext(self.filterId)
-                self.outCloseVC.onCompleted()
             })
             .disposed(by: bag)
         

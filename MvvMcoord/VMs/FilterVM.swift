@@ -16,8 +16,7 @@ class FilterVM : BaseVM {
     
     // MARK: - Outputs to ViewController or Coord
     public var outShowSubFilters = PublishSubject<Int>()
-    public var outCloseVC = PublishSubject<Void>()
-    
+    public var outCloseFilterVC = PublishSubject<Void>()
     
     
     var categoryId : Int
@@ -38,9 +37,13 @@ class FilterVM : BaseVM {
         return self.filterActionDelegate?.appliedTitle(filterId: filterId) ?? ""
     }
     
-    public func setTmpRangePrice(minPrice: CGFloat, maxPrice: CGFloat) {
-        self.tmpMinPrice = minPrice
-        self.tmpMaxPrice = maxPrice
+    public func rangePriceChangedNow(minPrice: CGFloat, maxPrice: CGFloat) {
+        tmpMinPrice = minPrice
+        tmpMaxPrice = maxPrice
+    }
+    
+    public func rangePriceTouchEnd(){
+        self.filterActionDelegate?.calcMidTotal(tmpMinPrice: tmpMinPrice, tmpMaxPrice: tmpMaxPrice)
     }
     
     private func bindSelection(){
@@ -62,17 +65,26 @@ class FilterVM : BaseVM {
     
     private func bindUserActivities(){
         
+        filterActionDelegate?.back()
+            .take(1)
+            .subscribe{[weak self] _ in
+                self?.outCloseFilterVC.onCompleted()
+            }
+            .disposed(by: bag)
+        
+        
         inApply
             .subscribe(onNext: {[weak self] _ in   // onNext need for unit-tests
-                    self?.filterActionDelegate?.applyFromFilterEvent().onNext(Void())
-                    self?.outCloseVC.onCompleted()
+                //self?.outCloseFilterVC.onCompleted()
+                self?.filterActionDelegate?.applyFromFilterEvent().onNext(Void())
             })
             .disposed(by: bag)
+        
         
         inCleanUp
             .subscribe(onCompleted: {
                 self.filterActionDelegate?.cleanupFromFilterEvent().onNext(Void())
-                self.outCloseVC.onCompleted()
+                self.outCloseFilterVC.onCompleted()
             })
             .disposed(by: bag)
         
@@ -89,7 +101,7 @@ class FilterVM : BaseVM {
         priceInApply
             .subscribe(onNext: {[weak self] _ in   // onNext need for unit-tests
                 guard let `self` = self else {return}
-                self.filterActionDelegate?.setUserPriceRange(minPrice: self.tmpMinPrice, maxPrice: self.tmpMaxPrice)
+                self.filterActionDelegate?.setUserRangePrice(minPrice: self.tmpMinPrice, maxPrice: self.tmpMaxPrice)
                 self.filterActionDelegate?.showPriceApplyViewEvent().onNext(false)
                 self.filterActionDelegate?.applyByPrices().onNext(Void())
                 //self.filterActionDelegate?.applyFromSubFilterEvent().onNext(filterId)

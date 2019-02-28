@@ -90,7 +90,7 @@ class SubFilterSectionVC: UIViewController {
             }
             .disposed(by: bag)
         
-        viewModel.outCloseVC
+        viewModel.outCloseSubFilterVC
             .take(1)
             .subscribe{[weak self] _ in
                 self?.navigationController?.popViewController(animated: true)

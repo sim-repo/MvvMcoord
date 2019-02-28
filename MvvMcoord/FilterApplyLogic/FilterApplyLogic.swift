@@ -4,15 +4,11 @@ import RxDataSources
 import SwiftyJSON
 
 
-class BackendLogic {
+class FilterApplyLogic {
     
     private init(){}
-       
-    public static let shared = BackendLogic()
     
-//    private var appliedSubFilters: Applied = Applied()
-//    private var selectedSubFilters: Selected = Selected()
-//    private var applyingByFilter: ApplyingByFilter = ApplyingByFilter()
+    public static let shared = FilterApplyLogic()
     
     private var filters: Filters = Filters()
     private var subfiltersByFilter: SubfiltersByFilter = SubfiltersByFilter()
@@ -25,10 +21,17 @@ class BackendLogic {
     private var itemsByCatalog: ItemsByCatalog = ItemsByCatalog()
     
     private var priceByItemId: PriceByItemId = PriceByItemId()
-   // private var cntBySubfilterId: CountItems = [:]
     private var itemIds: ItemIds = []
-  //  private var rangePrice: RangePrice?
-   
+    
+    
+    public func getFilters() -> [FilterModel] {
+        return filters.compactMap({$0.value})
+    }
+    
+    public func getSubFilters() -> [SubfilterModel] {
+        return subFilters.compactMap({$0.value})
+    }
+    
     public func getSubfByItem()-> [Int: [Int]] {
         return subfiltersByItem
     }
@@ -58,6 +61,16 @@ class BackendLogic {
         }
     }
     
+    private func limitRangePrice(_ itemId: Int, _ rangePrice: RangePrice) {
+        guard let price = priceByItemId[itemId] else { return }
+        if rangePrice.tipMinPrice > price {
+            rangePrice.tipMinPrice = price
+        }
+        if rangePrice.tipMaxPrice < price {
+            rangePrice.tipMaxPrice = price
+        }
+    }
+    
     
     private func checkPrice(_ itemId: Int, _ minPrice: CGFloat, _ maxPrice: CGFloat) -> Bool{
         guard let price = priceByItemId[itemId] else { return false }
@@ -84,6 +97,7 @@ class BackendLogic {
             } else {
                 res.insert(itemId)
             }
+            limitRangePrice(itemId, rangePrice)
         })
         return res
     }
@@ -115,7 +129,7 @@ class BackendLogic {
         })
         return res
     }
-
+    
     private func groupApplying(_ applyingByFilter: inout ApplyingByFilter, _ applying: Set<Int>){
         applyingByFilter.removeAll()
         for id in applying {
@@ -129,19 +143,39 @@ class BackendLogic {
         }
     }
     
-    private func applyFromFilter(appliedSubFilters: inout Applied,
-                                 selectedSubFilters: inout Selected,
-                                 enabledFilters: inout EnabledFilters,
-                                 enabledSubfilters: inout EnabledSubfilters,
-                                 itemsIds: inout [Int],
-                                 rangePrice: RangePrice) {
+    private func applyForTotal(appliedSubFilters: Applied,
+                                selectedSubFilters: Selected,
+                                rangePrice: RangePrice) -> Int{
+        
+        let selected = selectedSubFilters
+        let applied = getApplied(applied: appliedSubFilters)
+        let applying = selected.union(applied)
+        
+        var items: Set<Int>
+        if (applying.count == 0) {
+            items = getItemsByPrice(rangePrice)
+        } else {
+            var applyingByFilter = ApplyingByFilter()
+            groupApplying(&applyingByFilter, applying)
+            items = getItemsIntersect(applyingByFilter, rangePrice)
+        }
+        return items.count
+        
+    }
+    
+    private func applyFromFilter(_ appliedSubFilters: inout Applied,
+                                 _ selectedSubFilters: inout Selected,
+                                 _ enabledFilters: inout EnabledFilters,
+                                 _ enabledSubfilters: inout EnabledSubfilters,
+                                 _ itemsIds: inout [Int],
+                                 _ rangePrice: RangePrice) {
         
         
         // block #1 >>
         let selected = selectedSubFilters
         let applied = getApplied(applied: appliedSubFilters)
         let applying = selected.union(applied)
-
+        
         if applying.count == 0 && rangePrice.userMinPrice == 0 && rangePrice.userMaxPrice == 0 {
             return
         }
@@ -179,6 +213,8 @@ class BackendLogic {
         appliedSubFilters = Set(applying)
     }
     
+    
+    
     private func getApplied(applied: Applied, exceptFilterId: Int = 0) -> Set<Int>{
         if exceptFilterId == 0 {
             return applied
@@ -187,14 +223,15 @@ class BackendLogic {
         return res
     }
     
-
     
-    private func applyFromSubFilter(filterId: Int,
-                                    appliedSubFilters: inout Applied,
-                                    selectedSubFilters: inout Selected,
-                                    enabledFilters: inout EnabledFilters,
-                                    enabledSubfilters: inout EnabledSubfilters,
-                                    rangePrice: RangePrice) {
+    
+    private func applyFromSubFilter(_ filterId: Int,
+                                    _ appliedSubFilters: inout Applied,
+                                    _ selectedSubFilters: inout Selected,
+                                    _ enabledFilters: inout EnabledFilters,
+                                    _ enabledSubfilters: inout EnabledSubfilters,
+                                    _ rangePrice: RangePrice,
+                                    _ itemsTotal: inout ItemsTotal) {
         
         // block #1 >>
         var inFilter: Set<Int> = Set()
@@ -226,6 +263,7 @@ class BackendLogic {
         // block #3 <<
         
         // block #4 >>
+        itemsTotal = items.count
         if items.count == 0 {
             enableAllFilters(&enabledFilters, exceptFilterId: filterId, enable: false)
             enableAllSubFilters(except: filterId, &enabledSubfilters, enable: true)
@@ -254,29 +292,32 @@ class BackendLogic {
     }
     
     
-    private func removeFilter(appliedSubFilters: inout Applied,
-                              selectedSubFilters: inout Selected,
-                              filterId: FilterId,
-                              enabledFilters: inout EnabledFilters,
-                              enabledSubfilters: inout EnabledSubfilters,
-                              rangePrice: RangePrice)  {
+    private func removeFilter(_ appliedSubFilters: inout Applied,
+                              _ selectedSubFilters: inout Selected,
+                              _ filterId: FilterId,
+                              _ enabledFilters: inout EnabledFilters,
+                              _ enabledSubfilters: inout EnabledSubfilters,
+                              _ rangePrice: RangePrice,
+                              _ itemsTotal: inout ItemsTotal)  {
         
         
         removeApplied(appliedSubFilters: &appliedSubFilters, selectedSubFilters: &selectedSubFilters, filterId: filterId)
         
-        applyAfterRemove(appliedSubFilters: &appliedSubFilters,
-                         selectedSubFilters: &selectedSubFilters,
-                         enabledFilters: &enabledFilters,
-                         enabledSubfilters: &enabledSubfilters,
-                         rangePrice: rangePrice)
+        applyAfterRemove(&appliedSubFilters,
+                         &selectedSubFilters,
+                         &enabledFilters,
+                         &enabledSubfilters,
+                         rangePrice,
+                         &itemsTotal)
     }
     
     
-    private func applyAfterRemove(appliedSubFilters: inout Applied,
-                                  selectedSubFilters: inout Selected,
-                                  enabledFilters: inout EnabledFilters,
-                                  enabledSubfilters: inout EnabledSubfilters,
-                                  rangePrice: RangePrice) {
+    private func applyAfterRemove(_ appliedSubFilters: inout Applied,
+                                  _ selectedSubFilters: inout Selected,
+                                  _ enabledFilters: inout EnabledFilters,
+                                  _ enabledSubfilters: inout EnabledSubfilters,
+                                  _ rangePrice: RangePrice,
+                                  _ itemsTotal: inout ItemsTotal ) {
         
         // block #1 >>
         let applying = getApplied(applied: appliedSubFilters)
@@ -313,6 +354,7 @@ class BackendLogic {
         
         
         // block #4 >>
+        itemsTotal = items.count
         let rem = getSubFilters(by: items)
         enableAllFilters(&enabledFilters, enable: false)
         enableAllSubFilters2(except: filterId, &enabledSubfilters, enable: false)
@@ -332,12 +374,12 @@ class BackendLogic {
     
     
     
-    private func applyBeforeEnter(appliedSubFilters: inout Applied,
-                                  filterId: FilterId,
-                                  enabledFilters: inout EnabledFilters,
-                                  enabledSubfilters: inout EnabledSubfilters,
-                                  countsItems: inout CountItems,
-                                  rangePrice: RangePrice) {
+    private func applyBeforeEnter(_ appliedSubFilters: inout Applied,
+                                  _ filterId: FilterId,
+                                  _ enabledFilters: inout EnabledFilters,
+                                  _ enabledSubfilters: inout EnabledSubfilters,
+                                  _ countsItems: inout CountItems,
+                                  _ rangePrice: RangePrice) {
         
         
         // block #1 >>
@@ -480,7 +522,7 @@ class BackendLogic {
                                 _ enabledSubfilters: inout EnabledSubfilters,
                                 _ exceptFilterId: Int = 0,
                                 _ rangePrice: RangePrice? = nil
-                                ){
+        ){
         applied.removeAll()
         selected.removeAll()
         enableAllFilters(&enabledFilters, enable: true)
@@ -514,7 +556,7 @@ class BackendLogic {
             }
         }
     }
-
+    
     
     private func getEnabledSubFilters(ids: [Int]) -> [SubfilterModel?] {
         let res = ids
@@ -533,9 +575,9 @@ class BackendLogic {
     
     private func getEnabledFiltersIds(_ enabledFilters: inout EnabledFilters)->[Int?] {
         return enabledFilters
-                .filter({$0.value == true })
-                .compactMap({$0.key})
-                .sorted(by: {$0 < $1 })
+            .filter({$0.value == true })
+            .compactMap({$0.key})
+            .sorted(by: {$0 < $1 })
     }
     
     
@@ -559,89 +601,144 @@ class BackendLogic {
     }
     
     
-
-//
-//    // Catalog Models:
-//    private func loadItemsFromDb(categoryId: Int, offset: Int){
-//
-//        itemsByCatalog = TestData.loadCatalogs(categoryId: categoryId)
-//
-//        let catalogModels = itemsByCatalog[categoryId] ?? []
-//        itemsById.removeAll()
-//        let limit = 5
-//
-//        var next = ArraySlice<CatalogModel>()
-//        if catalogModels.count > offset{
-//           let end = max(catalogModels.count-1, offset + limit)
-//           next = catalogModels[offset...end]
-//        }
-//
-//        next.forEach{ model in
-//            itemsById[model.id] = model
-//        }
-//    }
-//
-//
-//    private func getCatalogModel(categoryId: Int, appliedSubFilters: Set<Int>, offset: Int) -> [CatalogModel?]{
-//        loadItemsFromDb(categoryId: categoryId, offset: offset)
-//
-//        guard appliedSubFilters.count > 0
-//        else {
-//            return itemsById.compactMap({$0.value}).sorted(by: {$0.id < $1.id })
-//        }
-//
-//
-//        groupApplying(applying: appliedSubFilters)
-//
-//
-//        let items = getItemsIntersect()
-//
-//
-////
-////        let itemIdsArr = appliedSubFilters
-////        .compactMap({itemsBySubfilter[$0]})
-////        .flatMap{$0}
-////
-////        let itemIdsSet = Set(itemIdsArr)
-//        let res = items
-//            .compactMap({itemsById[$0]})
-//
-//        return res
-//    }
+    private func checkSubFilterApply() -> Bool {
+        
+        if self.filters.count > 0 &&
+            self.subFilters.count > 0 &&
+            self.subfiltersByFilter.count > 0 &&
+            self.subfiltersByItem.count > 0 &&
+            self.itemsBySubfilter.count > 0 &&
+            self.priceByItemId.count > 0 {
+            return true
+        }
+        return false
+    }
+    
+    
+    private func timer4SubFilterApply() {
+        var ready = false
+        while ready == false {
+            ready = checkSubFilterApply()
+            if ready {
+                return
+            }
+            usleep(200)
+        }
+    }
+    
+    private func checkEnterSubFilter() -> Bool {
+        
+        if self.filters.count > 0 &&
+            self.subFilters.count > 0 &&
+            self.subfiltersByFilter.count > 0 {
+            return true
+        }
+        return false
+    }
+    
+    
+    private func timer4SubFilterEnter() {
+        var ready = false
+        while ready == false {
+            ready = checkEnterSubFilter()
+            if ready {
+                return
+            }
+            usleep(200)
+        }
+    }
+    
+    
+    
+    
+    //
+    //    // Catalog Models:
+    //    private func loadItemsFromDb(categoryId: Int, offset: Int){
+    //
+    //        itemsByCatalog = TestData.loadCatalogs(categoryId: categoryId)
+    //
+    //        let catalogModels = itemsByCatalog[categoryId] ?? []
+    //        itemsById.removeAll()
+    //        let limit = 5
+    //
+    //        var next = ArraySlice<CatalogModel>()
+    //        if catalogModels.count > offset{
+    //           let end = max(catalogModels.count-1, offset + limit)
+    //           next = catalogModels[offset...end]
+    //        }
+    //
+    //        next.forEach{ model in
+    //            itemsById[model.id] = model
+    //        }
+    //    }
+    //
+    //
+    //    private func getCatalogModel(categoryId: Int, appliedSubFilters: Set<Int>, offset: Int) -> [CatalogModel?]{
+    //        loadItemsFromDb(categoryId: categoryId, offset: offset)
+    //
+    //        guard appliedSubFilters.count > 0
+    //        else {
+    //            return itemsById.compactMap({$0.value}).sorted(by: {$0.id < $1.id })
+    //        }
+    //
+    //
+    //        groupApplying(applying: appliedSubFilters)
+    //
+    //
+    //        let items = getItemsIntersect()
+    //
+    //
+    ////
+    ////        let itemIdsArr = appliedSubFilters
+    ////        .compactMap({itemsBySubfilter[$0]})
+    ////        .flatMap{$0}
+    ////
+    ////        let itemIdsSet = Set(itemIdsArr)
+    //        let res = items
+    //            .compactMap({itemsById[$0]})
+    //
+    //        return res
+    //    }
     
 }
 
 
 
-protocol ApiBackendLogic {
+protocol FilterApplyLogicProtocol {
     
     
-    func apiLoadSubFilters(filterId: FilterId, appliedSubFilters: Set<Int>, rangePrice: RangePrice) -> Observable<(FilterId, SubFilterIds, Applied, CountItems)>
+    func doLoadSubFilters(_ filterId: FilterId, _ appliedSubFilters: Set<Int>, _ rangePrice: RangePrice) -> Observable<(FilterId, SubFilterIds, Applied, CountItems)>
     
-    func apiLoadFilters() -> Observable<([FilterModel], [SubfilterModel])>
+    func doLoadFilters() -> Observable<([FilterModel], [SubfilterModel])>
     
-    func apiApplyFromFilter(appliedSubFilters: Set<Int>,  selectedSubFilters: Set<Int>, rangePrice: RangePrice) -> Observable<(FilterIds, SubFilterIds, Applied, Selected, ItemIds)>
+    func doCalcMidTotal(_ appliedSubFilters: Set<Int>,  _ selectedSubFilters: Set<Int>, _ rangePrice: RangePrice) -> Observable<Int>
     
-    func apiApplyFromSubFilters(filterId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>, rangePrice: RangePrice) -> Observable<(FilterIds, SubFilterIds, Applied, Selected, RangePrice)>
+    func doApplyFromFilter(_ appliedSubFilters: Set<Int>,  _ selectedSubFilters: Set<Int>, _ rangePrice: RangePrice) -> Observable<(FilterIds, SubFilterIds, Applied, Selected, ItemIds)>
     
-    func apiRemoveFilter(filterId: Int, appliedSubFilters: Set<Int>,  selectedSubFilters: Set<Int>, rangePrice: RangePrice) -> Observable<(FilterIds, SubFilterIds, Applied, Selected, RangePrice)>
+    func doApplyFromSubFilters(_ filterId: Int, _ appliedSubFilters: Set<Int>, _ selectedSubFilters: Set<Int>, _ rangePrice: RangePrice) -> Observable<(FilterIds, SubFilterIds, Applied, Selected, RangePrice, ItemsTotal)>
     
-    func apiApplyByPrices(categoryId: Int, rangePrice: RangePrice) -> Observable<[Int?]>
+    func doRemoveFilter(_ filterId: Int, _ appliedSubFilters: Set<Int>,  _ selectedSubFilters: Set<Int>, _ rangePrice: RangePrice) -> Observable<(FilterIds, SubFilterIds, Applied, Selected, RangePrice, ItemsTotal)>
     
-    func setup(filters: [FilterModel],
-               subFilters: [SubfilterModel],
-               subfiltersByFilter: SubfiltersByFilter,
-               subfiltersByItem: SubfiltersByItem,
-               itemsBySubfilter: ItemsBySubfilter,
-               priceByItemId: PriceByItemId
+    func doApplyByPrices(_ categoryId: Int, _ rangePrice: RangePrice) -> Observable<[Int?]>
+    
+    func setup(filters: [FilterModel]?,
+               subFilters: [SubfilterModel]?,
+               subfiltersByFilter: SubfiltersByFilter?,
+               subfiltersByItem: SubfiltersByItem?,
+               itemsBySubfilter: ItemsBySubfilter?,
+               priceByItemId: PriceByItemId?
     )
 }
 
 
-extension BackendLogic: ApiBackendLogic {
-
-
-    func apiApplyFromFilter(appliedSubFilters: Set<Int>,  selectedSubFilters: Set<Int>, rangePrice: RangePrice) -> Observable<(FilterIds, SubFilterIds, Applied, Selected, ItemIds)> {
+extension FilterApplyLogic: FilterApplyLogicProtocol {
+    
+    func doCalcMidTotal(_ appliedSubFilters: Set<Int>,  _ selectedSubFilters: Set<Int>, _ rangePrice: RangePrice) -> Observable<Int> {
+        let count = applyForTotal(appliedSubFilters: appliedSubFilters, selectedSubFilters: selectedSubFilters, rangePrice: rangePrice)
+        return Observable.just(count)
+    }
+    
+    func doApplyFromFilter(_ appliedSubFilters: Set<Int>,  _ selectedSubFilters: Set<Int>, _ rangePrice: RangePrice) -> Observable<(FilterIds, SubFilterIds, Applied, Selected, ItemIds)> {
         
         var enabledFilters = EnabledFilters()
         var enabledSubfilters = EnabledSubfilters()
@@ -652,13 +749,13 @@ extension BackendLogic: ApiBackendLogic {
         fillEnabledSubFilters(&enabledSubfilters)
         
         
-        applyFromFilter(appliedSubFilters: &applied,
-                            selectedSubFilters: &selected,
-                            enabledFilters: &enabledFilters,
-                            enabledSubfilters: &enabledSubfilters,
-                            itemsIds: &itemsIds,
-                            rangePrice: rangePrice)
-
+        applyFromFilter(&applied,
+                        &selected,
+                        &enabledFilters,
+                        &enabledSubfilters,
+                        &itemsIds,
+                        rangePrice)
+        
         let filtersIds = getEnabledFiltersIds(&enabledFilters)
         let subFiltersIds = getEnabledSubFiltersIds(&enabledSubfilters)
         itemsIds.sort(by: {$0 < $1})
@@ -666,7 +763,9 @@ extension BackendLogic: ApiBackendLogic {
     }
     
     
-    func apiApplyFromSubFilters(filterId: Int, appliedSubFilters: Set<Int>, selectedSubFilters: Set<Int>, rangePrice: RangePrice) -> Observable<(FilterIds, SubFilterIds, Applied, Selected, RangePrice)> {
+    func doApplyFromSubFilters(_ filterId: Int, _ appliedSubFilters: Set<Int>, _ selectedSubFilters: Set<Int>, _ rangePrice: RangePrice) -> Observable<(FilterIds, SubFilterIds, Applied, Selected, RangePrice, ItemsTotal)> {
+        
+        timer4SubFilterApply()
         
         var enabledFilters = EnabledFilters()
         var enabledSubfilters = EnabledSubfilters()
@@ -675,45 +774,58 @@ extension BackendLogic: ApiBackendLogic {
         fillEnabledFilters(&enabledFilters)
         fillEnabledSubFilters(&enabledSubfilters)
         
-        applyFromSubFilter(filterId: filterId,
-                           appliedSubFilters: &applied,
-                           selectedSubFilters: &selected,
-                           enabledFilters: &enabledFilters,
-                           enabledSubfilters: &enabledSubfilters,
-                           rangePrice: rangePrice)
+        rangePrice.tipMinPrice = 50000000
+        rangePrice.tipMaxPrice = -1
+        var itemsTotal = 0
+        
+        applyFromSubFilter(filterId,
+                           &applied,
+                           &selected,
+                           &enabledFilters,
+                           &enabledSubfilters,
+                           rangePrice,
+                           &itemsTotal
+                           )
         
         
         let filtersIds = getEnabledFiltersIds(&enabledFilters)
         let subFiltersIds = getEnabledSubFiltersIds(&enabledSubfilters)
-        return Observable.just((filtersIds, subFiltersIds, applied, selected, rangePrice))
+        return Observable.just((filtersIds, subFiltersIds, applied, selected, rangePrice, itemsTotal))
     }
     
     
-    func apiRemoveFilter(filterId: Int, appliedSubFilters: Set<Int>,  selectedSubFilters: Set<Int>, rangePrice: RangePrice) -> Observable<(FilterIds, SubFilterIds, Applied, Selected, RangePrice)> {
+    func doRemoveFilter(_ filterId: Int, _ appliedSubFilters: Set<Int>,  _ selectedSubFilters: Set<Int>, _ rangePrice: RangePrice) -> Observable<(FilterIds, SubFilterIds, Applied, Selected, RangePrice, ItemsTotal)> {
         
         var enabledFilters = EnabledFilters()
         var enabledSubfilters = EnabledSubfilters()
+        var applied = appliedSubFilters
+        var selected = selectedSubFilters
         fillEnabledFilters(&enabledFilters)
         fillEnabledSubFilters(&enabledSubfilters)
         
-        var applied = appliedSubFilters
-        var selected = selectedSubFilters
+        rangePrice.tipMinPrice = 50000000
+        rangePrice.tipMaxPrice = -1
+        var itemsTotal = 0
         
-        removeFilter(appliedSubFilters: &applied,
-                     selectedSubFilters: &selected,
-                     filterId: filterId,
-                     enabledFilters: &enabledFilters,
-                     enabledSubfilters: &enabledSubfilters,
-                     rangePrice: rangePrice)
+        removeFilter(&applied,
+                     &selected,
+                     filterId,
+                     &enabledFilters,
+                     &enabledSubfilters,
+                     rangePrice,
+                     &itemsTotal)
         
         
         let filtersIds = getEnabledFiltersIds(&enabledFilters)
         let subFiltersIds = getEnabledSubFiltersIds(&enabledSubfilters)
-        return Observable.just((filtersIds, subFiltersIds, applied, selected, rangePrice))
+        return Observable.just((filtersIds, subFiltersIds, applied, selected, rangePrice, itemsTotal))
     }
-
     
-    func apiLoadSubFilters(filterId: Int = 0, appliedSubFilters: Set<Int>, rangePrice: RangePrice) -> Observable<(FilterId, SubFilterIds, Applied, CountItems)> {
+    
+    func doLoadSubFilters(_ filterId: Int = 0, _ appliedSubFilters: Set<Int>, _ rangePrice: RangePrice) -> Observable<(FilterId, SubFilterIds, Applied, CountItems)> {
+        
+        
+        timer4SubFilterEnter()
         
         var enabledFilters = EnabledFilters()
         var enabledSubfilters = EnabledSubfilters()
@@ -722,25 +834,25 @@ extension BackendLogic: ApiBackendLogic {
         fillEnabledFilters(&enabledFilters)
         fillEnabledSubFilters(&enabledSubfilters)
         
-        applyBeforeEnter(appliedSubFilters: &applied,
-                         filterId: filterId,
-                         enabledFilters: &enabledFilters,
-                         enabledSubfilters: &enabledSubfilters,
-                         countsItems: &countsItems,
-                         rangePrice: rangePrice)
-       
+        applyBeforeEnter(&applied,
+                         filterId,
+                         &enabledFilters,
+                         &enabledSubfilters,
+                         &countsItems,
+                         rangePrice)
+        
         let subFiltersIds = getEnabledSubFiltersIds(&enabledSubfilters)
         
         return Observable.just((filterId, subFiltersIds, applied, countsItems))
     }
     
     
-    func apiLoadFilters() -> Observable<([FilterModel], [SubfilterModel])> {
+    func doLoadFilters() -> Observable<([FilterModel], [SubfilterModel])> {
         return Observable.just((TestData.loadFilters(), TestData.loadSubFilters(filterId: 0)))
     }
     
     
-    func apiApplyByPrices(categoryId: Int, rangePrice: RangePrice) -> Observable<[Int?]> {
+    func doApplyByPrices(_ categoryId: Int, _ rangePrice: RangePrice) -> Observable<[Int?]> {
         
         var enabledSubfilters = EnabledSubfilters()
         fillEnabledFilters(&enabledSubfilters)
@@ -753,24 +865,48 @@ extension BackendLogic: ApiBackendLogic {
     }
     
     
-    func setup(filters: [FilterModel],
-               subFilters: [SubfilterModel],
-               subfiltersByFilter: SubfiltersByFilter,
-               subfiltersByItem: SubfiltersByItem,
-               itemsBySubfilter: ItemsBySubfilter,
-               priceByItemId: PriceByItemId
+    func setup(filters: [FilterModel]? = nil,
+               subFilters: [SubfilterModel]? = nil,
+               subfiltersByFilter: SubfiltersByFilter? = nil,
+               subfiltersByItem: SubfiltersByItem? = nil,
+               itemsBySubfilter: ItemsBySubfilter? = nil,
+               priceByItemId: PriceByItemId? = nil
         ){
         
-        filters.forEach({f in
-            self.filters[f.id] = f
-        })
-        subFilters.forEach({s in
-            self.subFilters[s.id] = s
-        })
-        self.subfiltersByFilter = subfiltersByFilter
-        self.subfiltersByItem = subfiltersByItem
-        self.itemsBySubfilter = itemsBySubfilter
-        self.priceByItemId = priceByItemId
+        if let a = filters {
+            a.forEach({f in
+                self.filters[f.id] = f
+            })
+            print("Filters Loading Completed...")
+        }
+            
+            
+        if let b = subFilters {
+            b.forEach({s in
+                self.subFilters[s.id] = s
+            })
+            print("Subf Loading Completed...")
+        }
+        
+        if let c = subfiltersByFilter {
+            self.subfiltersByFilter = c
+            print("subfiltersByFilter Loading Completed...")
+        }
+        
+        if let d = subfiltersByItem {
+            self.subfiltersByItem = d
+            print("subfiltersByItem Loading Completed...")
+        }
+        
+        if let e = itemsBySubfilter {
+            self.itemsBySubfilter = e
+            print("itemsBySubfilter Loading Completed...")
+        }
+        
+        if let f = priceByItemId {
+            self.priceByItemId = f
+            print("priceByItemId Loading Completed...")
+        }
     }
-
 }
+

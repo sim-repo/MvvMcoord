@@ -19,7 +19,16 @@ protocol NetworkFacadeProtocol {
     
     func requestRemoveFilter(categoryId: Int, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice)
     
-    func requestCleanupFromSubFilter(categoryId: Int, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice)
+    func requestPreloadFullFilterEntities(categoryId: Int)
+    
+    func requestPreloadFiltersChunk1()
+    
+    func requestPreloadSubFiltersChunk2()
+    
+    func requestPreloadItemsChunk3()
+    
+    func requestMidTotal(categoryId: Int, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice)
+    
     
     
     
@@ -29,13 +38,22 @@ protocol NetworkFacadeProtocol {
     
     func getApplyForItemsEvent() -> PublishSubject<(FilterIds, SubFilterIds, Applied, Selected, ItemIds)>
     
-    func getApplyForFiltersEvent() -> PublishSubject<(FilterIds, SubFilterIds, Applied, Selected, CGFloat, CGFloat)>
+    func getApplyForFiltersEvent() -> PublishSubject<(FilterIds, SubFilterIds, Applied, Selected, MinPrice, MaxPrice, ItemsTotal)>
     
     func getApplyByPriceEvent() -> PublishSubject<FilterIds>
     
-    func getCatalogTotalEvent() -> BehaviorSubject<(ItemIds, Int, CGFloat, CGFloat)>
+    func getCatalogTotalEvent() -> BehaviorSubject<(ItemIds, Int, MinPrice, MaxPrice)>
     
     func getCatalogModelEvent() -> PublishSubject<[CatalogModel?]>
+    
+    
+    func getFilterChunk1() -> BehaviorSubject<[FilterModel]>
+    
+    func getSubFilterChunk2() -> BehaviorSubject<[SubfilterModel]>
+    
+    func getMidTotal() -> PublishSubject<ItemsTotal>
+    
+    func getDownloadsDoneEvent()-> PublishSubject<Void>
     
 }
 
@@ -43,18 +61,45 @@ protocol NetworkFacadeProtocol {
 
 class NetworkFacadeBase: NetworkFacadeProtocol {
     
-    public init(){}
+    public init(){setupDownload()}
     
     internal var outFilterEntitiesResponse = BehaviorSubject<([FilterModel], [SubfilterModel])>(value: ([],[]))
     internal var outEnterSubFilterResponse = PublishSubject<(FilterId, SubFilterIds, Applied, CountItems)>()
     internal var outApplyItemsResponse = PublishSubject<(FilterIds, SubFilterIds, Applied, Selected, ItemIds)>()
-    internal var outApplyFiltersResponse = PublishSubject<(FilterIds, SubFilterIds, Applied, Selected, CGFloat, CGFloat)>()
+    internal var outApplyFiltersResponse = PublishSubject<(FilterIds, SubFilterIds, Applied, Selected, MinPrice, MaxPrice, ItemsTotal)>()
     internal var outApplyByPrices = PublishSubject<FilterIds>()
-    internal var outCatalogTotal = BehaviorSubject<(ItemIds, Int, CGFloat, CGFloat)>(value: ([],20, 0, 0))
+    internal var outCatalogTotal = BehaviorSubject<(ItemIds, Int, MinPrice, MaxPrice)>(value: ([],20, 0, 0))
     internal var outCatalogModel = PublishSubject<[CatalogModel?]>()
     
+    internal var outFilterChunk1 = BehaviorSubject<[FilterModel]>(value: [])
+    internal var outSubFilterChunk2 = BehaviorSubject<[SubfilterModel]>(value: [])
+    internal var outTotals = PublishSubject<Int>()
     
+    internal var didDownloadChunk1 = PublishSubject<Void>()
+    internal var didDownloadChunk2 = PublishSubject<Void>()
+    internal var didDownloadChunk3 = PublishSubject<Void>()
+    internal var didDownloadChunk4 = PublishSubject<Void>()
+    internal var didDownloadChunk5 = PublishSubject<Void>()
+    internal var outDownloadsDone = PublishSubject<Void>()
+    var didDownloadComplete: Observable<Void>?
     
+    private func setupDownload(){
+        let didDownloadComplete = Observable.combineLatest(didDownloadChunk1,
+                                                           didDownloadChunk2,
+                                                           didDownloadChunk3,
+                                                           didDownloadChunk4,
+                                                           didDownloadChunk5,
+                                                           resultSelector:{
+            didDownloadChunk1, didDownloadChunk2, didDownloadChunk3, didDownloadChunk4, didDownloadChunk5 in
+            "okey!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+        })
+        
+        didDownloadComplete.subscribe(onNext: {[weak self] value in
+            self?.outDownloadsDone.onNext(Void())
+        })
+        .disposed(by: bag)
+    }
+   
     func requestCatalogStart(categoryId: Int, appliedSubFilters: Applied) {}
     
     func requestCatalogModel(itemIds: ItemIds) {}
@@ -71,7 +116,15 @@ class NetworkFacadeBase: NetworkFacadeProtocol {
     
     func requestRemoveFilter(categoryId: Int, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {}
     
-    func requestCleanupFromSubFilter(categoryId: Int, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {}
+    func requestPreloadFullFilterEntities(categoryId: Int) {}
+    
+    func requestPreloadFiltersChunk1() {}
+    
+    func requestPreloadSubFiltersChunk2() {}
+    
+    func requestPreloadItemsChunk3() {}
+    
+    func requestMidTotal(categoryId: Int, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {}
     
     
     
@@ -87,7 +140,7 @@ class NetworkFacadeBase: NetworkFacadeProtocol {
         return outApplyItemsResponse
     }
     
-    func getApplyForFiltersEvent() -> PublishSubject<(FilterIds, SubFilterIds, Applied, Selected, CGFloat, CGFloat)> {
+    func getApplyForFiltersEvent() -> PublishSubject<(FilterIds, SubFilterIds, Applied, Selected, MinPrice, MaxPrice, ItemsTotal)> {
         return outApplyFiltersResponse
     }
     
@@ -95,7 +148,7 @@ class NetworkFacadeBase: NetworkFacadeProtocol {
         return outApplyByPrices
     }
     
-    func getCatalogTotalEvent() -> BehaviorSubject<(ItemIds, Int, CGFloat, CGFloat)> {
+    func getCatalogTotalEvent() -> BehaviorSubject<(ItemIds, Int, MinPrice, MaxPrice)> {
         return outCatalogTotal
     }
     
@@ -103,6 +156,21 @@ class NetworkFacadeBase: NetworkFacadeProtocol {
         return outCatalogModel
     }
     
+    func getFilterChunk1() -> BehaviorSubject<[FilterModel]> {
+        return outFilterChunk1
+    }
+    
+    func getSubFilterChunk2() -> BehaviorSubject<[SubfilterModel]> {
+        return outSubFilterChunk2
+    }
+    
+    func getMidTotal() -> PublishSubject<Int> {
+        return outTotals
+    }
+    
+    func getDownloadsDoneEvent()-> PublishSubject<Void> {
+        return outDownloadsDone
+    }
     
     
     internal func fireFullFilterEntities(_ filterModels: [FilterModel], _ subFilterModels: [SubfilterModel]) {
@@ -117,8 +185,8 @@ class NetworkFacadeBase: NetworkFacadeProtocol {
         outApplyItemsResponse.onNext((filterIds, subFiltersIds, appliedSubFilters, selectedSubFilters, itemIds))
     }
     
-    internal func fireApplyForFilters(_ filterIds: FilterIds, _ subFiltersIds: SubFilterIds, _ appliedSubFilters: Applied, _ selectedSubFilters: Selected, _ tipMinPrice: CGFloat, _ tipMaxPrice: CGFloat) {
-        outApplyFiltersResponse.onNext((filterIds, subFiltersIds, appliedSubFilters, selectedSubFilters, tipMinPrice, tipMaxPrice))
+    internal func fireApplyForFilters(_ filterIds: FilterIds, _ subFiltersIds: SubFilterIds, _ appliedSubFilters: Applied, _ selectedSubFilters: Selected, _ tipMinPrice: CGFloat, _ tipMaxPrice: CGFloat, _ itemsTotal: ItemsTotal) {
+        outApplyFiltersResponse.onNext((filterIds, subFiltersIds, appliedSubFilters, selectedSubFilters, tipMinPrice, tipMaxPrice, itemsTotal))
     }
     
     internal func fireApplyByPrices(_ filterIds: FilterIds) {
@@ -131,6 +199,18 @@ class NetworkFacadeBase: NetworkFacadeProtocol {
     
     internal func fireCatalogTotal(_ itemIds: ItemIds, _ fetchLimit: Int, _ minPrice: CGFloat, _ maxPrice: CGFloat) {
         outCatalogTotal.onNext((itemIds, fetchLimit, minPrice, maxPrice))
+    }
+    
+    internal func fireFilterChunk1(_ filterModel: [FilterModel]){
+        outFilterChunk1.onNext(filterModel)
+    }
+    
+    internal func fireFilterChunk2(_ subfilterModel: [SubfilterModel]){
+        outSubFilterChunk2.onNext(subfilterModel)
+    }
+    
+    internal func fireMidTotal(_ total: Int) {
+        outTotals.onNext(total)
     }
 
 }

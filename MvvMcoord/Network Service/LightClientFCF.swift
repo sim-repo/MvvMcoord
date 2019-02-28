@@ -33,7 +33,7 @@ class LightClientFCF : NetworkFacadeBase {
                     self?.networkingFunc?()
                 })
             }
-            print("error:\(code) : \(message) : \(details)")
+            print("error:\(String(describing: code)) : \(message) : \(String(describing: details))")
         }
     }
     
@@ -87,6 +87,8 @@ class LightClientFCF : NetworkFacadeBase {
         runRequest(networkFunction: networkingFunc)
     }
     
+    
+    override func requestPreloadFullFilterEntities(categoryId: Int) {}
     
     override func requestFullFilterEntities(categoryId: Int){
         networkingFunc = {
@@ -200,10 +202,11 @@ class LightClientFCF : NetworkFacadeBase {
                 let selected: Selected = Set(ParsingHelper.parseJsonArr(result: result, key: "selectedSubFiltersIds"))
                 let sTipMinPrice_ = ParsingHelper.parseJsonVal(type: Int.self, result: result, key: "tipMinPrice")
                 let sTipMaxPrice_ = ParsingHelper.parseJsonVal(type: Int.self, result: result, key: "tipMaxPrice")
-                
+                let itemsTotal_: ItemsTotal? = ParsingHelper.parseJsonVal(type: Int.self, result: result, key: "itemsTotal")
                 
                 guard let tipMinPrice = sTipMinPrice_,
-                    let tipMaxPrice = sTipMaxPrice_
+                    let tipMaxPrice = sTipMaxPrice_,
+                    let itemsTotal = itemsTotal_
                     else { return self.firebaseHandleErr(error: NSError(domain: FunctionsErrorDomain, code: 1, userInfo: ["Parse Int":0])  )}
                 
                 self.fireApplyForFilters(filterIds,
@@ -211,7 +214,8 @@ class LightClientFCF : NetworkFacadeBase {
                                           applied,
                                           selected,
                                           CGFloat(tipMinPrice),
-                                          CGFloat(tipMaxPrice)
+                                          CGFloat(tipMaxPrice),
+                                          itemsTotal
                 )
             }
         }
@@ -272,10 +276,11 @@ class LightClientFCF : NetworkFacadeBase {
                 let selected: Selected = Set(ParsingHelper.parseJsonArr(result: result, key: "selectedSubFiltersIds"))
                 let sTipMinPrice_ = ParsingHelper.parseJsonVal(type: Int.self, result: result, key: "tipMinPrice")
                 let sTipMaxPrice_ = ParsingHelper.parseJsonVal(type: Int.self, result: result, key: "tipMaxPrice")
-                
+                let itemsTotal_: ItemsTotal? = ParsingHelper.parseJsonVal(type: Int.self, result: result, key: "itemsTotal")
                 
                 guard let tipMinPrice = sTipMinPrice_,
-                    let tipMaxPrice = sTipMaxPrice_
+                    let tipMaxPrice = sTipMaxPrice_,
+                    let itemsTotal = itemsTotal_
                     else { return self.firebaseHandleErr(error: NSError(domain: FunctionsErrorDomain, code: 1, userInfo: ["Parse Int":0])  )}
                 
                 self.fireApplyForFilters(filterIds,
@@ -283,7 +288,9 @@ class LightClientFCF : NetworkFacadeBase {
                                          applied,
                                          selected,
                                          CGFloat(tipMinPrice),
-                                         CGFloat(tipMaxPrice))
+                                         CGFloat(tipMaxPrice),
+                                         itemsTotal
+                )
             
             }
         }
@@ -291,19 +298,16 @@ class LightClientFCF : NetworkFacadeBase {
     }
     
     
-    override func requestCleanupFromSubFilter(categoryId: Int, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice){
+    
+    override func requestMidTotal(categoryId: Int, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {
         networkingFunc = {
-            functions.httpsCallable("apiRemoveFilter").call(["useCache":true,
-                                                             "filterId":filterId,
-                                                             "selectedSubFilters":Array(selectedSubFilters),
-                                                             "appliedSubFilters":Array(appliedSubFilters),
-                                                             "categoryId":categoryId,
-                                                             "initialMinPrice":rangePrice.initialMinPrice,
-                                                             "initialMaxPrice":rangePrice.initialMaxPrice,
-                                                             "userMinPrice":rangePrice.userMinPrice,
-                                                             "userMaxPrice":rangePrice.userMaxPrice,
-                                                             "tipMinPrice":rangePrice.tipMinPrice,
-                                                             "tipMaxPrice":rangePrice.tipMaxPrice
+            functions.httpsCallable("doCalcMidTotal").call(["useCache":true,
+                                                            "selectedSubFilters":Array(selectedSubFilters),
+                                                            "appliedSubFilters":Array(appliedSubFilters),
+                                                            "userMinPrice":rangePrice.userMinPrice,
+                                                            "userMaxPrice":rangePrice.userMaxPrice,
+                                                            "tipMinPrice":rangePrice.tipMinPrice,
+                                                            "tipMaxPrice":rangePrice.tipMaxPrice
             ]) {[weak self] (result, error) in
                 guard let `self` = self else { return }
                 
@@ -311,26 +315,14 @@ class LightClientFCF : NetworkFacadeBase {
                 if let error = error as NSError? {
                     self.firebaseHandleErr(error: error)
                 }
-                
-                let filterIds: FilterIds = ParsingHelper.parseJsonArr(result: result, key: "filtersIds")
-                let subfilterIds: SubFilterIds = ParsingHelper.parseJsonArr(result: result, key: "subFiltersIds")
-                let applied: Applied = Set(ParsingHelper.parseJsonArr(result: result, key: "appliedSubFiltersIds"))
-                let selected: Selected = Set(ParsingHelper.parseJsonArr(result: result, key: "selectedSubFiltersIds"))
-                let sTipMinPrice_ = ParsingHelper.parseJsonVal(type: Int.self, result: result, key: "tipMinPrice")
-                let sTipMaxPrice_ = ParsingHelper.parseJsonVal(type: Int.self, result: result, key: "tipMaxPrice")
+
+                let sTotal = ParsingHelper.parseJsonVal(type: Int.self, result: result, key: "itemsTotal")
                 
                 
-                guard let tipMinPrice = sTipMinPrice_,
-                    let tipMaxPrice = sTipMaxPrice_
+                guard let total = sTotal
                     else { return self.firebaseHandleErr(error: NSError(domain: FunctionsErrorDomain, code: 1, userInfo: ["Parse Int":0])  )}
                 
-                self.fireApplyForFilters(filterIds,
-                                         subfilterIds,
-                                         applied,
-                                         selected,
-                                         CGFloat(tipMinPrice),
-                                         CGFloat(tipMaxPrice))
-                
+                self.fireMidTotal(Int(total))
             }
         }
         runRequest(networkFunction: networkingFunc)

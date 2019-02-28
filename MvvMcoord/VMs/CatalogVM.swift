@@ -19,9 +19,6 @@ struct CellLayout {
 
 class CatalogVM : BaseVM {
     
-    internal var networkService: NetworkFacadeProtocol
-    
-    
     // MARK: --------------properties --------------
     private var currCellLayout: CellLayoutEnum = .squares
     internal var categoryId: Int
@@ -31,13 +28,12 @@ class CatalogVM : BaseVM {
     var inPressLayout:Variable<Void> = Variable<Void>(Void())
     var inPressFilter = PublishSubject<Void>()
     
-    
     // Outputs to ViewController or Coord
     var outTitle = Variable<String>("")
     var outLayout = Variable<CellLayout?>(nil)
     var outShowFilters = PublishSubject<Int>()
     var outCloseVC = PublishSubject<Void>()
-    var outReloadVC = PublishSubject<Void>()
+    var outReloadCatalogVC = PublishSubject<Void>()
     var outFetchComplete = PublishSubject<[IndexPath]?>()
     
     
@@ -46,7 +42,9 @@ class CatalogVM : BaseVM {
     internal var subFilters: [Int:SubfilterModel] = [:]
     internal var subfiltersByFilter: [Int:[Int]] = [:]
     private var sectionSubFiltersByFilter: [Int:[SectionOfSubFilterModel]] = [:]
-    
+    private var catalog: [CatalogModel?] = []
+    private var itemIds: [Int] = []
+    internal var rangePrice = RangePrice.shared
 
     // Module State:
     internal var appliedSubFilters: Set<Int> = Set()
@@ -54,17 +52,15 @@ class CatalogVM : BaseVM {
     internal var selectedSubFilters: Set<Int> = Set()
     internal var unapplying: Set<Int> = Set()
     
+    
     // optimization: avoid network request
-    internal var readyGetFullEntities = true
     private var fullCatalogItemIds: [Int] = []
-    internal var readyApplySubfilter = false
+    internal var canApplyFromSubfilter = false
     
+    // prevent from zero-catalog
+    internal var itemsTotal = 0
     
-    private var catalog: [CatalogModel?] = []
-    private var itemIds: [Int] = []
-    
-    internal var rangePrice = RangePrice.shared
-    
+    // prefetching
     internal var inPrefetchEvent = PublishSubject<[CatalogModel?]>()
     private var isPrefetchInProgress = false
     private var fetchLimit: Int
@@ -94,10 +90,13 @@ class CatalogVM : BaseVM {
     internal var outRefreshedCellSelectionsEvent = PublishSubject<Set<Int>>()
     internal var outWaitEvent = BehaviorSubject<(FilterActionEnum, Bool)>(value: (.applyFilter, false))
     internal var outBackEvent = PublishSubject<Void>()
+    internal var outMidTotal = PublishSubject<Int>()
+    internal var outShowWarning = PublishSubject<Void>()
+    internal var outReloadSubFilterVCEvent = PublishSubject<Void>()
     
     
-    internal init(networkService: NetworkFacadeProtocol, categoryId: Int, fetchLimit: Int, currentPage: Int, totalPages: Int, totalItems: Int){
-        self.networkService = networkService
+    
+    internal init(categoryId: Int, fetchLimit: Int, currentPage: Int, totalPages: Int, totalItems: Int){
         self.categoryId = categoryId
         self.fetchLimit = fetchLimit
         self.currentPage = currentPage
@@ -134,19 +133,17 @@ class CatalogVM : BaseVM {
 
     
     private func emitStartEvent(){
-        networkService.requestCatalogStart(categoryId: categoryId, appliedSubFilters: appliedSubFilters)
+        getNetworkService().requestCatalogStart(categoryId: categoryId, appliedSubFilters: appliedSubFilters)
     }
    
-   
-    
     private func handleStartEvent(){
-        networkService.getCatalogTotalEvent()
+        getNetworkService().getCatalogTotalEvent()
             .skip(1)
             .subscribe(onNext: { [weak self] res in
                 self?.fullCatalogItemIds = res.0
                 self?.setupFetch(itemsIds: res.0, fetchLimit: res.1)
                 self?.rangePrice.setupRangePrice(minPrice: res.2, maxPrice: res.3)
-                self?.outReloadVC.onNext(Void())
+                self?.outReloadCatalogVC.onNext(Void())
                 self?.emitPrefetchEvent()
             })
             .disposed(by: bag)
@@ -165,7 +162,7 @@ class CatalogVM : BaseVM {
         
         if itemIds.count >= from {
             let nextItemIds = itemIds[from...to]
-            networkService.requestCatalogModel(itemIds: Array(nextItemIds))
+            getNetworkService().requestCatalogModel(itemIds: Array(nextItemIds))
         }
     }
     
@@ -268,7 +265,6 @@ class CatalogVM : BaseVM {
         default:
             print("todo")
         }
-        
         unitTestSignalOperationComplete.onNext(utMsgId)
     }
     
@@ -276,7 +272,7 @@ class CatalogVM : BaseVM {
         cleanupAllFilters()
         itemIds = fullCatalogItemIds
         setupFetch(itemsIds: fullCatalogItemIds)
-        outReloadVC.onNext(Void())
+        outReloadCatalogVC.onNext(Void())
         emitPrefetchEvent()
         outFiltersEvent.onNext(self.getEnabledFilters())
         unitTestSignalOperationComplete.onNext(utMsgId)
@@ -293,13 +289,11 @@ class CatalogVM : BaseVM {
                 unapplying.remove(subFilterId)
             }
         }
-            
         if selected {
             selectedSubFilters.insert(subFilterId)
         } else {
             selectedSubFilters.remove(subFilterId)
         }
-        
         self.showApplyingView(subFilterId: subFilterId, isSelectNow: selected)
     }
     
@@ -318,32 +312,32 @@ class CatalogVM : BaseVM {
         let notAppliedButSelected = selected.subtracting(midAppliedSubFilters)
         
         if notAppliedButSelected.count > 0 {
-            readyApplySubfilter = true
+            canApplyFromSubfilter = true
             return
         }
 
         if isSelectNow && midAppliedSubFilters.contains(subFilterId) {
-            readyApplySubfilter = false
+            canApplyFromSubfilter = false
             return
         }
         
        if isSelectNow == false && midAppliedSubFilters.contains(subFilterId) {
-            readyApplySubfilter = true
+            canApplyFromSubfilter = true
             return
         }
         
         let unapl = unapplying.intersection(subfilters)
         if unapl.count > 0 {
-             readyApplySubfilter = true
+             canApplyFromSubfilter = true
             return
         }
         
         if isSelectNow {
-            readyApplySubfilter = true
+            canApplyFromSubfilter = true
             return
         }
         
-        readyApplySubfilter = false
+        canApplyFromSubfilter = false
     }
     
     

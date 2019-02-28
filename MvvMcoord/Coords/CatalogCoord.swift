@@ -15,14 +15,13 @@ class CatalogCoord : BaseCoord<CoordRetEnum>{
     
     private func reload(){
         print("reload catalog")
-        guard let vm = viewModel as? CatalogVM
-            else { fatalError("view model") }
+//        guard let vm = viewModel as? CatalogVM
+//            else { fatalError("view model") }
       //  vm.emitTotalEvent()
     }
     
     override func start() -> Observable<CoordRetEnum> {
-        let networkService = HeavyClientFCF.shared
-        viewModel = CatalogVM(networkService: networkService, categoryId: categoryId)
+        viewModel = CatalogVM(categoryId: categoryId)
         
         viewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "CatalogVC") as? CatalogVC
         

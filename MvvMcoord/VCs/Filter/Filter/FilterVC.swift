@@ -152,6 +152,13 @@ class FilterVC: UIViewController {
     
     
     
+    private func showApplyWarning(){
+        let alert = UIAlertController(title: "Ошибка", message: "В указанных фильтрах отсутствуют товары. \n Необходимо изменить фильтры.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+    
     private func bindApply(){
         
         applyView.applyButton.rx.tap
@@ -165,13 +172,21 @@ class FilterVC: UIViewController {
                 self?.viewModel.inCleanUp.onCompleted()
             }
             .disposed(by: bag)
+        
+        viewModel.filterActionDelegate?.showApplyWarning()
+            .subscribe{[weak self] _ in
+                self?.showApplyWarning()
+            }
+            .disposed(by: bag)
+        
     }
     
     
     private func bindPriceApply(){
+        
         priceApplyView.applyButton.rx.tap
             .subscribe{ [weak self] _ in
-                self?.doHideRangePricesCell()
+                let _ = self?.doHideRangePricesCell()
                 self?.viewModel.priceInApply.onNext(Void())
             }
             .disposed(by: bag)
@@ -183,11 +198,18 @@ class FilterVC: UIViewController {
                 self.view.layoutIfNeeded()
             })
             .disposed(by: bag)
+        
+        viewModel.filterActionDelegate?.getMidTotal()
+            .subscribe(onNext: {[weak self] count in
+                self?.priceApplyView.applyButton.setTitle("Применить \(count) товаров", for: .normal)
+                self?.applyView.applyButton.setTitle("Применить \n \(count) товаров", for: .normal)
+            })
+            .disposed(by: bag)
     }
     
     
     private func bindNavigation() {
-        viewModel.outCloseVC
+        viewModel.outCloseFilterVC
         .take(1)
         .subscribe{[weak self] _ in
             self?.navigationController?.popViewController(animated: true)
@@ -199,7 +221,7 @@ class FilterVC: UIViewController {
     private func bindRemoveFilter(){
         removeFilterEvent
             .subscribe(onNext: {[weak self] filterId in
-                self!.doHideRangePricesCell()
+                let _ = self!.doHideRangePricesCell()
                 self!.viewModel.inRemoveFilter.onNext(filterId)
             })
             .disposed(by: bag)
@@ -227,25 +249,28 @@ class FilterVC: UIViewController {
         waitActivityView.frame = CGRect(x: 0, y: 0, width: 80, height: 80)
         waitContainer.isHidden = true
         waitContainer.addSubview(waitActivityView)
+        waitContainer.alpha = 1.0
         view.addSubview(waitContainer)
         
         viewModel.filterActionDelegate?.wait()
             .filter({[.enterFilter, .applySubFilter, .removeFilter].contains($0.0)})
+            .takeWhile({$0.1 == true})
             .subscribe(onNext: {[weak self] res in
-                guard let `self` = self else {return}
-                let runWait = res.1
-                if runWait {
+                DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2)){
+                    guard let `self` = self else {return}
+                    print("start wait")
                     self.startWait()
-                } else {
-                    self.stopWait()
                 }
-            })
+                },
+                onCompleted: {
+                    self.stopWait()
+                })
             .disposed(by: bag)
     }
 
     
     private func startWait() {
-        print("wait in Filter")
+        guard waitContainer.alpha == 1.0 else { return }
         tableView.isHidden = true
         waitContainer.isHidden = false
         waitActivityView.startAnimating()
@@ -253,6 +278,7 @@ class FilterVC: UIViewController {
     
     private func stopWait(){
         tableView.isHidden = false
+        waitContainer.alpha = 0.0
         waitContainer.isHidden = true
         waitActivityView.stopAnimating()
     }

@@ -27,7 +27,7 @@ class BaseCoord<ResultType> {
         store(coord: coord)
         return coord.start()
             .do(
-                onNext:{[weak self] _ in
+                onNext:{ _ in
                   //  self?.free(coord: coord)
                 },
                 onCompleted: {

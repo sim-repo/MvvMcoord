@@ -320,7 +320,7 @@ func runUpload(){
     
     let бежевый = SubfilterModel1(id:60, filterId: 6, title: "бежевый")
     let белый = SubfilterModel1(id:61, filterId: 6, title: "белый")
-    let голубой = SubfilterModel1(id:62, filterId: 6, title: "голубой")
+    let _ = SubfilterModel1(id:62, filterId: 6, title: "голубой")
     let желтый = SubfilterModel1(id:63, filterId: 6, title: "желтый")
     let зеленый = SubfilterModel1(id:64, filterId: 6, title: "зеленый")
     let коричневый = SubfilterModel1(id:65, filterId: 6, title: "коричневый")
@@ -334,9 +334,9 @@ func runUpload(){
     
     
 
-    //stride(from: 0, to: 30038, by: 38)
-    //for i in stride(from: 0, to: 135, by: 38) {
-        let i = 0
+   
+    for i in stride(from: 0, to: 30135, by: 135) {
+       // let i = 0
         subfByItem(item: i+1,  subfilters: [f10.id, size34.id, зима.id,           ангора.id,      день1.id,   синий.id])
         subfByItem(item: i+2,  subfilters: [f11.id, size36.id, демисезон.id,      вискоза.id,     дня3.id,    желтый.id])
         subfByItem(item: i+3,  subfilters: [f11.id, size38.id, круглогодичный.id, полиамид.id,    дня4.id,    желтый.id])
@@ -348,20 +348,20 @@ func runUpload(){
         subfByItem(item: i+9,  subfilters: [f14.id, size44.id, демисезон.id,      вискоза.id,     день1.id,   коричневый.id])
         subfByItem(item: i+10, subfilters: [f14.id, size36.id, зима.id,           ангора.id,      дня4.id,    синий.id])
         subfByItem(item: i+11, subfilters: [f14.id, size46.id, круглогодичный.id, полиуретан.id,  дня4.id,    фиолетовый.id])
-        subfByItem(item: i+12, subfilters: [f15.id, size36.id, лето.id,           хлопок.id,      день1.id,   черный.id])
+        subfByItem(item: i+12, subfilters: [f36.id, size36.id, лето.id,           хлопок.id,      день1.id,   черный.id])
         subfByItem(item: i+13, subfilters: [f15.id, size34.id, зима.id,           шерсть.id,      дня4.id,    белый.id])
         subfByItem(item: i+14, subfilters: [f16.id, size36.id, демисезон.id,      шерсть.id,      дня3.id,    черный.id])
-        subfByItem(item: i+15, subfilters: [f17.id, size36.id, демисезон.id,      шерсть.id,      дня3.id,    красный.id])
-        subfByItem(item: i+16, subfilters: [f17.id, size34.id, зима.id,           шерсть.id,      дня4.id,    белый.id])
+        subfByItem(item: i+15, subfilters: [f35.id, size36.id, демисезон.id,      шерсть.id,      дня3.id,    красный.id])
+        subfByItem(item: i+16, subfilters: [f34.id, size34.id, зима.id,           шерсть.id,      дня4.id,    белый.id])
         subfByItem(item: i+17, subfilters: [f17.id, size34.id, круглогодичный.id, эластан.id,     день1.id,   коричневый.id])
         subfByItem(item: i+18, subfilters: [f18.id, size36.id, лето.id,           хлопок.id,      день1.id,   черный.id])
         subfByItem(item: i+19, subfilters: [f18.id, size34.id, демисезон.id,      шерсть.id,      дня4.id,    оранжевый.id])
         subfByItem(item: i+20, subfilters: [f19.id, size34.id, зима.id,           шерсть.id,      дня4.id,    белый.id])
         subfByItem(item: i+21, subfilters: [f20.id, size34.id, демисезон.id,      вискоза.id,     день1.id,   желтый.id])
-        subfByItem(item: i+22, subfilters: [f21.id, size36.id, лето.id,           шелк.id,        день1.id,   черный.id])
+        subfByItem(item: i+22, subfilters: [f21.id, size36.id, лето.id,           шелк.id,        дней5.id,   черный.id])
         subfByItem(item: i+23, subfilters: [f22.id, size34.id, демисезон.id,      шерсть.id,      дня4.id,    фиолетовый.id])
-        subfByItem(item: i+24, subfilters: [f22.id, size36.id, зима.id,           шерсть.id,      дня4.id,    синий.id])
-        subfByItem(item: i+25, subfilters: [f23.id, size34.id, зима.id,           ангора.id,      день1.id,   синий.id])
+        subfByItem(item: i+24, subfilters: [f33.id, size36.id, зима.id,           шерсть.id,      дня4.id,    синий.id])
+        subfByItem(item: i+25, subfilters: [f23.id, size37.id, зима.id,           ангора.id,      день1.id,   синий.id])
         subfByItem(item: i+26, subfilters: [f23.id, size34.id, лето.id,           шелк.id,        дня3.id,    белый.id])
         subfByItem(item: i+27, subfilters: [f24.id, size34.id, зима.id,           эластан.id,     дня4.id,    белый.id])
         subfByItem(item: i+28, subfilters: [f24.id, size34.id, зима.id,           ангора.id,      дня4.id,    синий.id])
@@ -372,12 +372,12 @@ func runUpload(){
         subfByItem(item: i+33, subfilters: [f28.id, size34.id, зима.id,           ангора.id,      день1.id,   синий.id])
         subfByItem(item: i+34, subfilters: [f29.id, size34.id, лето.id,           эластан.id,     дня3.id,    белый.id])
         subfByItem(item: i+35, subfilters: [f31.id, size34.id, лето.id,           эластан.id,     дня3.id,    белый.id])
-        subfByItem(item: i+36, subfilters: [f30.id, size34.id, зима.id,           эластан.id,     дня4.id,    белый.id])
-        subfByItem(item: i+37, subfilters: [f30.id, size34.id, зима.id,           ангора.id,      день1.id,   синий.id])
+        subfByItem(item: i+36, subfilters: [f32.id, size34.id, зима.id,           эластан.id,     дня4.id,    белый.id])
+        subfByItem(item: i+37, subfilters: [f30.id, size41.id, зима.id,           ангора.id,      день1.id,   синий.id])
         subfByItem(item: i+38, subfilters: [f26.id, size45.id, лето.id,           шелк.id,        дня3.id,    бежевый.id])
         subfByItem(item: i+39, subfilters: [f26.id, size45.id, лето.id,           шелк.id,        дня3.id,    бежевый.id])
         subfByItem(item: i+40, subfilters: [f26.id, size45.id, лето.id,           шелк.id,        дня3.id,    бежевый.id])
-        subfByItem(item: i+41, subfilters: [f26.id, size45.id, лето.id,           шелк.id,        дня3.id,    бежевый.id])
+        subfByItem(item: i+41, subfilters: [f26.id, size45.id, лето.id,           шелк.id,        дней5.id,   бежевый.id])
         subfByItem(item: i+42, subfilters: [f26.id, size45.id, лето.id,           шелк.id,        дня3.id,    бежевый.id])
         subfByItem(item: i+43, subfilters: [f26.id, size45.id, лето.id,           шелк.id,        дня3.id,    бежевый.id])
         subfByItem(item: i+44, subfilters: [f26.id, size45.id, лето.id,           шелк.id,        дня3.id,    бежевый.id])
@@ -385,13 +385,13 @@ func runUpload(){
         subfByItem(item: i+45, subfilters: [f11.id, size38.id, круглогодичный.id, полиамид.id,    дня4.id,    желтый.id])
         subfByItem(item: i+46, subfilters: [f11.id, size38.id, круглогодичный.id, полиамид.id,    дня4.id,    желтый.id])
         subfByItem(item: i+47, subfilters: [f11.id, size38.id, круглогодичный.id, полиамид.id,    дня4.id,    желтый.id])
-        subfByItem(item: i+48, subfilters: [f11.id, size38.id, круглогодичный.id, полиамид.id,    дня4.id,    желтый.id])
+        subfByItem(item: i+48, subfilters: [f11.id, size48.id, круглогодичный.id, полиамид.id,    дня4.id,    желтый.id])
         subfByItem(item: i+49, subfilters: [f11.id, size38.id, круглогодичный.id, полиамид.id,    дня4.id,    желтый.id])
         subfByItem(item: i+50, subfilters: [f11.id, size38.id, круглогодичный.id, полиамид.id,    дня4.id,    желтый.id])
-        subfByItem(item: i+51, subfilters: [f11.id, size38.id, круглогодичный.id, полиамид.id,    дня4.id,    желтый.id])
+        subfByItem(item: i+51, subfilters: [f11.id, size47.id, круглогодичный.id, полиамид.id,    дня4.id,    желтый.id])
         subfByItem(item: i+52, subfilters: [f11.id, size38.id, круглогодичный.id, полиамид.id,    дня4.id,    желтый.id])
         subfByItem(item: i+53, subfilters: [f11.id, size38.id, круглогодичный.id, полиамид.id,    дня4.id,    желтый.id])
-        subfByItem(item: i+54, subfilters: [f11.id, size38.id, круглогодичный.id, полиамид.id,    дня4.id,    желтый.id])
+        subfByItem(item: i+54, subfilters: [f11.id, size43.id, круглогодичный.id, полиамид.id,    дня4.id,    желтый.id])
         subfByItem(item: i+55, subfilters: [f11.id, size38.id, круглогодичный.id, полиамид.id,    дня4.id,    желтый.id])
         subfByItem(item: i+56, subfilters: [f11.id, size38.id, круглогодичный.id, полиамид.id,    дня4.id,    желтый.id])
         subfByItem(item: i+57, subfilters: [f11.id, size38.id, круглогодичный.id, полиамид.id,    дня4.id,    желтый.id])
@@ -482,7 +482,7 @@ func runUpload(){
         subfByItem(item: i+133, subfilters: [f22.id, size34.id, демисезон.id,      шерсть.id,      дня4.id,    фиолетовый.id])
         subfByItem(item: i+134, subfilters: [f22.id, size34.id, демисезон.id,      шерсть.id,      дня4.id,    фиолетовый.id])
         subfByItem(item: i+135, subfilters: [f22.id, size34.id, демисезон.id,      шерсть.id,      дня4.id,    фиолетовый.id])
-   // }
+    }
     
     firebaseStore()
     
@@ -493,7 +493,7 @@ func runUpload(){
     firebaseStore3(categoryId: 01010103, minPrice: 5555, maxPrice: 55000)
     
     //stride(from: 0, to: 30038, by: 38)
-   // for i in stride(from: 0, to: 138, by: 38) {
+    for i in stride(from: 0, to: 30135, by: 135) {
         let _ = CatalogModel1(id: i+1, categoryId: 01010101, name: "", thumbnail: "blue-1", stars: 3, newPrice: 2200, oldPrice: 6500, votes: 145, discount: 30)
         let _ = CatalogModel1(id: i+2, categoryId: 01010101, name: "", thumbnail: "yellow-1", stars: 1, newPrice: 2300, oldPrice: 5200, votes: 245, discount: 30)
         let _ = CatalogModel1(id: i+3, categoryId: 01010101, name: "", thumbnail: "yellow-2", stars: 4, newPrice: 2400, oldPrice: 3000, votes: 545, discount: 50)
@@ -641,12 +641,12 @@ func runUpload(){
         let _ = CatalogModel1(id: i+133, categoryId: 01010101, name: "", thumbnail: "violet-7", stars: 4, newPrice: 15400, oldPrice: 26500, votes: 33, discount: 20)
         let _ = CatalogModel1(id: i+134, categoryId: 01010101, name: "", thumbnail: "violet-8", stars: 4, newPrice: 15500, oldPrice: 26500, votes: 33, discount: 20)
         let _ = CatalogModel1(id: i+135, categoryId: 01010101, name: "", thumbnail: "violet-9", stars: 4, newPrice: 15600, oldPrice: 26500, votes: 33, discount: 20)
-   // }
+    }
 
 }
 
 
 func subfByItem(item: Int, subfilters: [Int]){
-    Item(id: item, subfilters: subfilters)
+    let _ = Item(id: item, subfilters: subfilters)
     subfiltersByItem[item] = subfilters
 }

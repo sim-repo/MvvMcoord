@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		1609261D21E0EB0400650707 /* BaseVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1609261C21E0EB0400650707 /* BaseVM.swift */; };
-		1609263221FB261500AD8CE3 /* BackendLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1609263121FB261500AD8CE3 /* BackendLogic.swift */; };
 		1609DB82221C3FF400D7891C /* MvvMcoordUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1609DB81221C3FF400D7891C /* MvvMcoordUITests.swift */; };
 		1609DB8A221C511000D7891C /* MyResults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1609DB89221C511000D7891C /* MyResults.swift */; };
 		1609E7EA21DF598600306676 /* CatalogVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1609E7E921DF598600306676 /* CatalogVC.swift */; };
@@ -21,7 +20,7 @@
 		1611909021DDFEB300E3CB93 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1611908F21DDFEB300E3CB93 /* Assets.xcassets */; };
 		1611909221DE231400E3CB93 /* DiscountLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1611909121DE231400E3CB93 /* DiscountLabel.swift */; };
 		16123A922203075C004E507C /* FilterUnitTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16123A912203075C004E507C /* FilterUnitTest.swift */; };
-		1614E69A22197F7A00BBF936 /* CatalogVM+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1614E69922197F7A00BBF936 /* CatalogVM+extensions.swift */; };
+		1614E69A22197F7A00BBF936 /* CatalogVM+FilterActionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1614E69922197F7A00BBF936 /* CatalogVM+FilterActionDelegate.swift */; };
 		1615B26E21DCF9EC00E84801 /* CatalogVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1615B26D21DCF9EC00E84801 /* CatalogVM.swift */; };
 		1615B27021DCFC8600E84801 /* CatalogModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1615B26F21DCFC8600E84801 /* CatalogModel.swift */; };
 		1615B27321DD003C00E84801 /* CatalogCoord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1615B27221DD003C00E84801 /* CatalogCoord.swift */; };
@@ -35,6 +34,7 @@
 		1617B57521E3F1A200FFE2DA /* SubFilterSelectCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1617B57421E3F1A200FFE2DA /* SubFilterSelectCell.swift */; };
 		1617B57721E3F20000FFE2DA /* SubFilterVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1617B57621E3F20000FFE2DA /* SubFilterVM.swift */; };
 		1617B57921E3F28600FFE2DA /* SubFilterCoord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1617B57821E3F28600FFE2DA /* SubFilterCoord.swift */; };
+		16187B172226723C00000FDB /* FilterApplyLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16187B162226723C00000FDB /* FilterApplyLogic.swift */; };
 		1618DDF5221E862C00E96EDC /* RangeSeekSliderDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1618DDF2221E862C00E96EDC /* RangeSeekSliderDelegate.swift */; };
 		1618DDF6221E862C00E96EDC /* RangeSeekSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1618DDF3221E862C00E96EDC /* RangeSeekSlider.swift */; };
 		1618DDF7221E862C00E96EDC /* TapticEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1618DDF4221E862C00E96EDC /* TapticEngine.swift */; };
@@ -90,7 +90,6 @@
 /* Begin PBXFileReference section */
 		0A6BE15C70736BD0B9A932C5 /* Pods_MvvMcoordUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MvvMcoordUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1609261C21E0EB0400650707 /* BaseVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseVM.swift; sourceTree = "<group>"; };
-		1609263121FB261500AD8CE3 /* BackendLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendLogic.swift; sourceTree = "<group>"; };
 		1609DB7F221C3FF300D7891C /* MvvMcoordUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MvvMcoordUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1609DB81221C3FF400D7891C /* MvvMcoordUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MvvMcoordUITests.swift; sourceTree = "<group>"; };
 		1609DB83221C3FF400D7891C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -105,7 +104,7 @@
 		1611908F21DDFEB300E3CB93 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1611909121DE231400E3CB93 /* DiscountLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscountLabel.swift; sourceTree = "<group>"; };
 		16123A912203075C004E507C /* FilterUnitTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterUnitTest.swift; sourceTree = "<group>"; };
-		1614E69922197F7A00BBF936 /* CatalogVM+extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CatalogVM+extensions.swift"; sourceTree = "<group>"; };
+		1614E69922197F7A00BBF936 /* CatalogVM+FilterActionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CatalogVM+FilterActionDelegate.swift"; sourceTree = "<group>"; };
 		1615B26D21DCF9EC00E84801 /* CatalogVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogVM.swift; sourceTree = "<group>"; };
 		1615B26F21DCFC8600E84801 /* CatalogModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogModel.swift; sourceTree = "<group>"; };
 		1615B27221DD003C00E84801 /* CatalogCoord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogCoord.swift; sourceTree = "<group>"; };
@@ -119,6 +118,7 @@
 		1617B57421E3F1A200FFE2DA /* SubFilterSelectCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubFilterSelectCell.swift; sourceTree = "<group>"; };
 		1617B57621E3F20000FFE2DA /* SubFilterVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubFilterVM.swift; sourceTree = "<group>"; };
 		1617B57821E3F28600FFE2DA /* SubFilterCoord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubFilterCoord.swift; sourceTree = "<group>"; };
+		16187B162226723C00000FDB /* FilterApplyLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterApplyLogic.swift; sourceTree = "<group>"; };
 		1618DDF2221E862C00E96EDC /* RangeSeekSliderDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RangeSeekSliderDelegate.swift; sourceTree = "<group>"; };
 		1618DDF3221E862C00E96EDC /* RangeSeekSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RangeSeekSlider.swift; sourceTree = "<group>"; };
 		1618DDF4221E862C00E96EDC /* TapticEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TapticEngine.swift; sourceTree = "<group>"; };
@@ -214,7 +214,6 @@
 		16123A9022030722004E507C /* Test Module */ = {
 			isa = PBXGroup;
 			children = (
-				1609263121FB261500AD8CE3 /* BackendLogic.swift */,
 				16123A912203075C004E507C /* FilterUnitTest.swift */,
 				1619ECFE220D873100B452E4 /* TestData.swift */,
 				1609DB89221C511000D7891C /* MyResults.swift */,
@@ -231,6 +230,14 @@
 				160C002221FB734900C8C44F /* FilterModel2.swift */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		16187B15222671B300000FDB /* FilterApplyLogic */ = {
+			isa = PBXGroup;
+			children = (
+				16187B162226723C00000FDB /* FilterApplyLogic.swift */,
+			);
+			path = FilterApplyLogic;
 			sourceTree = "<group>";
 		};
 		1618DDEE221E861600E96EDC /* UI Controls */ = {
@@ -276,6 +283,7 @@
 		161AC87321DB6B080078F020 /* MvvMcoord */ = {
 			isa = PBXGroup;
 			children = (
+				16187B15222671B300000FDB /* FilterApplyLogic */,
 				16115C92222432570081AFBF /* Network Service */,
 				1618DDEE221E861600E96EDC /* UI Controls */,
 				161D84C9220A5543008D74F0 /* Upload */,
@@ -332,7 +340,7 @@
 				1615B26D21DCF9EC00E84801 /* CatalogVM.swift */,
 				1617B56921E34BBF00FFE2DA /* FilterVM.swift */,
 				1617B57621E3F20000FFE2DA /* SubFilterVM.swift */,
-				1614E69922197F7A00BBF936 /* CatalogVM+extensions.swift */,
+				1614E69922197F7A00BBF936 /* CatalogVM+FilterActionDelegate.swift */,
 			);
 			path = VMs;
 			sourceTree = "<group>";
@@ -744,7 +752,6 @@
 				161AC8C621DC1FBB0078F020 /* RootCoord.swift in Sources */,
 				161AC8B221DBBBED0078F020 /* CategoryVM.swift in Sources */,
 				1609E7EC21DF612600306676 /* CatalogListCell.swift in Sources */,
-				1609263221FB261500AD8CE3 /* BackendLogic.swift in Sources */,
 				1617B57521E3F1A200FFE2DA /* SubFilterSelectCell.swift in Sources */,
 				1617B57721E3F20000FFE2DA /* SubFilterVM.swift in Sources */,
 				160C002321FB734900C8C44F /* FilterModel2.swift in Sources */,
@@ -776,10 +783,11 @@
 				1615B27021DCFC8600E84801 /* CatalogModel.swift in Sources */,
 				1615B26E21DCF9EC00E84801 /* CatalogVM.swift in Sources */,
 				16115C96222437C80081AFBF /* NetworkFacadeProtocol.swift in Sources */,
+				16187B172226723C00000FDB /* FilterApplyLogic.swift in Sources */,
 				161D84CB220A5572008D74F0 /* UploadModel.swift in Sources */,
 				161A440021F740E400D16F1E /* LightClientFCF.swift in Sources */,
 				1617B56821E34B5400FFE2DA /* FilterVC.swift in Sources */,
-				1614E69A22197F7A00BBF936 /* CatalogVM+extensions.swift in Sources */,
+				1614E69A22197F7A00BBF936 /* CatalogVM+FilterActionDelegate.swift in Sources */,
 				16115C94222435950081AFBF /* HeavyClientFCF.swift in Sources */,
 				161AC8A321DB6B950078F020 /* CategoryCoord.swift in Sources */,
 			);

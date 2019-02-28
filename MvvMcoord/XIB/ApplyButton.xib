@@ -31,7 +31,7 @@
                                 <color key="titleColor" red="0.7975024288" green="0.35844165830000002" blue="0.74796124990000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                             </state>
                         </button>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4UD-qh-Upw">
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="wordWrap" translatesAutoresizingMaskIntoConstraints="NO" id="4UD-qh-Upw">
                             <rect key="frame" x="258.5" y="0.0" width="258.5" height="185"/>
                             <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
                             <inset key="contentEdgeInsets" minX="0.0" minY="8" maxX="0.0" maxY="8"/>

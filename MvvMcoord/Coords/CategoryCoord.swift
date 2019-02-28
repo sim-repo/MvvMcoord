@@ -23,7 +23,7 @@ class CategoryCoord: BaseCoord<CoordRetEnum> {
             else { fatalError("view model") }
         
         viewController.viewModel = vm
-    
+      
       
         vm.outShowSubcategory
             .flatMap{[weak self] baseId -> Observable<CoordRetEnum> in
@@ -36,6 +36,14 @@ class CategoryCoord: BaseCoord<CoordRetEnum> {
         vm.outShowCatalog
             .flatMap{[weak self] baseId -> Observable<CoordRetEnum> in
                 guard let `self` = self else { return .empty() }
+                
+                // >>>>
+                let networkService = getNetworkService()
+                networkService.requestPreloadFiltersChunk1()
+                networkService.requestPreloadSubFiltersChunk2()
+                networkService.requestPreloadItemsChunk3()
+               // networkService.requestPreloadFullFilterEntities(categoryId: baseId)
+                
                 return self.showCatalog(on: self.viewController, baseId: baseId)
             }
             .subscribe()

@@ -80,7 +80,7 @@ class CatalogVC: UIViewController {
     
     
     private func handleReloadEvent(){
-        viewModel.outReloadVC
+        viewModel.outReloadCatalogVC
             .subscribe(onNext: {[weak self] in
                 self?.indicatorView.stopAnimating()
                 self?.indicatorView.isHidden = true

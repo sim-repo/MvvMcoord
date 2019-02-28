@@ -21,6 +21,7 @@ class useTestCase4: XCTestCase {
     
     var categoryVM: CategoryVM!
     
+    var networkService: NetworkFacadeProtocol = LightClientFCF.shared
     
     let categoryId = 01010101
     let materialFilterId = 4
@@ -126,7 +127,7 @@ class useTestCase4: XCTestCase {
         
         
         let expect = expectation(description: #function)
-        let catalogVM = CatalogVM(categoryId: categoryId)
+        let catalogVM = CatalogVM(networkService: networkService, categoryId: categoryId)
         let myResult = MyResults()
         let ut = FilterUnitTest(catalogVM: catalogVM, result: myResult)
         initTestCase0(catalogVM, filterId1: materialFilterId, filterId2: colorFilterId, filterId3: seasonFilterId, filterId4: deliveryFilterId, filterId5: sizeFilterId)
@@ -181,7 +182,7 @@ class useTestCase4: XCTestCase {
     func testExample2() {
         
         
-        let catalogVM = CatalogVM(categoryId: categoryId)
+        let catalogVM = CatalogVM(networkService: networkService, categoryId: categoryId)
         let myResult = MyResults()
         let ut = FilterUnitTest(catalogVM: catalogVM, result: myResult)
         let expect = expectation(description: #function)
@@ -216,7 +217,7 @@ class useTestCase4: XCTestCase {
     func testExample3() {
         
         
-        let catalogVM = CatalogVM(categoryId: categoryId)
+        let catalogVM = CatalogVM(networkService: networkService, categoryId: categoryId)
         let myResult = MyResults()
         let ut = FilterUnitTest(catalogVM: catalogVM, result: myResult)
         let expect = expectation(description: #function)
@@ -258,7 +259,7 @@ class useTestCase4: XCTestCase {
     func testExample4() {
         
        
-        let catalogVM = CatalogVM(categoryId: categoryId)
+        let catalogVM = CatalogVM(networkService: networkService, categoryId: categoryId)
         let myResult = MyResults()
         let ut = FilterUnitTest(catalogVM: catalogVM, result: myResult)
         let expect = expectation(description: #function)
@@ -300,7 +301,7 @@ class useTestCase4: XCTestCase {
     // select null-subf and apply from filter
     func testExample5(){
         
-        let catalogVM = CatalogVM(categoryId: categoryId)
+        let catalogVM = CatalogVM(networkService: networkService, categoryId: categoryId)
         let myResult = MyResults()
         let ut = FilterUnitTest(catalogVM: catalogVM, result: myResult)
         let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
@@ -328,7 +329,7 @@ class useTestCase4: XCTestCase {
     func testExample6(){
         
 
-        let catalogVM = CatalogVM(categoryId: categoryId)
+        let catalogVM = CatalogVM(networkService: networkService, categoryId: categoryId)
         let myResult = MyResults()
         let ut = FilterUnitTest(catalogVM: catalogVM, result: myResult)
         let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
@@ -372,8 +373,6 @@ class useTestCase4: XCTestCase {
         catalogVM.utMsgId = 0
         catalogVM.requestFilters(categoryId: categoryId)
         let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
-        
-        
         subFilterVM1 = SubFilterVM(filterId: filterId1, filterActionDelegate: filterVM.filterActionDelegate)
     }
     
@@ -381,7 +380,7 @@ class useTestCase4: XCTestCase {
     func testExample7(){
         
 
-        let catalogVM = CatalogVM(categoryId: categoryId)
+        let catalogVM = CatalogVM(networkService: networkService, categoryId: categoryId)
         let myResult = MyResults()
         let ut = FilterUnitTest(catalogVM: catalogVM, result: myResult)
         let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
@@ -411,7 +410,7 @@ class useTestCase4: XCTestCase {
     // cleanup from filter
     func testExample8(){
         
-        let catalogVM = CatalogVM(categoryId: categoryId)
+        let catalogVM = CatalogVM(networkService: networkService, categoryId: categoryId)
         let myResult = MyResults()
         let ut = FilterUnitTest(catalogVM: catalogVM, result: myResult)
         let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
@@ -445,7 +444,7 @@ class useTestCase4: XCTestCase {
     // cleanup from subfilter
     func testExample9(){
         
-        let catalogVM = CatalogVM(categoryId: categoryId)
+        let catalogVM = CatalogVM(networkService: networkService, categoryId: categoryId)
         let myResult = MyResults()
         let ut = FilterUnitTest(catalogVM: catalogVM, result: myResult)
         let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
@@ -483,7 +482,7 @@ class useTestCase4: XCTestCase {
     func testExample10(){
         
     
-        let catalogVM = CatalogVM(categoryId: categoryId)
+        let catalogVM = CatalogVM(networkService: networkService, categoryId: categoryId)
         let myResult = MyResults()
         let ut = FilterUnitTest(catalogVM: catalogVM, result: myResult)
         let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
@@ -513,7 +512,7 @@ class useTestCase4: XCTestCase {
     // check relative applying
     func testExample11(){
         
-        let catalogVM = CatalogVM(categoryId: categoryId)
+        let catalogVM = CatalogVM(networkService: networkService, categoryId: categoryId)
         let myResult = MyResults()
         let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
         let ut = FilterUnitTest(catalogVM: catalogVM, result: myResult)
@@ -552,7 +551,7 @@ class useTestCase4: XCTestCase {
     func testExample12(){
         
 
-        let catalogVM = CatalogVM(categoryId: categoryId)
+        let catalogVM = CatalogVM(networkService: networkService, categoryId: categoryId)
         let myResult = MyResults()
         let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
         let ut = FilterUnitTest(catalogVM: catalogVM, result: myResult)
@@ -582,7 +581,7 @@ class useTestCase4: XCTestCase {
     func testExample13(){
         
 
-        let catalogVM = CatalogVM(categoryId: categoryId)
+        let catalogVM = CatalogVM(networkService: networkService, categoryId: categoryId)
         let myResult = MyResults()
         let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)
         let ut = FilterUnitTest(catalogVM: catalogVM, result: myResult)
@@ -613,7 +612,7 @@ class useTestCase4: XCTestCase {
     // apply from subf, new select and apply again from subf
     func testExample14(){
         
-        let catalogVM = CatalogVM(categoryId: categoryId)
+        let catalogVM = CatalogVM(networkService: networkService, categoryId: categoryId)
         let myResult = MyResults()
         let ut = FilterUnitTest(catalogVM: catalogVM, result: myResult)
         let expect = expectation(description: #function)
@@ -658,7 +657,7 @@ class useTestCase4: XCTestCase {
     // select subfilters -> apply from filter, deselect -> apply subfilters, select -> apply subfilters
     func testExample15(){
         
-        let catalogVM = CatalogVM(categoryId: categoryId)
+        let catalogVM = CatalogVM(networkService: networkService, categoryId: categoryId)
         let myResult = MyResults()
         let ut = FilterUnitTest(catalogVM: catalogVM, result: myResult)
         let filterVM = FilterVM(categoryId: categoryId, filterActionDelegate: catalogVM)

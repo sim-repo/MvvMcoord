@@ -44,7 +44,7 @@ class FilterCell : UITableViewCell{
         (rangeSlider.minValue,
          rangeSlider.maxValue,
          rangeSlider.selectedMinValue,
-         rangeSlider.selectedMaxValue) = viewModel.filterActionDelegate?.getPriceRange() ?? (0,0,0,0)
+         rangeSlider.selectedMaxValue) = viewModel.filterActionDelegate?.getRangePrice() ?? (0,0,0,0)
          priceTitle.text = "\(Int(floor(rangeSlider.selectedMinValue))) - \(Int(floor(rangeSlider.selectedMaxValue)))"
     }
     
@@ -62,12 +62,13 @@ class FilterCell : UITableViewCell{
 extension FilterCell: RangeSeekSliderDelegate {
     
     func rangeSeekSlider(_ slider: RangeSeekSlider, didChange minValue: CGFloat, maxValue: CGFloat) {
-        viewModel.setTmpRangePrice(minPrice: minValue, maxPrice: maxValue)
+        viewModel.rangePriceChangedNow(minPrice: minValue, maxPrice: maxValue)
     }
     
     func didStartTouches(in slider: RangeSeekSlider) {
     }
     
     func didEndTouches(in slider: RangeSeekSlider) {
+        viewModel.rangePriceTouchEnd()
     }
 }

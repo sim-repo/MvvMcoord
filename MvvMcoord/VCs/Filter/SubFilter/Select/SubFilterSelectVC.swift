@@ -28,6 +28,7 @@ class SubFilterSelectVC: UIViewController {
         bindApply()
         bindWaitEvent()
         bindBack()
+        bindReloadData()
     }
     
     deinit {
@@ -114,7 +115,7 @@ class SubFilterSelectVC: UIViewController {
         }
         .disposed(by: bag)
         
-        viewModel.outCloseVC
+        viewModel.outCloseSubFilterVC
         .take(1)
         .subscribe{[weak self] _ in
             self?.navigationController?.popViewController(animated: true)
@@ -130,7 +131,13 @@ class SubFilterSelectVC: UIViewController {
             .disposed(by: bag)
     }
     
-    
+    private func bindReloadData(){
+        viewModel.filterActionDelegate?.reloadSubfilterVC()
+            .subscribe(onNext: {[weak self] _ in
+                self?.tableView.reloadData()
+            })
+            .disposed(by: bag)
+    }
     
     private func bindBack(){
         viewModel.filterActionDelegate?.back()
@@ -148,15 +155,18 @@ class SubFilterSelectVC: UIViewController {
         waitActivityView.frame = CGRect(x: 0, y: 0, width: 80, height: 80)
         waitContainer.isHidden = true
         waitContainer.addSubview(waitActivityView)
+        waitContainer.alpha = 1.0
         view.addSubview(waitContainer)
         
         viewModel.filterActionDelegate?.wait()
             .filter({[.enterSubFilter].contains($0.0)})
             .takeWhile({$0.1 == true})
             .subscribe(onNext: {[weak self] res in
-                guard let `self` = self else {return}
-                print("start wait")
-                self.startWait()
+                DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2)){
+                    guard let `self` = self else {return}
+                    print("start wait")
+                    self.startWait()
+                }
             },
            onCompleted: {
                 self.stopWait()
@@ -166,6 +176,7 @@ class SubFilterSelectVC: UIViewController {
     
     
     private func startWait() {
+        guard waitContainer.alpha == 1.0 else { return }
         tableView.isHidden = true
         waitContainer.isHidden = false
         waitActivityView.startAnimating()
@@ -173,6 +184,7 @@ class SubFilterSelectVC: UIViewController {
     
     private func stopWait(){
         tableView.isHidden = false
+        waitContainer.alpha = 0.0
         waitContainer.isHidden = true
         waitActivityView.stopAnimating()
     }

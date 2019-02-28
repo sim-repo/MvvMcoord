@@ -27,7 +27,7 @@ class FilterModel : ModelProtocol {
         self.categoryId = categoryId
         self.filterEnum = filterEnum
         
-        BackendLogic.shared.addFilter(id: id, filter: self)
+        FilterApplyLogic.shared.addFilter(id: id, filter: self)
     }
     
     required init(json: JSON?) {
@@ -56,7 +56,7 @@ class SubfilterModel : ModelProtocol{
         self.id = id
         self.title = title
         self.sectionHeader = sectionHeader
-        BackendLogic.shared.addSubF(id: id, subFilter: self)
+        FilterApplyLogic.shared.addSubF(id: id, subFilter: self)
     }
     
     required init(json: JSON?) {
@@ -66,7 +66,7 @@ class SubfilterModel : ModelProtocol{
             self.title = json["title"].stringValue
             self.enabled = json["enabled"].boolValue
             self.sectionHeader = json["sectionHeader"].stringValue
-            BackendLogic.shared.addSubF(id: id, subFilter: self)
+            FilterApplyLogic.shared.addSubF(id: id, subFilter: self)
         }
     }
 }
