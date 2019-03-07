@@ -3,31 +3,31 @@ import RxSwift
 
 protocol NetworkFacadeProtocol {
     
-    func requestCatalogStart(categoryId: Int)
+    func requestCatalogStart(categoryId: CategoryId)
 
     func requestCatalogModel(itemIds: ItemIds)
     
-    func requestFullFilterEntities(categoryId: Int)
+    func requestFullFilterEntities(categoryId: CategoryId)
     
-    func requestEnterSubFilter(categoryId: Int, filterId: FilterId, appliedSubFilters: Applied, rangePrice: RangePrice)
+    func requestEnterSubFilter(categoryId: CategoryId, filterId: FilterId, appliedSubFilters: Applied, rangePrice: RangePrice)
     
-    func requestApplyFromFilter(categoryId: Int, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice)
+    func requestApplyFromFilter(categoryId: CategoryId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice)
     
-    func requestApplyFromSubFilter(categoryId: Int, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice)
+    func requestApplyFromSubFilter(categoryId: CategoryId, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice)
     
-    func requestApplyByPrices(categoryId: Int, rangePrice: RangePrice)
+    func requestApplyByPrices(categoryId: CategoryId, rangePrice: RangePrice)
     
-    func requestRemoveFilter(categoryId: Int, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice)
+    func requestRemoveFilter(categoryId: CategoryId, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice)
     
-    func requestPreloadFullFilterEntities(categoryId: Int)
+    func requestPreloadFullFilterEntities(categoryId: CategoryId)
     
-    func requestPreloadFiltersChunk1(categoryId: Int)
+    func requestPreloadFiltersChunk1(categoryId: CategoryId)
     
-    func requestPreloadSubFiltersChunk2(categoryId: Int)
+    func requestPreloadSubFiltersChunk2(categoryId: CategoryId)
     
-    func requestPreloadItemsChunk3(categoryId: Int)
+    func requestPreloadItemsChunk3(categoryId: CategoryId)
     
-    func requestMidTotal(categoryId: Int, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice)
+    func requestMidTotal(categoryId: CategoryId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice)
     
     
     
@@ -42,10 +42,9 @@ protocol NetworkFacadeProtocol {
     
     func getApplyByPriceEvent() -> PublishSubject<FilterIds>
     
-    func getCatalogTotalEvent() -> BehaviorSubject<(ItemIds, Int, MinPrice, MaxPrice)>
+    func getCatalogTotalEvent() -> BehaviorSubject<(CategoryId, ItemIds, Int, MinPrice, MaxPrice)>
     
     func getCatalogModelEvent() -> PublishSubject<[CatalogModel?]>
-    
     
     func getFilterChunk1() -> BehaviorSubject<[FilterModel]>
     
@@ -55,7 +54,7 @@ protocol NetworkFacadeProtocol {
     
     func getDownloadsDoneEvent()-> PublishSubject<Void>
     
-    func loadCache(categoryId: Int)
+    func loadCache(categoryId: CategoryId)
     
 }
 
@@ -70,7 +69,7 @@ class NetworkFacadeBase: NetworkFacadeProtocol {
     internal var outApplyItemsResponse = PublishSubject<(FilterIds, SubFilterIds, Applied, Selected, ItemIds)>()
     internal var outApplyFiltersResponse = PublishSubject<(FilterIds, SubFilterIds, Applied, Selected, MinPrice, MaxPrice, ItemsTotal)>()
     internal var outApplyByPrices = PublishSubject<FilterIds>()
-    internal var outCatalogTotal = BehaviorSubject<(ItemIds, Int, MinPrice, MaxPrice)>(value: ([],20, 0, 0))
+    internal var outCatalogTotal = BehaviorSubject<(CategoryId, ItemIds, Int, MinPrice, MaxPrice)>(value: (0,[],20, 0, 0))
     internal var outCatalogModel = PublishSubject<[CatalogModel?]>()
     
     internal var outFilterChunk1 = BehaviorSubject<[FilterModel]>(value: [])
@@ -102,31 +101,31 @@ class NetworkFacadeBase: NetworkFacadeProtocol {
         .disposed(by: bag)
     }
    
-    func requestCatalogStart(categoryId: Int) {}
+    func requestCatalogStart(categoryId: CategoryId) {}
     
     func requestCatalogModel(itemIds: ItemIds) {}
     
-    func requestFullFilterEntities(categoryId: Int) {}
+    func requestFullFilterEntities(categoryId: CategoryId) {}
     
-    func requestEnterSubFilter(categoryId: Int, filterId: FilterId, appliedSubFilters: Applied, rangePrice: RangePrice) {}
+    func requestEnterSubFilter(categoryId: CategoryId, filterId: FilterId, appliedSubFilters: Applied, rangePrice: RangePrice) {}
     
-    func requestApplyFromFilter(categoryId: Int, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {}
+    func requestApplyFromFilter(categoryId: CategoryId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {}
     
-    func requestApplyFromSubFilter(categoryId: Int, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {}
+    func requestApplyFromSubFilter(categoryId: CategoryId, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {}
     
-    func requestApplyByPrices(categoryId: Int, rangePrice: RangePrice) {}
+    func requestApplyByPrices(categoryId: CategoryId, rangePrice: RangePrice) {}
     
-    func requestRemoveFilter(categoryId: Int, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {}
+    func requestRemoveFilter(categoryId: CategoryId, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {}
     
-    func requestPreloadFullFilterEntities(categoryId: Int) {}
+    func requestPreloadFullFilterEntities(categoryId: CategoryId) {}
     
-    func requestPreloadFiltersChunk1(categoryId: Int) {}
+    func requestPreloadFiltersChunk1(categoryId: CategoryId) {}
     
-    func requestPreloadSubFiltersChunk2(categoryId: Int) {}
+    func requestPreloadSubFiltersChunk2(categoryId: CategoryId) {}
     
-    func requestPreloadItemsChunk3(categoryId: Int) {}
+    func requestPreloadItemsChunk3(categoryId: CategoryId) {}
     
-    func requestMidTotal(categoryId: Int, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {}
+    func requestMidTotal(categoryId: CategoryId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {}
     
     
     
@@ -150,7 +149,7 @@ class NetworkFacadeBase: NetworkFacadeProtocol {
         return outApplyByPrices
     }
     
-    func getCatalogTotalEvent() -> BehaviorSubject<(ItemIds, Int, MinPrice, MaxPrice)> {
+    func getCatalogTotalEvent() -> BehaviorSubject<(CategoryId, ItemIds, Int, MinPrice, MaxPrice)> {
         return outCatalogTotal
     }
     
@@ -187,7 +186,7 @@ class NetworkFacadeBase: NetworkFacadeProtocol {
         outApplyItemsResponse.onNext((filterIds, subFiltersIds, appliedSubFilters, selectedSubFilters, itemIds))
     }
     
-    internal func fireApplyForFilters(_ filterIds: FilterIds, _ subFiltersIds: SubFilterIds, _ appliedSubFilters: Applied, _ selectedSubFilters: Selected, _ tipMinPrice: CGFloat, _ tipMaxPrice: CGFloat, _ itemsTotal: ItemsTotal) {
+    internal func fireApplyForFilters(_ filterIds: FilterIds, _ subFiltersIds: SubFilterIds, _ appliedSubFilters: Applied, _ selectedSubFilters: Selected, _ tipMinPrice: MinPrice, _ tipMaxPrice: MaxPrice, _ itemsTotal: ItemsTotal) {
         outApplyFiltersResponse.onNext((filterIds, subFiltersIds, appliedSubFilters, selectedSubFilters, tipMinPrice, tipMaxPrice, itemsTotal))
     }
     
@@ -199,8 +198,8 @@ class NetworkFacadeBase: NetworkFacadeProtocol {
         outCatalogModel.onNext(catalogModel)
     }
     
-    internal func fireCatalogTotal(_ itemIds: ItemIds, _ fetchLimit: Int, _ minPrice: CGFloat, _ maxPrice: CGFloat) {
-        outCatalogTotal.onNext((itemIds, fetchLimit, minPrice, maxPrice))
+    internal func fireCatalogTotal(_ categoryId: CategoryId ,_ itemIds: ItemIds, _ fetchLimit: Int, _ minPrice: MinPrice, _ maxPrice: MaxPrice) {
+        outCatalogTotal.onNext((categoryId, itemIds, fetchLimit, minPrice, maxPrice))
     }
     
     internal func fireFilterChunk1(_ filterModel: [FilterModel]){

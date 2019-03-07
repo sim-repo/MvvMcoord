@@ -74,9 +74,9 @@ class CatalogVM : BaseVM {
     
     // MARK: --------------FilterActionDelegate properties--------------
     internal var inApplyFromFilterEvent = PublishSubject<Void>()
-    internal var inApplyFromSubFilterEvent = PublishSubject<Int>()
+    internal var inApplyFromSubFilterEvent = PublishSubject<FilterId>()
     internal var inApplyByPricesEvent = PublishSubject<Void>()
-    internal var inRemoveFilterEvent = PublishSubject<Int>()
+    internal var inRemoveFilterEvent = PublishSubject<FilterId>()
     internal var inSelectSubFilterEvent = PublishSubject<(Int, Bool)>()
     internal var inCleanUpFromFilterEvent = PublishSubject<Void>()
     internal var inCleanUpFromSubFilterEvent = PublishSubject<Int>()
@@ -169,11 +169,13 @@ class CatalogVM : BaseVM {
    
     private func handleStartEvent(){
         getNetworkService().getCatalogTotalEvent()
-            .filter({$0.0.count > 0})
+            .filter({[weak self] res in
+                     res.0 == self?.categoryId &&
+                     res.1.count > 0})
             .subscribe(onNext: { [weak self] res in
-                self?.fullCatalogItemIds = res.0
-                self?.setupFetch(itemsIds: res.0, fetchLimit: res.1)
-                self?.rangePrice.setupRangePrice(minPrice: res.2, maxPrice: res.3)
+                self?.fullCatalogItemIds = res.1
+                self?.setupFetch(itemsIds: res.1, fetchLimit: res.2)
+                self?.rangePrice.setupRangePrice(minPrice: res.3, maxPrice: res.4)
                 self?.outReloadCatalogVC.onNext(true)
             })
             .disposed(by: bag)
@@ -195,6 +197,7 @@ class CatalogVM : BaseVM {
             getNetworkService().requestCatalogModel(itemIds: Array(nextItemIds))
         }
     }
+    
     
     private func handlePrefetchEvent(){
         inPrefetchEvent

@@ -6,13 +6,13 @@ var models2: [Int:CategoryModel] = [:]
 
 
 class CategoryModel{
-    var baseId = 0
-    var id = 0
+    var baseId: CategoryId = 0
+    var id: CategoryId = 0
     var title: String
     var last = false
 
     
-    init(baseId: Int, id: Int, title: String, last: Bool = false){
+    init(baseId: CategoryId, id: CategoryId, title: String, last: Bool = false){
         self.baseId = baseId
         self.id = id
         self.title = title
@@ -186,12 +186,12 @@ class CategoryModel{
     }
     
     
-    static func getModelsA(baseId: Int)->Observable<[CategoryModel]?> {
+    static func getModelsA(baseId: CategoryId)->Observable<[CategoryModel]?> {
         return Observable.just(models[baseId])
 
     }
     
-    static func getTitle(baseId: Int)->Observable<String> {
+    static func getTitle(baseId: CategoryId)->Observable<String> {
 
         guard
         let parent = models2[baseId]
@@ -200,7 +200,7 @@ class CategoryModel{
         return Observable.just(parent.title)
     }
     
-    static func checkIsLast(baseId: Int)->Observable<Bool> {
+    static func checkIsLast(baseId: CategoryId)->Observable<Bool> {
         
         guard
             let parent = models2[baseId]

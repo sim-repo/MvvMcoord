@@ -63,7 +63,7 @@ class HeavyClientFCF : NetworkFacadeBase {
     }
     
     
-    override func loadCache(categoryId: Int){
+    override func loadCache(categoryId: CategoryId){
         functions.httpsCallable("meta").call(["useCache":true,
                                               "categoryId":categoryId,
                                               "method":""]){ (result, error) in
@@ -72,10 +72,10 @@ class HeavyClientFCF : NetworkFacadeBase {
     }
     
     
-    override func requestCatalogStart(categoryId: Int) {
+    override func requestCatalogStart(categoryId: CategoryId) {
         
         if let catalogTotal = GlobalCache.getCatalogTotal(categoryId: categoryId) {
-            self.fireCatalogTotal(catalogTotal.itemIds, catalogTotal.fetchLimit, catalogTotal.minPrice, catalogTotal.maxPrice)
+            self.fireCatalogTotal(categoryId, catalogTotal.itemIds, catalogTotal.fetchLimit, catalogTotal.minPrice, catalogTotal.maxPrice)
             return
         }
         
@@ -95,14 +95,13 @@ class HeavyClientFCF : NetworkFacadeBase {
                 let minPrice_ = ParsingHelper.parseJsonVal(type: Int.self, result: result, key: "minPrice")
                 let maxPrice_ = ParsingHelper.parseJsonVal(type: Int.self, result: result, key: "maxPrice")
                 
-                
                 guard let fetchLimit = fetchLimit_,
                     let minPrice = minPrice_,
                     let maxPrice = maxPrice_
                     else { return self.firebaseHandleErr(task: self.task1, error: NSError(domain: FunctionsErrorDomain, code: 1, userInfo: ["Parse Int":0])  )}
                 
                 GlobalCache.setCatalogTotal(categoryId: categoryId, fetchLimit: fetchLimit, itemIds: itemIds, minPrice: CGFloat(minPrice), maxPrice: CGFloat(maxPrice))
-                self.fireCatalogTotal(itemIds, fetchLimit, CGFloat(minPrice), CGFloat(maxPrice))
+                self.fireCatalogTotal(categoryId, itemIds, fetchLimit, CGFloat(minPrice), CGFloat(maxPrice))
             }
         }
         runRequest(task: task1)
@@ -110,7 +109,7 @@ class HeavyClientFCF : NetworkFacadeBase {
     
     
     
-    override func requestCatalogModel(itemIds: [Int]) {
+    override func requestCatalogModel(itemIds: ItemIds) {
         guard task2 == nil
             else { return }
         task2 = {
@@ -133,7 +132,7 @@ class HeavyClientFCF : NetworkFacadeBase {
     }
     
     
-    override func requestFullFilterEntities(categoryId: Int) {
+    override func requestFullFilterEntities(categoryId: CategoryId) {
         task3 = { [weak self] in
             DispatchQueue.global(qos: .background).async {
                 guard let `self` = self else { return }
@@ -156,7 +155,7 @@ class HeavyClientFCF : NetworkFacadeBase {
     
     
     
-    override func requestEnterSubFilter(categoryId: Int, filterId: FilterId, appliedSubFilters: Applied, rangePrice: RangePrice) {
+    override func requestEnterSubFilter(categoryId: CategoryId, filterId: FilterId, appliedSubFilters: Applied, rangePrice: RangePrice) {
         applyLogic.doLoadSubFilters(filterId, appliedSubFilters, rangePrice)
             .asObservable()
             .observeOn(MainScheduler.asyncInstance)
@@ -171,7 +170,7 @@ class HeavyClientFCF : NetworkFacadeBase {
     
     
     
-    override func requestApplyFromFilter(categoryId: Int, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {
+    override func requestApplyFromFilter(categoryId: CategoryId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {
        // DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(10)){[weak self] in
         self.applyLogic.doApplyFromFilter(appliedSubFilters, selectedSubFilters, rangePrice)
             .asObservable()
@@ -190,7 +189,7 @@ class HeavyClientFCF : NetworkFacadeBase {
     
     
     
-    override func requestApplyFromSubFilter(categoryId: Int, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {
+    override func requestApplyFromSubFilter(categoryId: CategoryId, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {
         applyLogic.doApplyFromSubFilters(filterId, appliedSubFilters, selectedSubFilters, rangePrice)
         .asObservable()
         .observeOn(MainScheduler.asyncInstance)
@@ -214,7 +213,7 @@ class HeavyClientFCF : NetworkFacadeBase {
     
     
     
-    override func requestApplyByPrices(categoryId: Int, rangePrice: RangePrice) {
+    override func requestApplyByPrices(categoryId: CategoryId, rangePrice: RangePrice) {
         applyLogic.doApplyByPrices(categoryId, rangePrice)
         .asObservable()
         .observeOn(MainScheduler.asyncInstance)
@@ -226,7 +225,7 @@ class HeavyClientFCF : NetworkFacadeBase {
     }
     
     
-    override func requestRemoveFilter(categoryId: Int, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {
+    override func requestRemoveFilter(categoryId: CategoryId, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {
         applyLogic.doRemoveFilter(filterId, appliedSubFilters, selectedSubFilters, rangePrice)
             .asObservable()
             .observeOn(MainScheduler.asyncInstance)
@@ -249,7 +248,7 @@ class HeavyClientFCF : NetworkFacadeBase {
     }
     
     
-    override func requestPreloadFullFilterEntities(categoryId: Int) {
+    override func requestPreloadFullFilterEntities(categoryId: CategoryId) {
         print("start download \(self.showTime())")
         task4 = {
             functions.httpsCallable("heavyFullFilterEntities").call(["useCache":true
@@ -285,7 +284,7 @@ class HeavyClientFCF : NetworkFacadeBase {
     }
     
     
-    override func requestPreloadFiltersChunk1(categoryId: Int) {
+    override func requestPreloadFiltersChunk1(categoryId: CategoryId) {
        
         if let filters = GlobalCache.getChunk1(categoryId: categoryId) {
             print("chunk1 use cache")
@@ -310,12 +309,12 @@ class HeavyClientFCF : NetworkFacadeBase {
                         
                         let filters:[FilterModel] = ParsingHelper.parseJsonObjArr(result: result, key: "filters")
                         
-                        
                         guard filters.count > 0
                             else {
                                 print("Ошибка!!!!")
                                 self.firebaseHandleErr(task: self.task5, error: NSError(domain: FunctionsErrorDomain, code: 777, userInfo: ["Parse Int":0]))
-                                  return }
+                                return
+                            }
                         
                         GlobalCache.setFilterEntities(categoryId: categoryId, filters: filters)
                         self.applyLogic.setup(filters: filters)
@@ -328,7 +327,7 @@ class HeavyClientFCF : NetworkFacadeBase {
     }
     
     
-    override func requestPreloadSubFiltersChunk2(categoryId: Int) {
+    override func requestPreloadSubFiltersChunk2(categoryId: CategoryId) {
         
         if let (s1, s2) = GlobalCache.getChunk2(categoryId: categoryId) {
             if let subFilters = s1,
@@ -367,7 +366,7 @@ class HeavyClientFCF : NetworkFacadeBase {
     }
     
     
-    override func requestPreloadItemsChunk3(categoryId: Int) {
+    override func requestPreloadItemsChunk3(categoryId: CategoryId) {
         
         if let (s1, s2, s3) = GlobalCache.getChunk3(categoryId: categoryId) {
             if let subfiltersByItem = s1,
@@ -418,7 +417,7 @@ class HeavyClientFCF : NetworkFacadeBase {
     }
     
     
-    override func requestMidTotal(categoryId: Int, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {
+    override func requestMidTotal(categoryId: CategoryId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {
         applyLogic.doCalcMidTotal(appliedSubFilters, selectedSubFilters, rangePrice)
             .asObservable()
             .observeOn(MainScheduler.asyncInstance)

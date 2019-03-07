@@ -39,7 +39,7 @@ class LightClientFCF : NetworkFacadeBase {
     
     
     
-    override func requestCatalogStart(categoryId: Int) {
+    override func requestCatalogStart(categoryId: CategoryId) {
         networkingFunc = {
             functions.httpsCallable("catalogTotal").call(["useCache":true,
                                                           "categoryId":categoryId
@@ -62,7 +62,7 @@ class LightClientFCF : NetworkFacadeBase {
                     let maxPrice = maxPrice_
                     else { return self.firebaseHandleErr(error: NSError(domain: FunctionsErrorDomain, code: 1, userInfo: ["Parse Int":0])  )}
                 
-                self.fireCatalogTotal(itemIds, fetchLimit, CGFloat(minPrice), CGFloat(maxPrice))
+                self.fireCatalogTotal(categoryId, itemIds, fetchLimit, CGFloat(minPrice), CGFloat(maxPrice))
             }
         }
         runRequest(networkFunction: networkingFunc)
@@ -88,9 +88,9 @@ class LightClientFCF : NetworkFacadeBase {
     }
     
     
-    override func requestPreloadFullFilterEntities(categoryId: Int) {}
+    override func requestPreloadFullFilterEntities(categoryId: CategoryId) {}
     
-    override func requestFullFilterEntities(categoryId: Int){
+    override func requestFullFilterEntities(categoryId: CategoryId){
         networkingFunc = {
             functions.httpsCallable("fullFilterEntities").call(["useCache":true
             ]) {[weak self] (result, error) in
@@ -110,7 +110,7 @@ class LightClientFCF : NetworkFacadeBase {
     
     
     
-    override func requestEnterSubFilter(categoryId: Int, filterId: FilterId, appliedSubFilters: Applied, rangePrice: RangePrice){
+    override func requestEnterSubFilter(categoryId: CategoryId, filterId: FilterId, appliedSubFilters: Applied, rangePrice: RangePrice){
         networkingFunc = {
             functions.httpsCallable("currSubFilterIds").call(["useCache":true,
                                                               "categoryId": categoryId,
@@ -143,7 +143,7 @@ class LightClientFCF : NetworkFacadeBase {
     
     
     
-    override func requestApplyFromFilter(categoryId: Int, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice){
+    override func requestApplyFromFilter(categoryId: CategoryId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice){
         networkingFunc = {
             functions.httpsCallable("applyFromFilterNow").call(["useCache":true,
                                                                 "categoryId":categoryId,
@@ -175,7 +175,7 @@ class LightClientFCF : NetworkFacadeBase {
     }
     
     
-    override func requestApplyFromSubFilter(categoryId: Int, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice){
+    override func requestApplyFromSubFilter(categoryId: CategoryId, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice){
         
         networkingFunc = {
             functions.httpsCallable("applyFromSubFilterNow").call([ "useCache":true,
@@ -224,7 +224,7 @@ class LightClientFCF : NetworkFacadeBase {
     }
     
     
-    override func requestApplyByPrices(categoryId: Int, rangePrice: RangePrice){
+    override func requestApplyByPrices(categoryId: CategoryId, rangePrice: RangePrice){
         networkingFunc = {
             functions.httpsCallable("applyByPrices").call(["useCache":true,
                                                            "categoryId":categoryId,
@@ -249,7 +249,7 @@ class LightClientFCF : NetworkFacadeBase {
     }
     
     
-    override func requestRemoveFilter(categoryId: Int, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice){
+    override func requestRemoveFilter(categoryId: CategoryId, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice){
         networkingFunc = {
             functions.httpsCallable("apiRemoveFilter").call(["useCache":true,
                                                             "filterId":filterId,
@@ -299,7 +299,7 @@ class LightClientFCF : NetworkFacadeBase {
     
     
     
-    override func requestMidTotal(categoryId: Int, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {
+    override func requestMidTotal(categoryId: CategoryId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {
         networkingFunc = {
             functions.httpsCallable("doCalcMidTotal").call(["useCache":true,
                                                             "selectedSubFilters":Array(selectedSubFilters),

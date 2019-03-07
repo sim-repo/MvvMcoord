@@ -3,12 +3,12 @@ import UIKit
 
 class RangePrice {
     var original = false
-    var initialMinPrice: CGFloat = 0
-    var initialMaxPrice: CGFloat = 0
-    var userMinPrice: CGFloat = 0
-    var userMaxPrice: CGFloat = 0
-    var tipMinPrice: CGFloat = 0
-    var tipMaxPrice: CGFloat = 0
+    var initialMinPrice: MinPrice = 0
+    var initialMaxPrice: MaxPrice = 0
+    var userMinPrice: MinPrice = 0
+    var userMaxPrice: MaxPrice = 0
+    var tipMinPrice: MinPrice = 0
+    var tipMaxPrice: MaxPrice = 0
     
     private init(original: Bool){
         self.original = original
@@ -22,7 +22,7 @@ class RangePrice {
         return newRangePrice
     }
     
-    public func setupRangePrice(minPrice: CGFloat, maxPrice: CGFloat){
+    public func setupRangePrice(minPrice: MinPrice, maxPrice: MaxPrice){
         self.initialMinPrice = minPrice
         self.initialMaxPrice = maxPrice
         self.userMinPrice = minPrice
@@ -40,7 +40,7 @@ class RangePrice {
         self.tipMaxPrice = rangePrice.tipMaxPrice
     }
     
-    public func getRangePrice()-> (CGFloat, CGFloat, CGFloat, CGFloat) {
+    public func getRangePrice()-> (MinPrice, MaxPrice, MinPrice, MaxPrice) {
         let leftLimit = tipMinPrice
         let rightLimit = tipMaxPrice
         let curUserMinPrice = tipMinPrice < userMinPrice ? userMinPrice : tipMinPrice
@@ -48,13 +48,13 @@ class RangePrice {
         return (leftLimit, rightLimit, curUserMinPrice, curUserMazPrice)
     }
     
-    public func setTipRangePrice(minPrice: CGFloat, maxPrice: CGFloat) {
+    public func setTipRangePrice(minPrice: MinPrice, maxPrice: MaxPrice) {
         guard minPrice > 0 && maxPrice > 0 else { return }
         self.tipMinPrice = minPrice
         self.tipMaxPrice = maxPrice
     }
     
-    public func setUserRangePrice(minPrice: CGFloat, maxPrice: CGFloat) {
+    public func setUserRangePrice(minPrice: MinPrice, maxPrice: MaxPrice) {
         guard minPrice > 0 && maxPrice > 0 else { return }
         self.userMinPrice = minPrice
         self.userMaxPrice = maxPrice

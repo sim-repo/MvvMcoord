@@ -4,21 +4,22 @@ import RxCocoa
 
 class CategoryVM : BaseVM {    
     // MARK: - Inputs from ViewController
-    var inSelectCategory = PublishSubject<Int>()
+    var inSelectCategory = PublishSubject<CategoryId>()
     
     
     // MARK: - Outputs to ViewController or Coord
     var outCategories = BehaviorRelay<[CategoryModel]?>(value:nil)
     
-    var outShowSubcategory = PublishSubject<Int>()
+    var outShowSubcategory = PublishSubject<CategoryId>()
     
     var outTitle = Variable<String>("")
     
-    var outShowCatalog = PublishSubject<Int>()
+    var outShowCatalog = PublishSubject<CategoryId>()
+    
  
     var outCloseVC = PublishSubject<Void>()
     
-    init(parentBaseId: Int){
+    init(parentBaseId: CategoryId){
         super.init()
     
         let models = CategoryModel.getModelsA(baseId: parentBaseId).share()

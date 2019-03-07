@@ -5,7 +5,7 @@ class CatalogCoord : BaseCoord<CoordRetEnum>{
     
     private var rootViewController: UIViewController?
     private var viewController: CatalogVC!
-    private var categoryId: Int
+    private var categoryId: CategoryId
     
     
     init(rootViewController: UIViewController? = nil, categoryId: Int){

@@ -4,7 +4,7 @@ import RxSwift
 class CategoryCoord: BaseCoord<CoordRetEnum> {
     
     private var rootViewController: UIViewController?
-    private var parentBaseId: Int
+    private var parentBaseId: CategoryId
 
     private var viewController: CategoryVC!
     

@@ -6,7 +6,7 @@ import SwiftyJSON
 public class CatalogModel : ModelProtocol{
     
     let id: Int
-    let categoryId: Int
+    let categoryId: CategoryId
     let name: String
     let thumbnail: String
     let stars: NSMutableAttributedString
@@ -16,7 +16,7 @@ public class CatalogModel : ModelProtocol{
     let discount: Int
     
     
-    init(id: Int, categoryId: Int, name: String, thumbnail: String, stars: Int, newPrice: NSNumber, oldPrice: NSNumber, votes: Int, discount: Int) {
+    init(id: Int, categoryId: CategoryId, name: String, thumbnail: String, stars: Int, newPrice: NSNumber, oldPrice: NSNumber, votes: Int, discount: Int) {
         self.id = id
         self.categoryId = categoryId
         self.name = name

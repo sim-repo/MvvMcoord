@@ -5,10 +5,10 @@ class SubFilterCoord : BaseCoord<CoordRetEnum>{
     
     private var rootViewController: UIViewController?
     private var viewController: UIViewController!
-    private var filterId: Int
+    private var filterId: FilterId
     private weak var filterActionDelegate: FilterActionDelegate?
     
-    init(rootViewController: UIViewController? = nil, filterId: Int, filterActionDelegate: FilterActionDelegate?){
+    init(rootViewController: UIViewController? = nil, filterId: FilterId, filterActionDelegate: FilterActionDelegate?){
         self.rootViewController = rootViewController
         self.filterId = filterId
         self.filterActionDelegate = filterActionDelegate

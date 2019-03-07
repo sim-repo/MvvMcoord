@@ -15,13 +15,13 @@ protocol ModelProtocol: class {
 
 public class FilterModel : ModelProtocol {
     
-    var id = 0
+    var id: FilterId = 0
     var title: String = ""
-    var categoryId = 0
+    var categoryId: CategoryId = 0
     var filterEnum: FilterEnum = .select
     var enabled = true
     
-    init(id: Int, title: String, categoryId: Int, filterEnum: FilterEnum = .select){
+    init(id: FilterId, title: String, categoryId: CategoryId, filterEnum: FilterEnum = .select){
         self.id = id
         self.title = title
         self.categoryId = categoryId
@@ -44,15 +44,15 @@ public class FilterModel : ModelProtocol {
 
 
 public class SubfilterModel : ModelProtocol{
-    var filterId = 0
-    var id = 0
-    var categoryId = 0
+    var filterId: FilterId = 0
+    var id: SubFilterId = 0
+    var categoryId: CategoryId = 0
     var title: String = ""
     var enabled = true
     var sectionHeader = ""
     var countItems = 0
     
-    init(id: Int, categoryId: Int, filterId: Int, title: String, sectionHeader: String = "") {
+    init(id: SubFilterId, categoryId: CategoryId, filterId: FilterId, title: String, sectionHeader: String = "") {
         self.filterId = filterId
         self.id = id
         self.categoryId = categoryId

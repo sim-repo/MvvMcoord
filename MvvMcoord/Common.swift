@@ -1,12 +1,13 @@
 import UIKit
 
-
+typealias CategoryId = Int
 typealias CountItems = [Int:Int]
 typealias FilterIds = [Int?]
 typealias SubFilterIds = [Int?]
 typealias Applied = Set<Int>
 typealias Selected = Set<Int>
 typealias FilterId = Int
+typealias SubFilterId = Int
 typealias ItemIds = [Int]
 typealias ApplyingByFilter = [Int:[Int]]
 typealias Filters = [Int:FilterModel]

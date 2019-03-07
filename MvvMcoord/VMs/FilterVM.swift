@@ -6,13 +6,13 @@ import RxCocoa
 class FilterVM : BaseVM {
     
     // MARK: - during user activies. Input from ViewController
-    public var inSelectFilter = PublishSubject<Int>()
+    public var inSelectFilter = PublishSubject<FilterId>()
     public var inApply = PublishSubject<Void>()
     public var inCleanUp = PublishSubject<Void>()
     public var priceInApply = PublishSubject<Void>()
-    public var inRemoveFilter = PublishSubject<Int>()
-    private var tmpMinPrice: CGFloat = 0
-    private var tmpMaxPrice: CGFloat = 0
+    public var inRemoveFilter = PublishSubject<FilterId>()
+    private var tmpMinPrice: MinPrice = 0
+    private var tmpMaxPrice: MaxPrice = 0
     
     // MARK: - Outputs to ViewController or Coord
     public var outShowSubFilters = PublishSubject<Int>()

@@ -5,11 +5,11 @@ class FilterCoord : BaseCoord<CoordRetEnum>{
     
     private var rootViewController: UIViewController?
     private var viewController: FilterVC!
-    private var categoryId: Int
+    private var categoryId: CategoryId
     private weak var filterActionDelegate: FilterActionDelegate?
     
     
-    init(rootViewController: UIViewController? = nil, categoryId: Int, filterActionDelegate: FilterActionDelegate?){
+    init(rootViewController: UIViewController? = nil, categoryId: CategoryId, filterActionDelegate: FilterActionDelegate?){
         self.rootViewController = rootViewController
         self.categoryId = categoryId
         self.filterActionDelegate = filterActionDelegate
@@ -56,7 +56,7 @@ class FilterCoord : BaseCoord<CoordRetEnum>{
     }
     
     
-    private func showSubFilters(on rootViewController: UIViewController, filterId: Int, filterActionDelegate: FilterActionDelegate?) -> Observable<CoordRetEnum> {
+    private func showSubFilters(on rootViewController: UIViewController, filterId: FilterId, filterActionDelegate: FilterActionDelegate?) -> Observable<CoordRetEnum> {
         let nextCoord = SubFilterCoord(rootViewController: rootViewController, filterId: filterId, filterActionDelegate: filterActionDelegate)
         return coordinate(coord: nextCoord)
     }

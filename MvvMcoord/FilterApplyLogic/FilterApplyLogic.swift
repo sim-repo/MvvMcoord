@@ -32,7 +32,7 @@ class FilterApplyLogic {
         return subFilters.compactMap({$0.value})
     }
     
-    public func getSubfByItem()-> [Int: [Int]] {
+    public func getSubfByItem()-> SubfiltersByItem {
         return subfiltersByItem
     }
     
@@ -72,7 +72,7 @@ class FilterApplyLogic {
     }
     
     
-    private func checkPrice(_ itemId: Int, _ minPrice: CGFloat, _ maxPrice: CGFloat) -> Bool{
+    private func checkPrice(_ itemId: Int, _ minPrice: MinPrice, _ maxPrice: MaxPrice) -> Bool{
         guard let price = priceByItemId[itemId] else { return false }
         if price >= minPrice && price <= maxPrice {
             return true
@@ -104,7 +104,7 @@ class FilterApplyLogic {
     
     
     
-    private func getItemsIntersect(_ applyingByFilter: ApplyingByFilter, _ rangePrice: RangePrice, exceptFilterId: Int = 0) -> Set<Int> {
+    private func getItemsIntersect(_ applyingByFilter: ApplyingByFilter, _ rangePrice: RangePrice, exceptFilterId: FilterId = 0) -> Set<Int> {
         var res = Set<Int>()
         var tmp = Set<Int>()
         
@@ -215,7 +215,7 @@ class FilterApplyLogic {
     
     
     
-    private func getApplied(applied: Applied, exceptFilterId: Int = 0) -> Set<Int>{
+    private func getApplied(applied: Applied, exceptFilterId: FilterId = 0) -> Applied{
         if exceptFilterId == 0 {
             return applied
         }
@@ -225,7 +225,7 @@ class FilterApplyLogic {
     
     
     
-    private func applyFromSubFilter(_ filterId: Int,
+    private func applyFromSubFilter(_ filterId: FilterId,
                                     _ appliedSubFilters: inout Applied,
                                     _ selectedSubFilters: inout Selected,
                                     _ enabledFilters: inout EnabledFilters,
@@ -422,7 +422,7 @@ class FilterApplyLogic {
         // block #4 <<
     }
     
-    private func applyByPrice(categoryId: Int, enabledFilters: inout EnabledFilters, rangePrice: RangePrice) {
+    private func applyByPrice(categoryId: CategoryId, enabledFilters: inout EnabledFilters, rangePrice: RangePrice) {
         let items = getItemsByPrice(rangePrice)
         let rem = getSubFilters(by: items)
         enableAllFilters(&enabledFilters, enable: false)
@@ -434,7 +434,7 @@ class FilterApplyLogic {
     }
     
     
-    private func enableFilters(_ filterId: Int, _ enabledFilters: inout EnabledFilters){
+    private func enableFilters(_ filterId: CategoryId, _ enabledFilters: inout EnabledFilters){
         enabledFilters[filterId] = true
     }
     
@@ -448,7 +448,7 @@ class FilterApplyLogic {
         }
     }
     
-    private func enableAllSubFilters(except filterId: Int = 0, _ enabledSubFilters: inout EnabledSubfilters, enable: Bool){
+    private func enableAllSubFilters(except filterId: CategoryId = 0, _ enabledSubFilters: inout EnabledSubfilters, enable: Bool){
         for (key, val) in subFilters {
             if val.filterId != filterId || filterId == 0 {
                 enabledSubFilters[key] = enable
@@ -457,7 +457,7 @@ class FilterApplyLogic {
     }
     
     
-    private func enableAllSubFilters2(except filterId: Int = 0, _ enabledFilters: inout EnabledSubfilters, enable: Bool){
+    private func enableAllSubFilters2(except filterId: FilterId = 0, _ enabledFilters: inout EnabledSubfilters, enable: Bool){
         let ids1 = subFilters.filter({$0.value.filterId != filterId || filterId == 0 }).compactMap({$0.key})
         
         for id in ids1 {
@@ -492,7 +492,7 @@ class FilterApplyLogic {
     }
     
     
-    private func fillItemsCount(by filterId: Int, _ countsItems: inout CountItems){
+    private func fillItemsCount(by filterId: FilterId, _ countsItems: inout CountItems){
         guard let subfilters = subfiltersByFilter[filterId] else { return }
         for subfID in subfilters {
             if let tmp = itemsBySubfilter[subfID] {
@@ -549,7 +549,7 @@ class FilterApplyLogic {
     }
     
     
-    private func disableSubFilters(filterId: Int, _ enabledSubfilters: inout EnabledSubfilters){
+    private func disableSubFilters(filterId: FilterId, _ enabledSubfilters: inout EnabledSubfilters){
         for (key, val) in subFilters {
             if val.filterId == filterId {
                 enabledSubfilters[key] = false
