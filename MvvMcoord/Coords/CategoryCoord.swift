@@ -24,7 +24,6 @@ class CategoryCoord: BaseCoord<CoordRetEnum> {
         
         viewController.viewModel = vm
       
-      
         vm.outShowSubcategory
             .flatMap{[weak self] baseId -> Observable<CoordRetEnum> in
                 guard let `self` = self else { return .empty() }
@@ -32,16 +31,21 @@ class CategoryCoord: BaseCoord<CoordRetEnum> {
             }
             .subscribe()
             .disposed(by: self.disposeBag)
-
+        
+      //  uploadFemaleTshirts()
+        
         vm.outShowCatalog
             .flatMap{[weak self] baseId -> Observable<CoordRetEnum> in
                 guard let `self` = self else { return .empty() }
                 
                 // >>>>
+               // let applyLogic: FilterApplyLogic = FilterApplyLogic.shared
+               // applyLogic.dealloc()
                 let networkService = getNetworkService()
-                networkService.requestPreloadFiltersChunk1()
-                networkService.requestPreloadSubFiltersChunk2()
-                networkService.requestPreloadItemsChunk3()
+                //GlobalCache.dealloc()
+                networkService.requestPreloadFiltersChunk1(categoryId: baseId)
+                networkService.requestPreloadSubFiltersChunk2(categoryId: baseId)
+                networkService.requestPreloadItemsChunk3(categoryId: baseId)
                // networkService.requestPreloadFullFilterEntities(categoryId: baseId)
                 
                 return self.showCatalog(on: self.viewController, baseId: baseId)

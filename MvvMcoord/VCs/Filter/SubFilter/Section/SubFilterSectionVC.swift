@@ -20,6 +20,7 @@ class SubFilterSectionVC: UIViewController {
         registerTableView()
         bindCell()
         bindSelection()
+        bindNavigation()
         bindApply()
         bindWaitEvent()
     }
@@ -76,6 +77,15 @@ class SubFilterSectionVC: UIViewController {
             .disposed(by: bag)
     }
     
+    private func bindNavigation(){
+        viewModel.outCloseSubFilterVC
+            .take(1)
+            .subscribe{[weak self] _ in
+                self?.navigationController?.popViewController(animated: true)
+            }
+            .disposed(by: bag)
+    }
+    
     private func bindApply(){
         
         applyView.applyButton.rx.tap
@@ -90,13 +100,6 @@ class SubFilterSectionVC: UIViewController {
             }
             .disposed(by: bag)
         
-        viewModel.outCloseSubFilterVC
-            .take(1)
-            .subscribe{[weak self] _ in
-                self?.navigationController?.popViewController(animated: true)
-            }
-            .disposed(by: bag)
-        
         viewModel.filterActionDelegate?.showApplyViewEvent()
             .bind(onNext: {[weak self] isShow in
                 guard let `self` = self else {return}
@@ -105,7 +108,11 @@ class SubFilterSectionVC: UIViewController {
             })
             .disposed(by: bag)
     }
-    
+}
+
+
+// Waiting Indicator
+extension SubFilterSectionVC {
     
     private func bindWaitEvent(){
         waitContainer.frame = CGRect(x: view.center.x, y: view.center.y, width: 80, height: 80)
@@ -142,9 +149,7 @@ class SubFilterSectionVC: UIViewController {
         waitContainer.isHidden = true
         waitActivityView.stopAnimating()
     }
-    
 }
-
 
 extension SubFilterSectionVC: UITableViewDelegate {
     override func didMove(toParent parent: UIViewController?) {

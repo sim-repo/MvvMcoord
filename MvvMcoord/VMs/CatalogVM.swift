@@ -33,7 +33,7 @@ class CatalogVM : BaseVM {
     var outLayout = Variable<CellLayout?>(nil)
     var outShowFilters = PublishSubject<Int>()
     var outCloseVC = PublishSubject<Void>()
-    var outReloadCatalogVC = PublishSubject<Void>()
+    var outReloadCatalogVC = BehaviorSubject<Bool>(value: false)
     var outFetchComplete = PublishSubject<[IndexPath]?>()
     
     
@@ -88,8 +88,8 @@ class CatalogVM : BaseVM {
     internal var outShowApplyViewEvent = BehaviorSubject<Bool>(value: false)
     internal var outShowPriceApplyViewEvent = PublishSubject<Bool>()
     internal var outRefreshedCellSelectionsEvent = PublishSubject<Set<Int>>()
-    internal var outWaitEvent = BehaviorSubject<(FilterActionEnum, Bool)>(value: (.applyFilter, false))
-    internal var outBackEvent = PublishSubject<Void>()
+    internal var outWaitEvent = BehaviorSubject<(FilterActionEnum, Bool)>(value: (.noAction, false))
+    internal var outBackEvent = PublishSubject<FilterActionEnum>()
     internal var outMidTotal = PublishSubject<Int>()
     internal var outShowWarning = PublishSubject<Void>()
     internal var outReloadSubFilterVCEvent = PublishSubject<Void>()
@@ -109,12 +109,43 @@ class CatalogVM : BaseVM {
         handlePrefetchEvent()
         bindUserActivities()
         
-        
         CatalogModel.localTitle(categoryId: categoryId)
             .bind(to: outTitle)
             .disposed(by: bag)
     }
     
+    
+    public func realloc(){
+        
+        unitTestSignalOperationComplete.onCompleted()
+        inPrefetchEvent.onCompleted()
+        inPressFilter.onCompleted()
+        outShowFilters.onCompleted()
+        outCloseVC.onCompleted()
+        outReloadCatalogVC.onCompleted()
+        outFetchComplete.onCompleted()
+        
+        inApplyFromFilterEvent.onCompleted()
+        inApplyFromSubFilterEvent.onCompleted()
+        inApplyByPricesEvent.onCompleted()
+        inRemoveFilterEvent.onCompleted()
+        inSelectSubFilterEvent.onCompleted()
+        inCleanUpFromFilterEvent.onCompleted()
+        inCleanUpFromSubFilterEvent.onCompleted()
+        
+        outFiltersEvent.onCompleted()
+        outSubFiltersEvent.onCompleted()
+        outSectionSubFiltersEvent.onCompleted()
+        outRequestComplete.onCompleted()
+        outShowApplyViewEvent.onCompleted()
+        outShowPriceApplyViewEvent.onCompleted()
+        outRefreshedCellSelectionsEvent.onCompleted()
+        outWaitEvent.onCompleted()
+        outBackEvent.onCompleted()
+        outMidTotal.onCompleted()
+        outShowWarning.onCompleted()
+        outReloadSubFilterVCEvent.onCompleted()
+    }
     
     // MARK: -------------- Prefetching --------------
     internal func setupFetch(itemsIds: [Int], fetchLimit: Int = 0){
@@ -133,18 +164,17 @@ class CatalogVM : BaseVM {
 
     
     private func emitStartEvent(){
-        getNetworkService().requestCatalogStart(categoryId: categoryId, appliedSubFilters: appliedSubFilters)
+        getNetworkService().requestCatalogStart(categoryId: categoryId)
     }
    
     private func handleStartEvent(){
         getNetworkService().getCatalogTotalEvent()
-            .skip(1)
+            .filter({$0.0.count > 0})
             .subscribe(onNext: { [weak self] res in
                 self?.fullCatalogItemIds = res.0
                 self?.setupFetch(itemsIds: res.0, fetchLimit: res.1)
                 self?.rangePrice.setupRangePrice(minPrice: res.2, maxPrice: res.3)
-                self?.outReloadCatalogVC.onNext(Void())
-                self?.emitPrefetchEvent()
+                self?.outReloadCatalogVC.onNext(true)
             })
             .disposed(by: bag)
     }
@@ -169,13 +199,15 @@ class CatalogVM : BaseVM {
     private func handlePrefetchEvent(){
         inPrefetchEvent
         .subscribe(onNext: {[weak self] res in
-            print("handlePrefetchEvent")
             switch self?.currentPage {
                 case 1: self?.catalog = res
                 default: self?.catalog.append(contentsOf: res)
             }
             let indexPathsToReload = self?.calcIndexPathsToReload(from: res)
             self?.outFetchComplete.onNext(indexPathsToReload)
+            
+            self?.wait().onNext((.prefetchCatalog, false))
+            
             self?.currentPage += 1
             self?.isPrefetchInProgress = false
         })
@@ -272,7 +304,7 @@ class CatalogVM : BaseVM {
         cleanupAllFilters()
         itemIds = fullCatalogItemIds
         setupFetch(itemsIds: fullCatalogItemIds)
-        outReloadCatalogVC.onNext(Void())
+        outReloadCatalogVC.onNext(true)
         emitPrefetchEvent()
         outFiltersEvent.onNext(self.getEnabledFilters())
         unitTestSignalOperationComplete.onNext(utMsgId)
@@ -346,7 +378,7 @@ class CatalogVM : BaseVM {
     }
     
     
-    internal func showCleanFilterVC(){
+    internal func cleanupFilterVC(){
        self.outFiltersEvent.onNext([])
     }
     
@@ -389,9 +421,6 @@ class CatalogVM : BaseVM {
             sectionSubFiltersByFilter[filter.id] = tmp2
         }
     }
-    
-    
-   
     
     
     internal func getEnabledSubFilters(ids: [Int]) -> [SubfilterModel?] {

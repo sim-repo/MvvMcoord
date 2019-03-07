@@ -728,6 +728,8 @@ protocol FilterApplyLogicProtocol {
                itemsBySubfilter: ItemsBySubfilter?,
                priceByItemId: PriceByItemId?
     )
+    
+    func dealloc()
 }
 
 
@@ -877,36 +879,44 @@ extension FilterApplyLogic: FilterApplyLogicProtocol {
             a.forEach({f in
                 self.filters[f.id] = f
             })
-            print("Filters Loading Completed...")
+          //  print("Filters Loading Completed...")
         }
-            
             
         if let b = subFilters {
             b.forEach({s in
                 self.subFilters[s.id] = s
             })
-            print("Subf Loading Completed...")
+            //print("Subf Loading Completed...")
         }
         
         if let c = subfiltersByFilter {
             self.subfiltersByFilter = c
-            print("subfiltersByFilter Loading Completed...")
+            //print("subfiltersByFilter Loading Completed...")
         }
         
         if let d = subfiltersByItem {
             self.subfiltersByItem = d
-            print("subfiltersByItem Loading Completed...")
+           // print("subfiltersByItem Loading Completed...")
         }
         
         if let e = itemsBySubfilter {
             self.itemsBySubfilter = e
-            print("itemsBySubfilter Loading Completed...")
+           // print("itemsBySubfilter Loading Completed...")
         }
         
         if let f = priceByItemId {
             self.priceByItemId = f
-            print("priceByItemId Loading Completed...")
+           // print("priceByItemId Loading Completed...")
         }
+    }
+    
+    
+    func dealloc(){
+        filters.removeAll()
+        subfiltersByFilter.removeAll()
+        subfiltersByItem.removeAll()
+        itemsBySubfilter.removeAll()
+        priceByItemId.removeAll()
     }
 }
 

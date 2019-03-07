@@ -8,8 +8,6 @@ class CatalogVC: UIViewController {
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var planButton: UIButton!
     @IBOutlet weak var filterButton: UIButton!
-    @IBOutlet weak var indicatorView: UIActivityIndicatorView!
-    
     @IBOutlet weak var currPage: UILabel!
     
     var bag = DisposeBag()
@@ -21,8 +19,8 @@ class CatalogVC: UIViewController {
     private var cellSpace: CGFloat = 0.0
     private var lineSpace: CGFloat = 0.0
     private var planButtonImage = ""
-    private let waitContainer: UIView = UIView()
-    private let waitActivityView = UIActivityIndicatorView(style: .whiteLarge)
+    internal let waitContainer: UIView = UIView()
+    internal let waitActivityView = UIActivityIndicatorView(style: .whiteLarge)
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -35,16 +33,11 @@ class CatalogVC: UIViewController {
         setTitle()
         collectionView.prefetchDataSource = self
         collectionView.isHidden = true
-        
-        indicatorView.startAnimating()
-        
         handleReloadEvent()
         handleWaitEvent()
-
         handleFetchCompleteEvent()
-        
         bindNavigation()
-        bindingLayout()
+        bindLayout()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -81,20 +74,19 @@ class CatalogVC: UIViewController {
     
     private func handleReloadEvent(){
         viewModel.outReloadCatalogVC
-            .subscribe(onNext: {[weak self] in
-                self?.indicatorView.stopAnimating()
-                self?.indicatorView.isHidden = true
+            .filter({$0 == true})
+            .subscribe(onNext: {[weak self] _ in
                 self?.collectionView.isHidden = false
                 self?.collectionView.reloadData()
             })
             .disposed(by: bag)
     }
     
+    
     private func handleFetchCompleteEvent(){
         viewModel.outFetchComplete
             .subscribe(onNext: {[weak self] newIndexPathsToReload in
                 guard let `self` = self else {return}
-                self.indicatorView.stopAnimating()
                 guard let newIndexPathsToReload = newIndexPathsToReload else { return }
                 let indexPathsToReload = self.visibleIndexPathsToReload(intersecting: newIndexPathsToReload)
                 self.collectionView.reloadItems(at: indexPathsToReload)
@@ -103,7 +95,7 @@ class CatalogVC: UIViewController {
     }
     
     
-    private func bindingLayout(){
+    private func bindLayout(){
         planButton.rx.tap
             .bind{[weak self] _ -> Void in
                 self?.viewModel.inPressLayout.value = Void()}
@@ -141,44 +133,9 @@ class CatalogVC: UIViewController {
             }
             .disposed(by: bag)
     }
-    
-    private func handleWaitEvent(){
-        waitContainer.frame = CGRect(x: view.center.x, y: view.center.y, width: 80, height: 80)
-        waitContainer.backgroundColor = .lightGray
-        waitContainer.center = self.view.center
-        waitActivityView.frame = CGRect(x: 0, y: 0, width: 80, height: 80)
-        waitContainer.isHidden = true
-        waitContainer.addSubview(waitActivityView)
-        view.addSubview(waitContainer)
-        
-        viewModel.wait()
-            .filter({[.applyFilter].contains($0.0)})
-            .subscribe(onNext: {[weak self] res in
-                guard let `self` = self else {return}
-                let runWait = res.1
-                if runWait {
-                    self.startWait()
-                } else {
-                    self.stopWait()
-                }
-            })
-            .disposed(by: bag)
-    }
-    
-    
-    private func startWait() {
-        print("wait in Catalog")
-        collectionView.isHidden = true
-        waitContainer.isHidden = false
-        waitActivityView.startAnimating()
-    }
-    
-    private func stopWait(){
-        collectionView.isHidden = false
-        waitContainer.isHidden = true
-        waitActivityView.stopAnimating()
-    }
 }
+
+
 
 
 extension CatalogVC: UICollectionViewDataSource {
@@ -244,8 +201,6 @@ extension CatalogVC: UICollectionViewDelegate, UICollectionViewDelegateFlowLayou
         return CGSize(width: cellWidth, height: cellHeight)
     }
     
-    
-    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         let sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         return sectionInset
@@ -284,3 +239,50 @@ private extension CatalogVC {
     }
 }
 
+
+
+// Waiting Indicator
+extension CatalogVC {
+    
+    public func handleWaitEvent(){
+        waitContainer.frame = CGRect(x: view.center.x, y: view.center.y, width: 80, height: 80)
+        waitContainer.backgroundColor = .lightGray
+        waitContainer.center = self.view.center
+        waitActivityView.frame = CGRect(x: 0, y: 0, width: 80, height: 80)
+        waitContainer.isHidden = true
+        waitActivityView.hidesWhenStopped = true
+        waitContainer.addSubview(waitActivityView)
+        view.addSubview(waitContainer)
+        
+        // reusable wait
+        viewModel.wait()
+            .filter({[.prefetchCatalog, .applyFilter].contains($0.0)})
+            .subscribe(onNext: {[weak self] res in
+                guard let `self` = self else {return}
+                if res.1 == true {
+                    self.waitContainer.alpha = 1.0
+                    self.collectionView.isHidden = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2)){
+                        self.startWait()
+                    }
+                } else {
+                    self.stopWait()
+                }
+            })
+            .disposed(by: bag)
+    }
+    
+    
+    private func startWait() {
+        guard waitContainer.alpha == 1.0 else { return }
+        waitContainer.isHidden = false
+        waitActivityView.startAnimating()
+    }
+    
+    private func stopWait(){
+        waitContainer.alpha = 0.0
+        collectionView.isHidden = false
+        waitContainer.isHidden = true
+        waitActivityView.stopAnimating()
+    }
+}

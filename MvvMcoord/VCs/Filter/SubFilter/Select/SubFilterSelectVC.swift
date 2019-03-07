@@ -27,7 +27,7 @@ class SubFilterSelectVC: UIViewController {
         bindSelection()
         bindApply()
         bindWaitEvent()
-        bindBack()
+        bindNavigation()
         bindReloadData()
     }
     
@@ -115,13 +115,6 @@ class SubFilterSelectVC: UIViewController {
         }
         .disposed(by: bag)
         
-        viewModel.outCloseSubFilterVC
-        .take(1)
-        .subscribe{[weak self] _ in
-            self?.navigationController?.popViewController(animated: true)
-        }
-        .disposed(by: bag)
-        
         viewModel.filterActionDelegate?.showApplyViewEvent()
             .bind(onNext: {[weak self] isShow in
                 guard let `self` = self else {return}
@@ -139,14 +132,20 @@ class SubFilterSelectVC: UIViewController {
             .disposed(by: bag)
     }
     
-    private func bindBack(){
-        viewModel.filterActionDelegate?.back()
-            .subscribe(onNext:  {[weak self] _ in
-                self?.viewModel.backEvent.onNext(.back)
-            })
+    private func bindNavigation(){
+        viewModel.outCloseSubFilterVC
+            .take(1)
+            .subscribe{[weak self] _ in
+                self?.navigationController?.popViewController(animated: true)
+            }
             .disposed(by: bag)
     }
-    
+}
+
+
+
+// Waiting Indicator
+extension SubFilterSelectVC {
     
     private func bindWaitEvent(){
         waitContainer.frame = CGRect(x: view.center.x, y: view.center.y, width: 80, height: 80)
@@ -158,18 +157,18 @@ class SubFilterSelectVC: UIViewController {
         waitContainer.alpha = 1.0
         view.addSubview(waitContainer)
         
+        // occuring once wait
         viewModel.filterActionDelegate?.wait()
             .filter({[.enterSubFilter].contains($0.0)})
             .takeWhile({$0.1 == true})
             .subscribe(onNext: {[weak self] res in
                 DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2)){
                     guard let `self` = self else {return}
-                    print("start wait")
                     self.startWait()
                 }
-            },
-           onCompleted: {
-                self.stopWait()
+                },
+                       onCompleted: {
+                        self.stopWait()
             })
             .disposed(by: bag)
     }
@@ -189,7 +188,6 @@ class SubFilterSelectVC: UIViewController {
         waitActivityView.stopAnimating()
     }
 }
-
 
 extension SubFilterSelectVC: UITableViewDelegate {
     override func didMove(toParent parent: UIViewController?) {

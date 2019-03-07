@@ -63,10 +63,26 @@ class HeavyClientFCF : NetworkFacadeBase {
     }
     
     
-    override func requestCatalogStart(categoryId: Int, appliedSubFilters: Set<Int>) {
+    override func loadCache(categoryId: Int){
+        functions.httpsCallable("meta").call(["useCache":true,
+                                              "categoryId":categoryId,
+                                              "method":""]){ (result, error) in
+        
+        }
+    }
+    
+    
+    override func requestCatalogStart(categoryId: Int) {
+        
+        if let catalogTotal = GlobalCache.getCatalogTotal(categoryId: categoryId) {
+            self.fireCatalogTotal(catalogTotal.itemIds, catalogTotal.fetchLimit, catalogTotal.minPrice, catalogTotal.maxPrice)
+            return
+        }
+        
         task1 = {
-            functions.httpsCallable("catalogTotal").call(["useCache":true,
-                                                          "categoryId":categoryId
+            functions.httpsCallable("meta").call(["useCache":true,
+                                                  "categoryId":categoryId,
+                                                  "method":"getCatalogTotals"
             ]){ [weak self] (result, error) in
                 guard let `self` = self else { return }
                 if let error = error as NSError? {
@@ -85,6 +101,7 @@ class HeavyClientFCF : NetworkFacadeBase {
                     let maxPrice = maxPrice_
                     else { return self.firebaseHandleErr(task: self.task1, error: NSError(domain: FunctionsErrorDomain, code: 1, userInfo: ["Parse Int":0])  )}
                 
+                GlobalCache.setCatalogTotal(categoryId: categoryId, fetchLimit: fetchLimit, itemIds: itemIds, minPrice: CGFloat(minPrice), maxPrice: CGFloat(maxPrice))
                 self.fireCatalogTotal(itemIds, fetchLimit, CGFloat(minPrice), CGFloat(maxPrice))
             }
         }
@@ -94,9 +111,12 @@ class HeavyClientFCF : NetworkFacadeBase {
     
     
     override func requestCatalogModel(itemIds: [Int]) {
+        guard task2 == nil
+            else { return }
         task2 = {
-            functions.httpsCallable("catalogEntities").call([ "useCache": true,
-                                                              "itemsIds": itemIds
+            functions.httpsCallable("meta").call(["useCache": true,
+                                                  "itemsIds": itemIds,
+                                                  "method":"getPrefetching"
             ]){[weak self] (result, error) in
                 guard let `self` = self else { return }
                 
@@ -106,6 +126,7 @@ class HeavyClientFCF : NetworkFacadeBase {
                 }
                 let arr:[CatalogModel] = ParsingHelper.parseJsonObjArr(result: result, key: "items")
                 self.fireCatalogModel(catalogModel: arr)
+                self.task2 = nil
             }
         }
         runRequest(task: task2)
@@ -151,7 +172,8 @@ class HeavyClientFCF : NetworkFacadeBase {
     
     
     override func requestApplyFromFilter(categoryId: Int, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {
-        applyLogic.doApplyFromFilter(appliedSubFilters, selectedSubFilters, rangePrice)
+       // DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(10)){[weak self] in
+        self.applyLogic.doApplyFromFilter(appliedSubFilters, selectedSubFilters, rangePrice)
             .asObservable()
             .observeOn(MainScheduler.asyncInstance)
             .subscribe(onNext: {[weak self] res in
@@ -163,6 +185,7 @@ class HeavyClientFCF : NetworkFacadeBase {
                 self?.fireApplyForItems(filterIds, subfilterIds, applied, selected, itemIds)
             })
             .disposed(by: bag)
+       // }
     }
     
     
@@ -235,7 +258,7 @@ class HeavyClientFCF : NetworkFacadeBase {
                     guard let `self` = self else { return }
                     
                     if let error = error as NSError? {
-                        self.firebaseHandleErr(task: self.task3, error: error)
+                        self.firebaseHandleErr(task: self.task4, error: error)
                         return
                     }
                     
@@ -262,96 +285,131 @@ class HeavyClientFCF : NetworkFacadeBase {
     }
     
     
-    override func requestPreloadFiltersChunk1() {
-       // DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(10)) {[weak self] in
+    override func requestPreloadFiltersChunk1(categoryId: Int) {
+       
+        if let filters = GlobalCache.getChunk1(categoryId: categoryId) {
+            print("chunk1 use cache")
+            applyLogic.setup(filters: filters)
+            fireFilterChunk1(filters)
+            didDownloadChunk1.onNext(Void())
+            return
+        }
+        
         self.task5 = {
-            functions.httpsCallable("filtersChunk1").call(["useCache":true
+            functions.httpsCallable("meta").call(["useCache":true,
+                                                  "categoryId":categoryId,
+                                                  "method":"getFiltersChunk1"
             ]) {[weak self] (result, error) in
-                DispatchQueue.global(qos: .background).async {
-                    guard let `self` = self else { return }
-                    
-                    if let error = error as NSError? {
-                        self.firebaseHandleErr(task: self.task3, error: error)
-                        return
-                    }
-                    let filters:[FilterModel] = ParsingHelper.parseJsonObjArr(result: result, key: "filters")
-                    self.applyLogic.setup(filters: filters)
-                    self.fireFilterChunk1(filters)
-                    self.didDownloadChunk1.onNext(Void())
+                    DispatchQueue.global(qos: .background).async {
+                        guard let `self` = self else { return }
+                        
+                        if let error = error as NSError? {
+                            self.firebaseHandleErr(task: self.task5, error: error)
+                            return
+                        }
+                        
+                        let filters:[FilterModel] = ParsingHelper.parseJsonObjArr(result: result, key: "filters")
+                        
+                        
+                        guard filters.count > 0
+                            else {
+                                print("Ошибка!!!!")
+                                self.firebaseHandleErr(task: self.task5, error: NSError(domain: FunctionsErrorDomain, code: 777, userInfo: ["Parse Int":0]))
+                                  return }
+                        
+                        GlobalCache.setFilterEntities(categoryId: categoryId, filters: filters)
+                        self.applyLogic.setup(filters: filters)
+                        self.fireFilterChunk1(filters)
+                        self.didDownloadChunk1.onNext(Void())
                 }
             }
         }
         self.runRequest(task: self.task5)
-            
-      // }
-
     }
     
     
-    override func requestPreloadSubFiltersChunk2() {
-          //DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(10)) {[weak self] in
-            self.task6 = {
-                functions.httpsCallable("subFiltersChunk2").call(["useCache":true
-                ]) {[weak self] (result, error) in
-                        guard let `self` = self else { return }
-                    
-                        if let error = error as NSError? {
-                            self.firebaseHandleErr(task: self.task3, error: error)
-                            return
-                        }
-                    
-                        DispatchQueue.global(qos: .userInteractive).async {
-                             let subFilters:[SubfilterModel] = ParsingHelper.parseJsonObjArr(result: result, key: "subFilters")
-                            // self.applyLogic.setup(subFilters: subFilters)
-                             let subfiltersByFilter = ParsingHelper.parseJsonDictWithValArr(result: result, key: "subfiltersByFilter")
-                             self.applyLogic.setup(subFilters: subFilters, subfiltersByFilter: subfiltersByFilter)
-                            // DispatchQueue.main.asyncAfter(deadline: .now()) {
-                                self.didDownloadChunk2.onNext(Void())
-                                self.fireFilterChunk2(subFilters)
-                           //  }
-                        }
-                    
-//                        DispatchQueue.global(qos: .userInteractive).async {
-//                            let subfiltersByFilter = ParsingHelper.parseJsonDictWithValArr(result: result, key: "subfiltersByFilter")
-//                            self.applyLogic.setup(subfiltersByFilter: subfiltersByFilter)
-//                            self.didDownloadChunk2.onNext(Void())
-//                        }
+    override func requestPreloadSubFiltersChunk2(categoryId: Int) {
+        
+        if let (s1, s2) = GlobalCache.getChunk2(categoryId: categoryId) {
+            if let subFilters = s1,
+                let subfiltersByFilter = s2 {
+                print("chunk2 use cache")
+                applyLogic.setup(subFilters: subFilters, subfiltersByFilter: subfiltersByFilter)
+                didDownloadChunk2.onNext(Void())
+                fireFilterChunk2(subFilters)
+                return
+            }
+        }
+        
+        self.task6 = {
+            functions.httpsCallable("meta").call(["useCache":true,
+                                                  "categoryId":categoryId,
+                                                  "method":"getSubfiltersChunk2"
+            ]) {[weak self] (result, error) in
+                    guard let `self` = self else { return }
+                
+                    if let error = error as NSError? {
+                        self.firebaseHandleErr(task: self.task6, error: error)
+                        return
                     }
-          // }
-            
+                
+                    DispatchQueue.global(qos: .userInteractive).async {
+                         let subFilters:[SubfilterModel] = ParsingHelper.parseJsonObjArr(result: result, key: "subFilters")
+                         let subfiltersByFilter: SubfiltersByFilter = ParsingHelper.parseJsonDictWithValArr(result: result, key: "subfiltersByFilter")
+                         GlobalCache.setFilterEntities(categoryId: categoryId, subFilters: subFilters, subfiltersByFilter: subfiltersByFilter)
+                         self.applyLogic.setup(subFilters: subFilters, subfiltersByFilter: subfiltersByFilter)
+                         self.didDownloadChunk2.onNext(Void())
+                         self.fireFilterChunk2(subFilters)
+                    }
+                }
         }
         self.runRequest(task: self.task6)
-      //  }
     }
     
     
-    override func requestPreloadItemsChunk3() {
+    override func requestPreloadItemsChunk3(categoryId: Int) {
+        
+        if let (s1, s2, s3) = GlobalCache.getChunk3(categoryId: categoryId) {
+            if let subfiltersByItem = s1,
+               let itemsBySubfilter = s2,
+               let priceByItemId = s3 {
+                print("chunk3 use cache")
+                applyLogic.setup(subfiltersByItem: subfiltersByItem, itemsBySubfilter: itemsBySubfilter, priceByItemId: priceByItemId)
+                didDownloadChunk3.onNext(Void())
+                didDownloadChunk4.onNext(Void())
+                didDownloadChunk5.onNext(Void())
+                return
+            }
+        }
+        
         task7 = {
-            functions.httpsCallable("itemsChunk3").call(["useCache":true
+            functions.httpsCallable("meta").call(["useCache":true,
+                                                  "categoryId":categoryId,
+                                                  "method":"getItemsChunk3"
             ]) {[weak self] (result, error) in
                
                     guard let `self` = self else { return }
                     
                     if let error = error as NSError? {
-                        self.firebaseHandleErr(task: self.task3, error: error)
+                        self.firebaseHandleErr(task: self.task7, error: error)
                         return
                     }
                     DispatchQueue.global(qos: .userInitiated).async {
-                        let subfiltersByItem = ParsingHelper.parseJsonDictWithValArr(result: result, key: "subfiltersByItem")
+                        let subfiltersByItem: SubfiltersByItem = ParsingHelper.parseJsonDictWithValArr(result: result, key: "subfiltersByItem")
+                        GlobalCache.setFilterEntities(categoryId: categoryId, subfiltersByItem: subfiltersByItem)
                         self.applyLogic.setup(subfiltersByItem: subfiltersByItem)
-                        
                         self.didDownloadChunk3.onNext(Void())
                     }
                     DispatchQueue.global(qos: .userInitiated).async {
-                        let itemsBySubfilter = ParsingHelper.parseJsonDictWithValArr(result: result, key: "itemsBySubfilter")
+                        let itemsBySubfilter: ItemsBySubfilter = ParsingHelper.parseJsonDictWithValArr(result: result, key: "itemsBySubfilter")
+                        GlobalCache.setFilterEntities(categoryId: categoryId, itemsBySubfilter: itemsBySubfilter)
                         self.applyLogic.setup(itemsBySubfilter: itemsBySubfilter)
-                        
                         self.didDownloadChunk4.onNext(Void())
                     }
                     DispatchQueue.global(qos: .userInitiated).async {
-                        let priceByItemId = ParsingHelper.parseJsonDict(type: CGFloat.self, result: result, key: "priceByItemId")
+                        let priceByItemId: PriceByItemId = ParsingHelper.parseJsonDict(type: CGFloat.self, result: result, key: "priceByItemId")
+                        GlobalCache.setFilterEntities(categoryId: categoryId, priceByItemId: priceByItemId)
                         self.applyLogic.setup(priceByItemId: priceByItemId)
-                        
                         self.didDownloadChunk5.onNext(Void())
                     }
             }

@@ -28,7 +28,7 @@ class BaseCoord<ResultType> {
         return coord.start()
             .do(
                 onNext:{ _ in
-                  //  self?.free(coord: coord)
+                    self.free(coord: coord)
                 },
                 onCompleted: {
                     self.free(coord: coord)

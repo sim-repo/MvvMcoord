@@ -3,7 +3,7 @@ import RxSwift
 
 protocol NetworkFacadeProtocol {
     
-    func requestCatalogStart(categoryId: Int, appliedSubFilters: Applied)
+    func requestCatalogStart(categoryId: Int)
 
     func requestCatalogModel(itemIds: ItemIds)
     
@@ -21,11 +21,11 @@ protocol NetworkFacadeProtocol {
     
     func requestPreloadFullFilterEntities(categoryId: Int)
     
-    func requestPreloadFiltersChunk1()
+    func requestPreloadFiltersChunk1(categoryId: Int)
     
-    func requestPreloadSubFiltersChunk2()
+    func requestPreloadSubFiltersChunk2(categoryId: Int)
     
-    func requestPreloadItemsChunk3()
+    func requestPreloadItemsChunk3(categoryId: Int)
     
     func requestMidTotal(categoryId: Int, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice)
     
@@ -54,6 +54,8 @@ protocol NetworkFacadeProtocol {
     func getMidTotal() -> PublishSubject<ItemsTotal>
     
     func getDownloadsDoneEvent()-> PublishSubject<Void>
+    
+    func loadCache(categoryId: Int)
     
 }
 
@@ -100,7 +102,7 @@ class NetworkFacadeBase: NetworkFacadeProtocol {
         .disposed(by: bag)
     }
    
-    func requestCatalogStart(categoryId: Int, appliedSubFilters: Applied) {}
+    func requestCatalogStart(categoryId: Int) {}
     
     func requestCatalogModel(itemIds: ItemIds) {}
     
@@ -118,11 +120,11 @@ class NetworkFacadeBase: NetworkFacadeProtocol {
     
     func requestPreloadFullFilterEntities(categoryId: Int) {}
     
-    func requestPreloadFiltersChunk1() {}
+    func requestPreloadFiltersChunk1(categoryId: Int) {}
     
-    func requestPreloadSubFiltersChunk2() {}
+    func requestPreloadSubFiltersChunk2(categoryId: Int) {}
     
-    func requestPreloadItemsChunk3() {}
+    func requestPreloadItemsChunk3(categoryId: Int) {}
     
     func requestMidTotal(categoryId: Int, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice) {}
     
@@ -211,6 +213,10 @@ class NetworkFacadeBase: NetworkFacadeProtocol {
     
     internal func fireMidTotal(_ total: Int) {
         outTotals.onNext(total)
+    }
+    
+    func loadCache(categoryId: Int) {
+        
     }
 
 }

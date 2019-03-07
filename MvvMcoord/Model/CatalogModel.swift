@@ -3,7 +3,7 @@ import RxSwift
 import RxDataSources
 import SwiftyJSON
 
-class CatalogModel : ModelProtocol{
+public class CatalogModel : ModelProtocol{
     
     let id: Int
     let categoryId: Int

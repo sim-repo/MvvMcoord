@@ -57,6 +57,7 @@ class CatalogCoord : BaseCoord<CoordRetEnum>{
         return Observable
             .merge(vm.backEvent)
             .take(1)
+            .do{vm.realloc()}
     }
     
     

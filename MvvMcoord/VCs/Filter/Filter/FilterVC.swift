@@ -169,7 +169,7 @@ class FilterVC: UIViewController {
         
         applyView.cleanUpButton.rx.tap
             .subscribe{[weak self] _ in
-                self?.viewModel.inCleanUp.onCompleted()
+                self?.viewModel.inCleanUp.onNext(Void())
             }
             .disposed(by: bag)
         
@@ -241,6 +241,11 @@ class FilterVC: UIViewController {
     func removeExpandedIndexPath(_ indexPath: IndexPath) {
         indexPaths.remove(indexPath)
     }
+}
+
+
+// Waiting Indicator
+extension FilterVC {
     
     private func bindWaitEvent(){
         waitContainer.frame = CGRect(x: view.center.x, y: view.center.y, width: 80, height: 80)
@@ -252,22 +257,22 @@ class FilterVC: UIViewController {
         waitContainer.alpha = 1.0
         view.addSubview(waitContainer)
         
+        // occuring once wait
         viewModel.filterActionDelegate?.wait()
             .filter({[.enterFilter, .applySubFilter, .removeFilter].contains($0.0)})
             .takeWhile({$0.1 == true})
             .subscribe(onNext: {[weak self] res in
                 DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2)){
                     guard let `self` = self else {return}
-                    print("start wait")
                     self.startWait()
                 }
                 },
-                onCompleted: {
-                    self.stopWait()
-                })
+                       onCompleted: {
+                        self.stopWait()
+            })
             .disposed(by: bag)
     }
-
+    
     
     private func startWait() {
         guard waitContainer.alpha == 1.0 else { return }

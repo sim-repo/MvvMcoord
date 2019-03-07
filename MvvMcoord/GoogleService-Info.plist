@@ -7,21 +7,21 @@
 	<key>AD_UNIT_ID_FOR_INTERSTITIAL_TEST</key>
 	<string>ca-app-pub-3940256099942544/4411468910</string>
 	<key>CLIENT_ID</key>
-	<string>742381675544-c0gvce364rcmsoauka9qn3id2l1vj5s6.apps.googleusercontent.com</string>
+	<string>297894151842-q053p6022o74rgskn01kd4ocfiesi1vs.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.742381675544-c0gvce364rcmsoauka9qn3id2l1vj5s6</string>
+	<string>com.googleusercontent.apps.297894151842-q053p6022o74rgskn01kd4ocfiesi1vs</string>
 	<key>API_KEY</key>
-	<string>AIzaSyCHhpT2q-tfRqdnupMrk-I-YmJ6NyFL8Ig</string>
+	<string>AIzaSyA-_Pi6d5T98iWj3TtYchyaV3LNnQC5Zc8</string>
 	<key>GCM_SENDER_ID</key>
-	<string>742381675544</string>
+	<string>297894151842</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.garneteum.MvvMcoord</string>
 	<key>PROJECT_ID</key>
-	<string>mvvmcoord</string>
+	<string>filterproject2</string>
 	<key>STORAGE_BUCKET</key>
-	<string>mvvmcoord.appspot.com</string>
+	<string>filterproject2.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<true></true>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -33,8 +33,8 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:742381675544:ios:f206370590d4ecbb</string>
+	<string>1:297894151842:ios:f206370590d4ecbb</string>
 	<key>DATABASE_URL</key>
-	<string>https://mvvmcoord.firebaseio.com</string>
+	<string>https://filterproject2.firebaseio.com</string>
 </dict>
 </plist>

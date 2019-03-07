@@ -28,6 +28,8 @@ class MvvMcoordUITests: XCTestCase {
 
     func testExample() {
         let app = XCUIApplication()
+        
+        for _ in 0...1000 {
         let my1StaticText = app.navigationBars["Каталог"]/*@START_MENU_TOKEN@*/.staticTexts["My1"]/*[[".staticTexts[\"Каталог\"]",".staticTexts[\"My1\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/
         my1StaticText.tap()
         
@@ -51,18 +53,18 @@ class MvvMcoordUITests: XCTestCase {
         my4StaticText.tap()
         tablesQuery/*@START_MENU_TOKEN@*/.staticTexts["Повседневные Платья"]/*[[".cells.staticTexts[\"Повседневные Платья\"]",".staticTexts[\"Повседневные Платья\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
         
-        sleep(10)
+        sleep(2)
         let navigationBar5 = app.navigationBars["Повседневные Платья"]
         let my5StaticText = navigationBar5/*@START_MENU_TOKEN@*/.staticTexts["My5"]/*[[".staticTexts[\"Повседневные Платья\"]",".staticTexts[\"My5\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/
         my5StaticText.tap()
         app.buttons["Фильтр"].tap()
         
-        sleep(10)
+        sleep(2)
         let navigationBar = app.navigationBars["Фильтры"]
         let my6StaticText = navigationBar/*@START_MENU_TOKEN@*/.staticTexts["My6"]/*[[".staticTexts[\"Фильтры\"]",".staticTexts[\"My6\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/
         my6StaticText.tap()
         
-        sleep(10)
+        sleep(2)
         tablesQuery/*@START_MENU_TOKEN@*/.staticTexts["Состав"]/*[[".cells.staticTexts[\"Состав\"]",".staticTexts[\"Состав\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
         navigationBar/*@START_MENU_TOKEN@*/.staticTexts["My7"]/*[[".staticTexts[\"Фильтры\"]",".staticTexts[\"My7\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
         let backButton = navigationBar.buttons["Back"]
@@ -90,6 +92,7 @@ class MvvMcoordUITests: XCTestCase {
         navigationBar2.buttons["Back"].tap()
         sleep(1)
         my1StaticText.tap()
+        }
     }
 
 }

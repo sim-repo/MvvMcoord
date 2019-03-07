@@ -7,7 +7,7 @@ enum CoordRetEnum: String {
 }
 
 enum FilterActionEnum {
-    case enterFilter, applyFilter, removeFilter, enterSubFilter, applySubFilter
+    case prefetchCatalog, enterFilter, applyFilter, removeFilter, closeFilter, enterSubFilter, applySubFilter, closeSubFilter, noAction
 }
 
 enum BackEnum {

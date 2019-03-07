@@ -24,6 +24,10 @@ class RootCoord: BaseCoord<CoordRetEnum> {
         
         viewController.viewModel = vm
         
+        
+    //   let networkService = getNetworkService()
+    //   networkService.loadCache(categoryId: 10001)
+        
         vm.outShowSubcategory
             .subscribe(
                 onNext: {[weak self] baseId in

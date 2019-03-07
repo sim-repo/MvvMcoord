@@ -31,6 +31,16 @@ class FilterVM : BaseVM {
         bindSelection()
         bindUserActivities()
     }
+    
+    func realloc(){
+        inSelectFilter.onCompleted()
+        inApply.onCompleted()
+        inCleanUp.onCompleted()
+        priceInApply.onCompleted()
+        inRemoveFilter.onCompleted()
+        outShowSubFilters.onCompleted()
+        outCloseFilterVC.onCompleted()
+    }
 
     
     public func appliedTitles(filterId: Int)->String {
@@ -66,6 +76,7 @@ class FilterVM : BaseVM {
     private func bindUserActivities(){
         
         filterActionDelegate?.back()
+            .filter({[.closeFilter].contains($0)})
             .take(1)
             .subscribe{[weak self] _ in
                 self?.outCloseFilterVC.onCompleted()
@@ -75,16 +86,14 @@ class FilterVM : BaseVM {
         
         inApply
             .subscribe(onNext: {[weak self] _ in   // onNext need for unit-tests
-                //self?.outCloseFilterVC.onCompleted()
                 self?.filterActionDelegate?.applyFromFilterEvent().onNext(Void())
             })
             .disposed(by: bag)
         
         
         inCleanUp
-            .subscribe(onCompleted: {
-                self.filterActionDelegate?.cleanupFromFilterEvent().onNext(Void())
-                self.outCloseFilterVC.onCompleted()
+            .subscribe(onNext: {[weak self] _ in
+                self?.filterActionDelegate?.cleanupFromFilterEvent().onNext(Void())
             })
             .disposed(by: bag)
         
@@ -104,7 +113,6 @@ class FilterVM : BaseVM {
                 self.filterActionDelegate?.setUserRangePrice(minPrice: self.tmpMinPrice, maxPrice: self.tmpMaxPrice)
                 self.filterActionDelegate?.showPriceApplyViewEvent().onNext(false)
                 self.filterActionDelegate?.applyByPrices().onNext(Void())
-                //self.filterActionDelegate?.applyFromSubFilterEvent().onNext(filterId)
             })
             .disposed(by: bag)
     }

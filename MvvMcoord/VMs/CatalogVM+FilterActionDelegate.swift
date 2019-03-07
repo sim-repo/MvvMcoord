@@ -27,7 +27,7 @@ protocol FilterActionDelegate : class {
     func setTipRangePrice(minPrice: CGFloat, maxPrice: CGFloat)
     func setUserRangePrice(minPrice: CGFloat, maxPrice: CGFloat)
     func wait() -> BehaviorSubject<(FilterActionEnum, Bool)>
-    func back() -> PublishSubject<Void>
+    func back() -> PublishSubject<FilterActionEnum>
     func getMidTotal() -> PublishSubject<Int>
     func calcMidTotal(tmpMinPrice: CGFloat, tmpMaxPrice: CGFloat)
     func showApplyWarning() -> PublishSubject<Void>
@@ -41,6 +41,7 @@ extension CatalogVM : FilterActionDelegate {
    
     convenience init(categoryId: Int) {
         self.init(categoryId: categoryId, fetchLimit: 0, currentPage: 1, totalPages: 0, totalItems: 0)
+        wait().onNext((.prefetchCatalog, true))
         handleDelegate()
     }
     
@@ -134,7 +135,7 @@ extension CatalogVM : FilterActionDelegate {
         return outWaitEvent
     }
     
-    func back() -> PublishSubject<Void> {
+    func back() -> PublishSubject<FilterActionEnum> {
         return outBackEvent
     }
     
@@ -217,18 +218,30 @@ extension CatalogVM : FilterActionDelegate {
                         self.showApplyWarning().onNext(Void())
                         return
                     }
-                    
+                
+                
+                // check if new applying exists
+                let united = self.midAppliedSubFilters.subtracting(self.unapplying).union(self.selectedSubFilters)
+                guard united.subtracting(self.appliedSubFilters).count > 0 ||
+                      self.appliedSubFilters.subtracting(united).count > 0
+                else {
+                    self.back().onNext(.closeFilter)
+                    return
+                }
+                
+                
                 let midApplying = self.midAppliedSubFilters.subtracting(self.unapplying)
                 if midApplying.count == 0 &&
                    self.selectedSubFilters.count == 0 &&
                    self.rangePrice.isUserChangedPriceFilter() == false {
                         self.resetFilters()
+                        self.back().onNext(.closeFilter)
                         return
                 }
-                self.showCleanFilterVC()
+              //  self.cleanupFilterVC()
                 self.unapplying.removeAll()
                 self.wait().onNext((.applyFilter, true))
-                self.back().onNext(Void())
+                self.back().onNext(.closeFilter)
                 
                 DispatchQueue.global(qos: .background).async {
                     getNetworkService().requestApplyFromFilter(categoryId: self.categoryId,
@@ -246,15 +259,16 @@ extension CatalogVM : FilterActionDelegate {
                 
                 guard self.canApplyFromSubfilter == true
                     else {
-                        self.back().onNext(Void())
+                        self.back().onNext(.closeSubFilter)
                         self.unitTestSignalOperationComplete.onNext(self.utMsgId)
                         return
                     }
+                self.back().onNext(.closeSubFilter)
                 self.canApplyFromSubfilter = false
                 let midApplying = self.midAppliedSubFilters.subtracting(self.unapplying)
                 self.wait().onNext((.applySubFilter, true))
                 self.unapplying.removeAll()
-                self.showCleanFilterVC()
+                self.cleanupFilterVC()
                 DispatchQueue.global(qos: .background).async {
                     getNetworkService().requestApplyFromSubFilter(categoryId: self.categoryId,
                                                                   filterId: filterId,
@@ -314,6 +328,9 @@ extension CatalogVM : FilterActionDelegate {
         inCleanUpFromSubFilterEvent
             .subscribe(onNext: {[weak self] filterId in
                 guard let `self` = self else { return }
+                
+                self.back().onNext(.closeFilter)
+                
                 guard let ids = self.subfiltersByFilter[filterId] else { return }
                 
                 let res = Set(ids).intersection(self.selectedSubFilters)
@@ -381,7 +398,7 @@ extension CatalogVM : FilterActionDelegate {
                 self.selectedSubFilters = _filters.3
                 self.outFiltersEvent.onNext(self.getEnabledFilters())
                 self.setupFetch(itemsIds: _filters.4)
-                self.outReloadCatalogVC.onNext(Void())
+                self.outReloadCatalogVC.onNext(true)
                 self.emitPrefetchEvent()
                 
                 self.wait().onNext((.applyFilter, false))

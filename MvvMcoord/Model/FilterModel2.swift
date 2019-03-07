@@ -13,7 +13,7 @@ protocol ModelProtocol: class {
     init(json: JSON?) // need for AlamofireNetworkManager.parseJSON
 }
 
-class FilterModel : ModelProtocol {
+public class FilterModel : ModelProtocol {
     
     var id = 0
     var title: String = ""
@@ -43,17 +43,19 @@ class FilterModel : ModelProtocol {
 
 
 
-class SubfilterModel : ModelProtocol{
+public class SubfilterModel : ModelProtocol{
     var filterId = 0
     var id = 0
+    var categoryId = 0
     var title: String = ""
     var enabled = true
     var sectionHeader = ""
     var countItems = 0
     
-    init(id: Int, filterId: Int, title: String, sectionHeader: String = "") {
+    init(id: Int, categoryId: Int, filterId: Int, title: String, sectionHeader: String = "") {
         self.filterId = filterId
         self.id = id
+        self.categoryId = categoryId
         self.title = title
         self.sectionHeader = sectionHeader
         FilterApplyLogic.shared.addSubF(id: id, subFilter: self)
@@ -63,6 +65,7 @@ class SubfilterModel : ModelProtocol{
         if let json = json {
             self.id = json["id"].intValue
             self.filterId = json["filterId"].intValue
+            self.categoryId = json["categoryId"].intValue
             self.title = json["title"].stringValue
             self.enabled = json["enabled"].boolValue
             self.sectionHeader = json["sectionHeader"].stringValue
@@ -74,16 +77,16 @@ class SubfilterModel : ModelProtocol{
 
 
 
-struct SectionOfSubFilterModel {
+public struct SectionOfSubFilterModel {
     var header: String
-    var items: [SubfilterModel]
+    public var items: [SubfilterModel]
 }
 
 
 extension SectionOfSubFilterModel: SectionModelType {
-    typealias Item = SubfilterModel
+    public typealias Item = SubfilterModel
     
-    init(original: SectionOfSubFilterModel, items: [Item]) {
+    public init(original: SectionOfSubFilterModel, items: [Item]) {
         self = original
         self.items = items
     }

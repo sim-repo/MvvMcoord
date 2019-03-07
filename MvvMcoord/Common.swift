@@ -10,20 +10,19 @@ typealias FilterId = Int
 typealias ItemIds = [Int]
 typealias ApplyingByFilter = [Int:[Int]]
 typealias Filters = [Int:FilterModel]
-typealias SubfiltersByFilter = [Int:[Int]]
+public typealias SubfiltersByFilter = [Int:[Int]]
 typealias SectionSubFiltersByFilter = [Int:[SectionOfSubFilterModel]]
 typealias SubFilters = [Int:SubfilterModel]
-typealias SubfiltersByItem = [Int: [Int]]
-typealias ItemsBySubfilter = [Int: [Int]]
-typealias ItemsById = [Int:CatalogModel]
+public typealias SubfiltersByItem = [Int: [Int]]
+public typealias ItemsBySubfilter = [Int: [Int]]
+public typealias ItemsById = [Int:CatalogModel]
 typealias ItemsByCatalog = [Int:[CatalogModel]]
-typealias PriceByItemId = [Int:CGFloat]
+public typealias PriceByItemId = [Int:CGFloat]
 typealias EnabledFilters = [Int:Bool]
 typealias EnabledSubfilters = [Int:Bool]
 typealias ItemsTotal = Int
 typealias MinPrice = CGFloat
 typealias MaxPrice = CGFloat
-
 
 
 

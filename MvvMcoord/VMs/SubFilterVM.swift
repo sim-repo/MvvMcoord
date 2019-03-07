@@ -28,13 +28,27 @@ class SubFilterVM : BaseVM {
         bindUserActivities()
     }
     
+    func realloc(){
+        outCloseSubFilterVC.onCompleted()
+        inApply.onCompleted()
+        inCleanUp.onCompleted()
+        outStartWait.onCompleted()
+    }
+    
    
     private func bindUserActivities(){
+        
+        filterActionDelegate?.back()
+            .filter({[.closeSubFilter].contains($0)})
+            .take(1)
+            .subscribe{[weak self] _ in
+                self?.outCloseSubFilterVC.onCompleted()
+            }
+            .disposed(by: bag)
         
         inApply
             .subscribe(onNext: {[weak self] _ in // onNext need for unit-tests
                 guard let `self` = self else {return}
-                self.outCloseSubFilterVC.onCompleted()
                 self.filterActionDelegate?.applyFromSubFilterEvent().onNext(self.filterId)
             })
             .disposed(by: bag)

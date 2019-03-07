@@ -39,7 +39,7 @@ class LightClientFCF : NetworkFacadeBase {
     
     
     
-    override func requestCatalogStart(categoryId: Int, appliedSubFilters: Applied) {
+    override func requestCatalogStart(categoryId: Int) {
         networkingFunc = {
             functions.httpsCallable("catalogTotal").call(["useCache":true,
                                                           "categoryId":categoryId
@@ -174,6 +174,7 @@ class LightClientFCF : NetworkFacadeBase {
         runRequest(networkFunction: networkingFunc)
     }
     
+    
     override func requestApplyFromSubFilter(categoryId: Int, filterId: FilterId, appliedSubFilters: Applied, selectedSubFilters: Selected, rangePrice: RangePrice){
         
         networkingFunc = {
@@ -233,7 +234,6 @@ class LightClientFCF : NetworkFacadeBase {
                                                            "tipMaxPrice":rangePrice.tipMaxPrice
             ]) {[weak self] (result, error) in
                 guard let `self` = self else { return }
-                
                 
                 if let error = error as NSError? {
                     self.firebaseHandleErr(error: error)
@@ -317,7 +317,6 @@ class LightClientFCF : NetworkFacadeBase {
                 }
 
                 let sTotal = ParsingHelper.parseJsonVal(type: Int.self, result: result, key: "itemsTotal")
-                
                 
                 guard let total = sTotal
                     else { return self.firebaseHandleErr(error: NSError(domain: FunctionsErrorDomain, code: 1, userInfo: ["Parse Int":0])  )}

@@ -29,65 +29,64 @@ class TestData {
         var tmp: [SubfilterModel] = []
         
         // Brands
+        let f10 = SubfilterModel(id:1, categoryId: 01010101, filterId: 1, title: "Abby", sectionHeader: "A")
+        let f11 = SubfilterModel(id:2, categoryId: 01010101, filterId: 1, title: "ABODIE", sectionHeader: "A")
+        let f12 = SubfilterModel(id:3, categoryId: 01010101, filterId: 1, title: "Acasta", sectionHeader: "A")
+        let f13 = SubfilterModel(id:4, categoryId: 01010101, filterId: 1, title: "Adelante", sectionHeader: "A")
+        let f14 = SubfilterModel(id:5, categoryId: 01010101, filterId: 1, title: "Adele", sectionHeader: "A")
+        let f15 = SubfilterModel(id:6, categoryId: 01010101, filterId: 1, title: "Adelin Fostayn", sectionHeader: "A")
+        let f16 = SubfilterModel(id:7, categoryId: 01010101, filterId: 1, title: "Adidas", sectionHeader: "A")
+        let f17 = SubfilterModel(id:8, categoryId: 01010101, filterId: 1, title: "ADZHERO", sectionHeader: "A")
+        let f18 = SubfilterModel(id:9, categoryId: 01010101, filterId: 1, title: "Aelite", sectionHeader: "A")
+        let f19 = SubfilterModel(id:10, categoryId: 01010101, filterId: 1, title: "AFFARI", sectionHeader: "A")
+        let f20 = SubfilterModel(id:11, categoryId: 01010101, filterId: 1, title: "B&Co", sectionHeader: "B")
+        let f21 = SubfilterModel(id:12, categoryId: 01010101, filterId: 1, title: "B&H", sectionHeader: "B")
+        let f22 = SubfilterModel(id:13, categoryId: 01010101, filterId: 1, title: "Babylon", sectionHeader: "B")
+        let f23 = SubfilterModel(id:14, categoryId: 01010101, filterId: 1, title: "Balasko", sectionHeader: "B")
+        let f24 = SubfilterModel(id:15, categoryId: 01010101, filterId: 1, title: "Baon", sectionHeader: "B")
+        let f25 = SubfilterModel(id:16, categoryId: 01010101, filterId: 1, title: "Barboleta", sectionHeader: "B")
+        let f26 = SubfilterModel(id:17, categoryId: 01010101, filterId: 1, title: "Barcelonica", sectionHeader: "B")
+        let f27 = SubfilterModel(id:18, categoryId: 01010101, filterId: 1, title: "Barkhat", sectionHeader: "B")
+        let f28 = SubfilterModel(id:19, categoryId: 01010101, filterId: 1, title: "Basia", sectionHeader: "B")
+        let f29 = SubfilterModel(id:20, categoryId: 01010101, filterId: 1, title: "C.H.I.C", sectionHeader: "C")
+        let f30 = SubfilterModel(id:21, categoryId: 01010101, filterId: 1, title: "Calista", sectionHeader: "C")
+        let f31 = SubfilterModel(id:22, categoryId: 01010101, filterId: 1, title: "Calvin Klein", sectionHeader: "C")
         
-        let f10 = SubfilterModel(id:1, filterId: 1, title: "Abby", sectionHeader: "A")
-        let f11 = SubfilterModel(id:2, filterId: 1, title: "ABODIE", sectionHeader: "A")
-        let f12 = SubfilterModel(id:3, filterId: 1, title: "Acasta", sectionHeader: "A")
-        let f13 = SubfilterModel(id:4, filterId: 1, title: "Adelante", sectionHeader: "A")
-        let f14 = SubfilterModel(id:5, filterId: 1, title: "Adele", sectionHeader: "A")
-        let f15 = SubfilterModel(id:6, filterId: 1, title: "Adelin Fostayn", sectionHeader: "A")
-        let f16 = SubfilterModel(id:7, filterId: 1, title: "Adidas", sectionHeader: "A")
-        let f17 = SubfilterModel(id:8, filterId: 1, title: "ADZHERO", sectionHeader: "A")
-        let f18 = SubfilterModel(id:9, filterId: 1, title: "Aelite", sectionHeader: "A")
-        let f19 = SubfilterModel(id:10, filterId: 1, title: "AFFARI", sectionHeader: "A")
-        let f20 = SubfilterModel(id:11, filterId: 1, title: "B&Co", sectionHeader: "B")
-        let f21 = SubfilterModel(id:12, filterId: 1, title: "B&H", sectionHeader: "B")
-        let f22 = SubfilterModel(id:13, filterId: 1, title: "Babylon", sectionHeader: "B")
-        let f23 = SubfilterModel(id:14, filterId: 1, title: "Balasko", sectionHeader: "B")
-        let f24 = SubfilterModel(id:15, filterId: 1, title: "Baon", sectionHeader: "B")
-        let f25 = SubfilterModel(id:16, filterId: 1, title: "Barboleta", sectionHeader: "B")
-        let f26 = SubfilterModel(id:17, filterId: 1, title: "Barcelonica", sectionHeader: "B")
-        let f27 = SubfilterModel(id:18, filterId: 1, title: "Barkhat", sectionHeader: "B")
-        let f28 = SubfilterModel(id:19, filterId: 1, title: "Basia", sectionHeader: "B")
-        let f29 = SubfilterModel(id:20, filterId: 1, title: "C.H.I.C", sectionHeader: "C")
-        let f30 = SubfilterModel(id:21, filterId: 1, title: "Calista", sectionHeader: "C")
-        let f31 = SubfilterModel(id:22, filterId: 1, title: "Calvin Klein", sectionHeader: "C")
-        
-        let f32 = SubfilterModel(id:23, filterId: 1, title: "Camelia", sectionHeader: "C")
-        let f33 = SubfilterModel(id:24, filterId: 1, title: "Camelot", sectionHeader: "C")
-        let f34 = SubfilterModel(id:25, filterId: 1, title: "Can Nong", sectionHeader: "C")
-        let f35 = SubfilterModel(id:26, filterId: 1, title: "Caprice", sectionHeader: "C")
-        let f36 = SubfilterModel(id:27, filterId: 1, title: "Camart", sectionHeader: "C")
+        let f32 = SubfilterModel(id:23, categoryId: 01010101, filterId: 1, title: "Camelia", sectionHeader: "C")
+        let f33 = SubfilterModel(id:24, categoryId: 01010101, filterId: 1, title: "Camelot", sectionHeader: "C")
+        let f34 = SubfilterModel(id:25, categoryId: 01010101, filterId: 1, title: "Can Nong", sectionHeader: "C")
+        let f35 = SubfilterModel(id:26, categoryId: 01010101, filterId: 1, title: "Caprice", sectionHeader: "C")
+        let f36 = SubfilterModel(id:27, categoryId: 01010101, filterId: 1, title: "Camart", sectionHeader: "C")
         if filterId == 1 || filterId == 0{
             tmp.append(contentsOf: [f10,f11,f12,f13,f14,f15,f16,f17,f18,f19,f20,f21,f22, f23, f24, f25, f26, f27, f28, f29, f30 ,f31, f32, f33, f34, f35, f36])
         }
         
         // Size
         
-        let size34 = SubfilterModel(id:28, filterId: 2, title: "34")
-        let size36 = SubfilterModel(id:29, filterId: 2, title: "36")
-        let size37 = SubfilterModel(id:30, filterId: 2, title: "37")
-        let size38 = SubfilterModel(id:31, filterId: 2, title: "38")
-        let size39 = SubfilterModel(id:32, filterId: 2, title: "39")
-        let size40 = SubfilterModel(id:33, filterId: 2, title: "40")
-        let size41 = SubfilterModel(id:34, filterId: 2, title: "41")
-        let size42 = SubfilterModel(id:35, filterId: 2, title: "42")
-        let size43 = SubfilterModel(id:37, filterId: 2, title: "43")
-        let size44 = SubfilterModel(id:38, filterId: 2, title: "44")
-        let size45 = SubfilterModel(id:39, filterId: 2, title: "45")
-        let size46 = SubfilterModel(id:40, filterId: 2, title: "46")
-        let size47 = SubfilterModel(id:41, filterId: 2, title: "47")
-        let size48 = SubfilterModel(id:42, filterId: 2, title: "48")
+        let size34 = SubfilterModel(id:28, categoryId: 01010101, filterId: 2, title: "34")
+        let size36 = SubfilterModel(id:29, categoryId: 01010101, filterId: 2, title: "36")
+        let size37 = SubfilterModel(id:30, categoryId: 01010101, filterId: 2, title: "37")
+        let size38 = SubfilterModel(id:31, categoryId: 01010101, filterId: 2, title: "38")
+        let size39 = SubfilterModel(id:32, categoryId: 01010101, filterId: 2, title: "39")
+        let size40 = SubfilterModel(id:33, categoryId: 01010101, filterId: 2, title: "40")
+        let size41 = SubfilterModel(id:34, categoryId: 01010101, filterId: 2, title: "41")
+        let size42 = SubfilterModel(id:35, categoryId: 01010101, filterId: 2, title: "42")
+        let size43 = SubfilterModel(id:37, categoryId: 01010101, filterId: 2, title: "43")
+        let size44 = SubfilterModel(id:38, categoryId: 01010101, filterId: 2, title: "44")
+        let size45 = SubfilterModel(id:39, categoryId: 01010101, filterId: 2, title: "45")
+        let size46 = SubfilterModel(id:40, categoryId: 01010101, filterId: 2, title: "46")
+        let size47 = SubfilterModel(id:41, categoryId: 01010101, filterId: 2, title: "47")
+        let size48 = SubfilterModel(id:42, categoryId: 01010101, filterId: 2, title: "48")
         if filterId == 2  || filterId == 0{
             tmp.append(contentsOf: [size34, size36, size37, size38, size39, size40, size41, size42, size43, size44, size45, size46, size47, size48])
         }
         
         // Season
         
-        let демисезон = SubfilterModel(id:43, filterId: 3, title: "демисезон")
-        let зима = SubfilterModel(id:44, filterId: 3, title: "зима")
-        let круглогодичный = SubfilterModel(id:45, filterId: 3, title: "круглогодичный")
-        let лето = SubfilterModel(id:46, filterId: 3, title: "лето")
+        let демисезон = SubfilterModel(id:43, categoryId: 01010101, filterId: 3, title: "демисезон")
+        let зима = SubfilterModel(id:44, categoryId: 01010101, filterId: 3, title: "зима")
+        let круглогодичный = SubfilterModel(id:45, categoryId: 01010101, filterId: 3, title: "круглогодичный")
+        let лето = SubfilterModel(id:46, categoryId: 01010101, filterId: 3, title: "лето")
         if filterId == 3  || filterId == 0{
             tmp.append(contentsOf: [демисезон, зима, круглогодичный, лето])
         }
@@ -95,15 +94,15 @@ class TestData {
         
         // Materials
         
-        let ангора = SubfilterModel(id:47, filterId: 4, title: "ангора")
-        let вискоза = SubfilterModel(id:48, filterId: 4, title: "вискоза")
-        let полиамид = SubfilterModel(id:49, filterId: 4, title: "полиамид")
-        let полиуретан = SubfilterModel(id:50, filterId: 4, title: "полиуретан")
-        let полиэстер = SubfilterModel(id:51, filterId: 4, title: "полиэстер")
-        let хлопок = SubfilterModel(id:52, filterId: 4, title: "хлопок")
-        let шелк = SubfilterModel(id:53, filterId: 4, title: "шелк")
-        let шерсть = SubfilterModel(id:54, filterId: 4, title: "шерсть")
-        let эластан = SubfilterModel(id:55, filterId: 4, title: "эластан")
+        let ангора = SubfilterModel(id:47, categoryId: 01010101, filterId: 4, title: "ангора")
+        let вискоза = SubfilterModel(id:48, categoryId: 01010101, filterId: 4, title: "вискоза")
+        let полиамид = SubfilterModel(id:49, categoryId: 01010101, filterId: 4, title: "полиамид")
+        let полиуретан = SubfilterModel(id:50, categoryId: 01010101, filterId: 4, title: "полиуретан")
+        let полиэстер = SubfilterModel(id:51, categoryId: 01010101, filterId: 4, title: "полиэстер")
+        let хлопок = SubfilterModel(id:52, categoryId: 01010101, filterId: 4, title: "хлопок")
+        let шелк = SubfilterModel(id:53, categoryId: 01010101, filterId: 4, title: "шелк")
+        let шерсть = SubfilterModel(id:54, categoryId: 01010101, filterId: 4, title: "шерсть")
+        let эластан = SubfilterModel(id:55, categoryId: 01010101, filterId: 4, title: "эластан")
         if filterId == 4  || filterId == 0{
             tmp.append(contentsOf: [ангора, вискоза, полиамид, полиуретан, полиэстер, хлопок, шелк, шерсть, эластан])
         }
@@ -111,10 +110,10 @@ class TestData {
         
         // Delivery
         
-        let день1 = SubfilterModel(id:56, filterId: 5, title: "1 день")
-        let дня3 = SubfilterModel(id:57, filterId: 5, title: "3 дня")
-        let дня4 = SubfilterModel(id:58, filterId: 5, title: "4 дня")
-        let дней5 = SubfilterModel(id:59, filterId: 5, title: "5 дней")
+        let день1 = SubfilterModel(id:56, categoryId: 01010101, filterId: 5, title: "1 день")
+        let дня3 = SubfilterModel(id:57, categoryId: 01010101, filterId: 5, title: "3 дня")
+        let дня4 = SubfilterModel(id:58, categoryId: 01010101, filterId: 5, title: "4 дня")
+        let дней5 = SubfilterModel(id:59, categoryId: 01010101, filterId: 5, title: "5 дней")
         if filterId == 5  || filterId == 0{
             tmp.append(contentsOf: [день1, дня3, дня4, дней5])
         }
@@ -123,19 +122,19 @@ class TestData {
         
         // Color
         
-        let бежевый = SubfilterModel(id:60, filterId: 6, title: "бежевый")
-        let белый = SubfilterModel(id:61, filterId: 6, title: "белый")
-        let голубой = SubfilterModel(id:62, filterId: 6, title: "голубой")
-        let желтый = SubfilterModel(id:63, filterId: 6, title: "желтый")
-        let зеленый = SubfilterModel(id:64, filterId: 6, title: "зеленый")
-        let коричневый = SubfilterModel(id:65, filterId: 6, title: "коричневый")
-        let красный = SubfilterModel(id:66, filterId: 6, title: "красный")
-        let оранжевый = SubfilterModel(id:67, filterId: 6, title: "оранжевый")
-        let розовый = SubfilterModel(id:68, filterId: 6, title: "розовый")
-        let серый = SubfilterModel(id:69, filterId: 6, title: "серый")
-        let синий = SubfilterModel(id:70, filterId: 6, title: "синий")
-        let фиолетовый = SubfilterModel(id:71, filterId: 6, title: "фиолетовый")
-        let черный = SubfilterModel(id:72, filterId: 6, title: "черный")
+        let бежевый = SubfilterModel(id:60, categoryId: 01010101, filterId: 6, title: "бежевый")
+        let белый = SubfilterModel(id:61, categoryId: 01010101, filterId: 6, title: "белый")
+        let голубой = SubfilterModel(id:62, categoryId: 01010101, filterId: 6, title: "голубой")
+        let желтый = SubfilterModel(id:63, categoryId: 01010101, filterId: 6, title: "желтый")
+        let зеленый = SubfilterModel(id:64, categoryId: 01010101, filterId: 6, title: "зеленый")
+        let коричневый = SubfilterModel(id:65, categoryId: 01010101, filterId: 6, title: "коричневый")
+        let красный = SubfilterModel(id:66, categoryId: 01010101, filterId: 6, title: "красный")
+        let оранжевый = SubfilterModel(id:67, categoryId: 01010101, filterId: 6, title: "оранжевый")
+        let розовый = SubfilterModel(id:68, categoryId: 01010101, filterId: 6, title: "розовый")
+        let серый = SubfilterModel(id:69, categoryId: 01010101, filterId: 6, title: "серый")
+        let синий = SubfilterModel(id:70, categoryId: 01010101, filterId: 6, title: "синий")
+        let фиолетовый = SubfilterModel(id:71, categoryId: 01010101, filterId: 6, title: "фиолетовый")
+        let черный = SubfilterModel(id:72, categoryId: 01010101, filterId: 6, title: "черный")
         
         if filterId == 6  || filterId == 0{
             tmp.append(contentsOf: [бежевый, белый, голубой, желтый, зеленый, коричневый, красный, оранжевый, розовый, серый, синий, фиолетовый, черный ])
